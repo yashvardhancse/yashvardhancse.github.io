@@ -1,0 +1,51 @@
+title: YashVardhan Gupta
+description: Personal site of YashVardhan Gupta - computer science student focused on AI systems, machine learning, distributed systems, and physics.
+email: yashvardhancse@gmail.com
+url: "https://yashvardhancse.github.io"
+baseurl: ""
+timezone: Asia/Kolkata
+lang: en
+
+author:
+  name: YashVardhan Gupta
+
+github_username: yashvardhancse
+linkedin_username: yashvardhangupta
+
+markdown: kramdown
+highlighter: rouge
+permalink: /blog/:year/:month/:day/:title/
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+collections:
+  explorations:
+    output: true
+    permalink: /explorations/:name/
+
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: post
+      author: YashVardhan Gupta
+  - scope:
+      path: ""
+      type: "explorations"
+    values:
+      layout: post
+      author: YashVardhan Gupta
+  - scope:
+      path: ""
+    values:
+      layout: page
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - vendor/

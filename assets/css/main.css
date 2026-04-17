@@ -1,0 +1,286 @@
+:root {
+  --bg: #090a0d;
+  --bg-soft: #101218;
+  --panel: #12151d;
+  --text: #e5e8ef;
+  --muted: #9ea7b8;
+  --accent: #8ab4ff;
+  --border: #202535;
+  --max-width: 940px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: radial-gradient(circle at top, #111628 0%, var(--bg) 48%);
+  color: var(--text);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  width: min(var(--max-width), calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(6px);
+  background: rgba(9, 10, 13, 0.88);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 68px;
+}
+
+.brand {
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.site-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.4rem;
+  font-size: 0.95rem;
+}
+
+.site-nav a.active,
+.site-nav a:hover {
+  color: var(--text);
+  background: #161a25;
+}
+
+.site-main {
+  padding: 2.25rem 0 3rem;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  margin-top: 0;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 0.8rem;
+}
+
+h2 {
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  margin-bottom: 0.8rem;
+}
+
+h3 {
+  font-size: 1.12rem;
+  margin-bottom: 0.6rem;
+}
+
+p,
+li {
+  color: var(--text);
+}
+
+a {
+  color: var(--accent);
+}
+
+a:hover {
+  color: #a7c6ff;
+}
+
+.lead {
+  color: #d6dbe8;
+  font-size: 1.06rem;
+  max-width: 72ch;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.page-header,
+.post-header {
+  margin-bottom: 1.5rem;
+}
+
+.subtitle {
+  margin-top: -0.2rem;
+  color: var(--muted);
+}
+
+.hero {
+  padding: 0.4rem 0 0.6rem;
+}
+
+.quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.button-link {
+  display: inline-block;
+  text-decoration: none;
+  color: var(--text);
+  border: 1px solid var(--border);
+  background: #121724;
+  padding: 0.5rem 0.8rem;
+  border-radius: 0.45rem;
+}
+
+.button-link:hover {
+  border-color: #2b3752;
+}
+
+.panel {
+  margin-top: 1.2rem;
+  padding: 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  background: linear-gradient(180deg, #111521 0%, #0f131d 100%);
+}
+
+.tight-list {
+  margin: 0.4rem 0 0;
+  padding-left: 1.15rem;
+}
+
+.project-grid,
+.cards {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.project-card,
+.card {
+  grid-column: span 12;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  padding: 1rem;
+  background: var(--panel);
+}
+
+.project-card p,
+.card p {
+  margin: 0.45rem 0;
+}
+
+.project-card .stack {
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.entry-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+
+.entry-list li {
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.entry-list li:last-child {
+  border-bottom: 0;
+}
+
+.post-content,
+.page-content {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 1.1rem;
+}
+
+.post-content h2,
+.page-content h2,
+.post-content h3,
+.page-content h3 {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+.post-content code,
+.page-content code {
+  background: #151a27;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.2rem;
+  font-size: 0.9em;
+}
+
+.post-content pre {
+  background: #121724;
+  border: 1px solid var(--border);
+  padding: 0.9rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 1.2rem 0 2rem;
+  margin-top: 2.2rem;
+}
+
+.footer-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+@media (min-width: 760px) {
+  .project-card,
+  .card {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 760px) {
+  .nav-wrap {
+    min-height: 78px;
+    align-items: flex-start;
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+    flex-direction: column;
+  }
+
+  .site-nav {
+    width: 100%;
+  }
+
+  .site-nav a {
+    padding: 0.42rem 0.55rem;
+  }
+
+  .site-main {
+    padding-top: 1.3rem;
+  }
+}

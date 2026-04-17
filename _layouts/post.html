@@ -1,0 +1,26 @@
+---
+layout: default
+---
+<article class="post">
+  <header class="post-header">
+    <h1>{{ page.title }}</h1>
+    <p class="muted">
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%d %b %Y" }}</time>
+      {% if page.categories and page.categories != empty %}
+      <span>  |  {{ page.categories | join: ", " }}</span>
+      {% endif %}
+    </p>
+  </header>
+
+  <div class="post-content">
+    {{ content }}
+  </div>
+
+  <footer class="post-footer">
+    {% if page.collection == 'explorations' %}
+      <a href="{{ '/explorations/' | relative_url }}">Back to Explorations</a>
+    {% else %}
+      <a href="{{ '/blog/' | relative_url }}">Back to Blog</a>
+    {% endif %}
+  </footer>
+</article>

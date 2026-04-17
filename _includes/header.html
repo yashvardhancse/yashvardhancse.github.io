@@ -1,0 +1,12 @@
+<header class="site-header">
+  <div class="wrap nav-wrap">
+    <a class="brand" href="{{ '/' | relative_url }}">YashVardhan Gupta</a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="{{ '/' | relative_url }}" class="{% if page.url == '/' %}active{% endif %}">Home</a>
+      <a href="{{ '/blog/' | relative_url }}" class="{% if page.url contains '/blog/' %}active{% endif %}">Blog</a>
+      <a href="{{ '/learning-log/' | relative_url }}" class="{% if page.url contains '/learning-log/' %}active{% endif %}">Learning Log</a>
+      <a href="{{ '/explorations/' | relative_url }}" class="{% if page.url contains '/explorations/' %}active{% endif %}">Explorations</a>
+      <a href="{{ '/contact/' | relative_url }}" class="{% if page.url contains '/contact/' %}active{% endif %}">Contact</a>
+    </nav>
+  </div>
+</header>
