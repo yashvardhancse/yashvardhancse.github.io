@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="{{ site.lang | default: 'en' }}"> <!-- Looks for a language setting in your config: if not found, it defaults to English-->
   <head>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EZNSFMP4V2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-EZNSFMP4V2');
+</script>
     {% include head.html %}<!-- Pulls all your <meta> tags and CSS links here from another file -->
   </head>
   <body>
