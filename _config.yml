@@ -6,6 +6,9 @@ baseurl: ""
 timezone: Asia/Kolkata
 lang: en
 
+#google analytics
+google_analytics: G-EZNSFMP4V2
+
 # SEO
 google_site_verification: ""
 social:

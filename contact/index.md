@@ -20,5 +20,6 @@ I'm open to freelance opportunities, technical guidance, and collaboration on ex
 - **Embedded Systems** - Hardware programming and IoT projects
 - **Project Discussion** - Technical consulting and architecture planning
 - **Open Source Contributions** - Guidance on contributing to major open source projects
+- **UI UX Design** - Creating attractive and visually appealing UI UX for your software product
 
 [Book a session on Calendly](https://calendly.com/yashvardhancse) to discuss opportunities and collaboration.
