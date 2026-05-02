@@ -1,6 +1,11 @@
 <footer class="site-footer">
   <div class="wrap footer-wrap">
-    <p>&copy; {{ "now" | date: "%Y" }} YashVardhan Gupta</p>
-    <p class="muted">Built with Jekyll on GitHub Pages</p>
+    <p>&copy; {{ "now" | date: "%Y" }} YashVardhan Gupta</p> <!-- now is a special keyword in liquid that represents current time and date.-->
+    <!-- <p class="muted">Built with Jekyll on GitHub Pages</p> -->
   </div>
 </footer>
+<!-- when jekyll builds your site, it looks at the computer's clock and replaces "now" with the exact second the site was generated.-->
+ <!-- The date: filter takes a raw timestamp (like "now") and converts it into a human readable format-->
+  <!-- %Y is year with 4 digits-->
+
+  <!-- &copy; tells the browser to display the copyright symbol.-->

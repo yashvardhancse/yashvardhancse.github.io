@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="{{ site.lang | default: 'en' }}">
+<html lang="{{ site.lang | default: 'en' }}"> <!-- Looks for a language setting in your config: if not found, it defaults to English-->
   <head>
-    {% include head.html %}
+    {% include head.html %}<!-- Pulls all your <meta> tags and CSS links here from another file -->
   </head>
   <body>
-    {% include header.html %}
+    {% include header.html %}  <!-- Puts your navigation bar here-->
     <main class="site-main">
       <div class="wrap">
         {{ content }}

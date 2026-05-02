@@ -1,16 +1,27 @@
 title: YashVardhan Gupta
-description: Personal site of YashVardhan Gupta - computer science student focused on AI systems, machine learning, distributed systems, and physics.
+description: Personal portfolio and blog of YashVardhan Gupta - computer science student focused on AI systems, machine learning, distributed systems, CUDA programming, and physics. Explore projects, learning logs, and open source contributions.
 email: yashvardhancse@gmail.com
 url: "https://yashvardhancse.github.io"
 baseurl: ""
 timezone: Asia/Kolkata
 lang: en
 
+# SEO
+google_site_verification: ""
+social:
+  name: YashVardhan Gupta
+  links:
+    - https://github.com/yashvardhancse
+    - https://www.linkedin.com/in/yashvardhancse/
+    - https://instagram.com/camera.yash
+
 author:
   name: YashVardhan Gupta
+  email: yashvardhancse@gmail.com
 
 github_username: yashvardhancse
-linkedin_username: yashvardhangupta
+linkedin_username: yashvardhancse
+instagram_username: camera.yash
 
 markdown: kramdown
 highlighter: rouge

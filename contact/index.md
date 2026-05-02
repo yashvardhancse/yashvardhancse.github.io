@@ -7,12 +7,18 @@ description: Contact and consulting information for YashVardhan Gupta.
 
 ## Reach Out
 
-- Email: [yashvardhancse@gmail.com](mailto:yashvardhancse@gmail.com)
-- GitHub: [github.com/yashvardhancse](https://github.com/yashvardhancse)
-- LinkedIn: [linkedin.com/in/yashvardhangupta](https://www.linkedin.com/in/yashvardhangupta/)
+- **Email:** [yashvardhancse@gmail.com](mailto:yashvardhancse@gmail.com)
+- **GitHub:** [github.com/yashvardhancse](https://github.com/yashvardhancse)
+- **LinkedIn:** [linkedin.com/in/yashvardhancse](https://www.linkedin.com/in/yashvardhancse/)
+- **Instagram:** [@camera.yash](https://instagram.com/camera.yash)
 
 ## Work With Me
 
-I offer 1:1 sessions for project discussions, technical guidance, and freelance consultation.
+I'm open to freelance opportunities, technical guidance, and collaboration on exciting projects including:
+- **Software Development** - Web applications, mobile apps, backend systems
+- **Low Latency Trading Infrastructure** - High-performance systems and algorithms
+- **Embedded Systems** - Hardware programming and IoT projects
+- **Project Discussion** - Technical consulting and architecture planning
+- **Open Source Contributions** - Guidance on contributing to major open source projects
 
-[Book a 25-minute session](https://calendly.com/yashvardhancse/25min)
+[Book a session on Calendly](https://calendly.com/yashvardhancse) to discuss opportunities and collaboration.
