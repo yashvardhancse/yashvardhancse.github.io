@@ -13,13 +13,22 @@ description: YashVardhan Gupta - Computer Science student portfolio, blog, learn
     <a class="button-link" href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener">LinkedIn</a>
   </div>
 </section>
-
+<!--
 <section class="panel">
   <h2>Current Focus</h2>
   <ul class="tight-list">
     <li>Transformers (nanoGPT)</li>
     <li>CUDA programming</li>
     <li>Algorithms (CSES)</li>
+  </ul>
+</section>
+-->
+
+<section class="panel">
+  <h2>Current Roles & Responsibilities</h2>
+  <ul class="tight-list">
+    <li><strong>Founder & Project Admin at <a href="https://quantnova.in" target="_blank" rel="noopener">QuantNova.in</a></strong> - Building a quantitative backtesting platform for algorithmic trading research and strategy validation</li>
+    <li><strong>Founder & Ride Lead at Manipal Rider Club</strong> - Organically grown to 100 members passionate about long distance motorcycle riding.</li>
   </ul>
 </section>
 
