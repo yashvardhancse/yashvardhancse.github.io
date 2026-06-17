@@ -27,8 +27,9 @@ description: YashVardhan Gupta - Computer Science student portfolio, blog, learn
 <section class="panel">
   <h2>Current Roles & Responsibilities</h2>
   <ul class="tight-list">
+    <li><strong>Quantitative Developer, Researcher & Trader: Dubai & Singapore based Trading Firm. </strong>
     <li><strong>Founder & Project Admin at <a href="https://quantnova.in" target="_blank" rel="noopener">QuantNova.in</a></strong> - Building a quantitative backtesting platform for algorithmic trading research and strategy validation</li>
-    <li><strong>Founder & Ride Lead at Manipal Rider Club</strong> - Organically grown to 100 members passionate about long distance motorcycle riding.</li>
+    <li><strong>Founder & Ride Lead at Manipal Riders Club</strong> - Organically grown to 100 members passionate about long distance motorcycle riding.</li>
   </ul>
 </section>
 
