@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Avellaneda-Stoikov Model Explained (With Python Code)</title>
+<meta name="description" content="A plain-English guide to the Avellaneda-Stoikov model: reservation price, optimal spread formula, a derivation sketch, its limits and runnable Python code.">
+<link rel="canonical" href="https://yashvardhangupta.com/blog/avellaneda-stoikov-market-making-model/">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="author" content="YashVardhan Gupta">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0f0d0b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="YashVardhan Gupta">
+<meta property="og:locale" content="en_IN">
+<meta property="og:title" content="Avellaneda-Stoikov Model Explained (With Python Code)">
+<meta property="og:description" content="A plain-English guide to the Avellaneda-Stoikov model: reservation price, optimal spread formula, a derivation sketch, its limits and runnable Python code.">
+<meta property="og:url" content="https://yashvardhangupta.com/blog/avellaneda-stoikov-market-making-model/">
+<meta property="og:image" content="https://yashvardhangupta.com/assets/og/avellaneda-stoikov-market-making-model-v1.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Avellaneda-Stoikov Model Explained (With Python Code)">
+<meta property="article:published_time" content="2026-10-29T09:30:00+05:30">
+<meta property="article:modified_time" content="2026-10-29T09:30:00+05:30">
+<meta property="article:author" content="https://yashvardhangupta.com/about/">
+<meta property="article:section" content="Quant">
+<meta property="article:tag" content="Avellaneda Stoikov model">
+<meta property="article:tag" content="Avellaneda Stoikov reservation price">
+<meta property="article:tag" content="Avellaneda Stoikov optimal spread">
+<meta property="article:tag" content="Avellaneda Stoikov Python">
+<meta property="article:tag" content="Avellaneda Stoikov kappa">
+<meta property="article:tag" content="Avellaneda Stoikov gamma">
+<meta property="article:tag" content="market making model">
+<meta property="article:tag" content="inventory risk">
+<meta property="article:tag" content="Hamilton-Jacobi-Bellman market making">
+<meta property="article:tag" content="Gueant Lehalle Fernandez-Tapia">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Avellaneda-Stoikov Model Explained (With Python Code)">
+<meta name="twitter:description" content="A plain-English guide to the Avellaneda-Stoikov model: reservation price, optimal spread formula, a derivation sketch, its limits and runnable Python code.">
+<meta name="twitter:image" content="https://yashvardhangupta.com/assets/og/avellaneda-stoikov-market-making-model-v1.png">
+<meta name="twitter:image:alt" content="Avellaneda-Stoikov Model Explained (With Python Code)">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="alternate" type="application/atom+xml" title="YashVardhan Gupta - Blog" href="/feed.xml">
+<link rel="me" href="https://github.com/yashvardhancse">
+<link rel="me" href="https://www.linkedin.com/in/yashvardhancse/">
+<script>
+/* Early setup (inline, tiny, before first paint): marks html.js, applies the stored or OS theme as data-theme (no flash of the
+   wrong theme) and the stored "Pause animations" choice as html.motion-off. Without this script (or without JS) the CSS
+   follows prefers-color-scheme on its own, the navigation is a plain list and nothing moves. */
+(function(){var d=document.documentElement,t,m,s,i,c;try{t=localStorage.getItem('theme');m=localStorage.getItem('motion')}catch(e){}
+s=t==='light'||t==='dark';
+if(!s){t=window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}
+d.setAttribute('data-theme',t);d.classList.add('js');if(m==='paused'){d.classList.add('motion-off')}
+if(s){c=document.querySelectorAll('meta[name="theme-color"]');for(i=0;i<c.length;i++){c[i].removeAttribute('media');c[i].setAttribute('content',t==='dark'?'#0f0d0b':'#f4efe6')}}})();
+</script>
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/blog.css">
+<script src="/assets/js/article.js" defer></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": "https://yashvardhangupta.com/blog/avellaneda-stoikov-market-making-model/#article",
+      "headline": "Avellaneda-Stoikov Model Explained (With Python Code)",
+      "description": "A plain-English guide to the Avellaneda-Stoikov model: reservation price, optimal spread formula, a derivation sketch, its limits and runnable Python code.",
+      "image": [
+        "https://yashvardhangupta.com/assets/og/avellaneda-stoikov-market-making-model-v1.png"
+      ],
+      "datePublished": "2026-10-29T09:30:00+05:30",
+      "dateModified": "2026-10-29T09:30:00+05:30",
+      "author": {
+        "@type": "Person",
+        "@id": "https://yashvardhangupta.com/#person",
+        "name": "YashVardhan Gupta",
+        "url": "https://yashvardhangupta.com/about/"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://yashvardhangupta.com/#person",
+        "name": "YashVardhan Gupta",
+        "url": "https://yashvardhangupta.com/about/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://yashvardhangupta.com/blog/avellaneda-stoikov-market-making-model/"
+      },
+      "url": "https://yashvardhangupta.com/blog/avellaneda-stoikov-market-making-model/",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "isPartOf": {
+        "@type": "Blog",
+        "@id": "https://yashvardhangupta.com/blog/#blog"
+      },
+      "keywords": "Avellaneda Stoikov model, Avellaneda Stoikov reservation price, Avellaneda Stoikov optimal spread, Avellaneda Stoikov Python, Avellaneda Stoikov kappa, Avellaneda Stoikov gamma, market making model, inventory risk, Hamilton-Jacobi-Bellman market making, Gueant Lehalle Fernandez-Tapia",
+      "articleSection": "Quant",
+      "wordCount": 3485,
+      "timeRequired": "PT16M"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://yashvardhangupta.com/blog/avellaneda-stoikov-market-making-model/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://yashvardhangupta.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://yashvardhangupta.com/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Avellaneda-Stoikov Model Explained (With Python Code)",
+          "item": "https://yashvardhangupta.com/blog/avellaneda-stoikov-market-making-model/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+<script>
+/* Google Analytics 4 (G-EZNSFMP4V2): loaded on the first interaction or after 6 s, whichever comes first.
+   Never on localhost, 127.0.0.1 or file pages. */
+(function(){var h=location.hostname;
+if(location.protocol==='file:'||h===''||h==='localhost'||h==='127.0.0.1'||h==='[::1]'){return}
+var ev=['pointerdown','keydown','scroll','touchstart'],o={passive:true,once:true},done=false,t=0;
+function go(){if(done){return}done=true;clearTimeout(t);
+ev.forEach(function(e){removeEventListener(e,go,o)});
+var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-EZNSFMP4V2';document.head.appendChild(s);
+window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-EZNSFMP4V2')}
+ev.forEach(function(e){addEventListener(e,go,o)});t=setTimeout(go,6000)})();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3 7 9 6.5L21 7"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15H4.5A2.5 2.5 0 0 1 2 12.5v-8A2.5 2.5 0 0 1 4.5 2h8A2.5 2.5 0 0 1 15 4.5V5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/></symbol>
+  <symbol id="i-rss" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2.5"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12.5a8.5 8.5 0 0 1-12.4 7.5L3 21l1.3-4.9A8.5 8.5 0 1 1 21 12.5z"/></symbol>
+  <symbol id="i-branch" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2.5"/><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="8" r="2.5"/><path d="M6 7.5v9M18 10.5c0 4-6 3.5-10.5 7"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3.5" width="18" height="17" rx="3"/><path d="M3 9.5h18M9.5 9.5v11"/></symbol>
+  <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14 -1.5 8 5-3 5 3-1.5-8"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6M12 19h8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.7a3.5 3.5 0 0 1 0 6.6M18 14.3c2.2.7 3.5 2.6 3.5 5.7"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.2 2.9.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></symbol>
+  <symbol id="i-linkedin" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></symbol>
+  <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></symbol>
+</svg>
+
+<header class="site-header" id="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">YG</span>
+      <span class="brand-name">YashVardhan Gupta</span>
+    </a>
+    <nav class="site-nav" id="site-nav" aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="/" data-nav="home">Home</a></li>
+        <li><a href="/about/" data-nav="about">About</a></li>
+        <li><a href="/#projects" data-nav="projects">Projects</a></li>
+        <li><a href="/blog/" data-nav="blog" aria-current="page">Blog</a></li>
+        <li><a href="/learning-log/" data-nav="learning">Learning Log</a></li>
+        <li><a href="/explorations/" data-nav="explorations">Explorations</a></li>
+        <li><a href="/contact/" data-nav="contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn theme-toggle" type="button" aria-pressed="false" aria-label="Dark theme">
+        <svg class="i i-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+        <svg class="i i-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+      </button>
+      <a class="btn btn--sm btn--tangerine header-cta" href="/contact/">Hire me</a>
+      <button class="icon-btn nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+        <svg class="i i-open" aria-hidden="true"><use href="#i-menu"/></svg>
+        <svg class="i i-close" aria-hidden="true"><use href="#i-x"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="main" tabindex="-1">
+<article class="post-page">
+<header class="section sec--ink post-hero" id="top">
+  <div class="container post-hero-grid">
+    <div class="post-hero-copy">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol class="sec-label">
+          <li><a href="/blog/"><span class="sec-num" aria-hidden="true"><svg class="i"><use href="#i-arrow-right"/></svg></span>Blog</a></li>
+          <li><a href="/blog/#tag-quant">Quant</a></li>
+          <li class="visually-hidden" aria-current="page">Avellaneda-Stoikov Model Explained (With Python Code)</li>
+        </ol>
+      </nav>
+      <h1 class="post-h1"><span class="hl">Avellaneda-Stoikov Model</span> Explained (With Python Code)</h1>
+      <p class="post-dek">How the Avellaneda-Stoikov model tells a market maker where to quote when inventory is risky: every symbol defined, the formulas sketched from the HJB equation, how accurate they are, and a short NumPy simulation you can run.</p>
+      <p class="post-meta">
+        <span class="tag tag--cobalt">Quant</span>
+        <time datetime="2026-10-29T09:30:00+05:30">Oct 29, 2026</time>
+        
+        <span>16 min read</span>
+        <span>By <a href="/about/" rel="author">YashVardhan Gupta</a></span>
+      </p>
+    </div>
+    <div class="post-hero-art card">
+      <div class="post-art post-art--paper">
+        <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+          <path d="M24 100 62 62 92 84 128 40 162 70 200 36 236 58 272 24 332 46" class="st-c" stroke-width="3.5"/>
+          <path d="M24 118 60 98 92 112 128 82 162 104 200 74 236 94 272 64 332 82" stroke-dasharray="3 7"/>
+          <path d="M24 82 62 44 92 66 128 22 162 52 200 18 236 40 272 8 332 28" stroke-dasharray="3 7"/>
+          <circle cx="272" cy="24" r="6" class="t"/><circle cx="272" cy="64" r="6" class="m"/>
+          <path d="M272 30v28" />
+          <text x="24" y="140" class="art-text">RESERVATION PRICE + OPTIMAL SPREAD</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="post-sheet">
+  <div class="container">
+    <div class="post-layout">
+      <div class="post-toc" id="toc">
+<nav class="toc card toc-rail" aria-label="Table of contents">
+  <p class="toc-title">On this page</p>
+  <ol class="toc-list">
+<li><a href="#key-takeaways"><span class="toc-n" aria-hidden="true">&bull;</span><span>Key takeaways</span></a></li>
+<li><a href="#what-problem-does-the-avellaneda-stoikov-model-solve"><span class="toc-n" aria-hidden="true">01</span><span>What problem does the Avellaneda-Stoikov model solve?</span></a></li>
+<li><a href="#model-assumptions-and-symbols"><span class="toc-n" aria-hidden="true">02</span><span>Avellaneda-Stoikov model assumptions and symbols</span></a></li>
+<li><a href="#reservation-price"><span class="toc-n" aria-hidden="true">03</span><span>Avellaneda-Stoikov reservation price: how inventory moves your quotes</span></a></li>
+<li><a href="#optimal-spread-formula"><span class="toc-n" aria-hidden="true">04</span><span>Avellaneda-Stoikov optimal spread formula</span></a></li>
+<li><a href="#what-gamma-sigma-kappa-and-a-mean"><span class="toc-n" aria-hidden="true">05</span><span>What gamma, sigma, kappa (k) and A mean</span></a></li>
+<li><a href="#derivation-sketch"><span class="toc-n" aria-hidden="true">06</span><span>Derivation sketch: from the HJB equation to the closed form</span></a></li>
+<li><a href="#avellaneda-stoikov-python-simulation"><span class="toc-n" aria-hidden="true">07</span><span>Avellaneda-Stoikov in Python: a runnable simulation</span></a></li>
+<li><a href="#is-the-avellaneda-stoikov-formula-exact"><span class="toc-n" aria-hidden="true">08</span><span>Is the Avellaneda-Stoikov formula exact? GLFT and later models</span></a></li>
+<li><a href="#estimating-k-and-a"><span class="toc-n" aria-hidden="true">09</span><span>How to estimate k (kappa) and A from market data</span></a></li>
+<li><a href="#avellaneda-stoikov-limitations"><span class="toc-n" aria-hidden="true">10</span><span>Avellaneda-Stoikov limitations: what the model leaves out</span></a></li>
+<li><a href="#next-steps"><span class="toc-n" aria-hidden="true">11</span><span>Where to go next</span></a></li>
+<li><a href="#faq"><span class="toc-n" aria-hidden="true">&bull;</span><span>Frequently asked questions</span></a></li>
+<li><a href="#references"><span class="toc-n" aria-hidden="true">&bull;</span><span>References</span></a></li>
+  </ol>
+</nav>
+<details class="toc card toc-inline">
+  <summary><span>On this page</span><span class="toc-count">14 sections</span></summary>
+  <ol class="toc-list">
+<li><a href="#key-takeaways"><span class="toc-n" aria-hidden="true">&bull;</span><span>Key takeaways</span></a></li>
+<li><a href="#what-problem-does-the-avellaneda-stoikov-model-solve"><span class="toc-n" aria-hidden="true">01</span><span>What problem does the Avellaneda-Stoikov model solve?</span></a></li>
+<li><a href="#model-assumptions-and-symbols"><span class="toc-n" aria-hidden="true">02</span><span>Avellaneda-Stoikov model assumptions and symbols</span></a></li>
+<li><a href="#reservation-price"><span class="toc-n" aria-hidden="true">03</span><span>Avellaneda-Stoikov reservation price: how inventory moves your quotes</span></a></li>
+<li><a href="#optimal-spread-formula"><span class="toc-n" aria-hidden="true">04</span><span>Avellaneda-Stoikov optimal spread formula</span></a></li>
+<li><a href="#what-gamma-sigma-kappa-and-a-mean"><span class="toc-n" aria-hidden="true">05</span><span>What gamma, sigma, kappa (k) and A mean</span></a></li>
+<li><a href="#derivation-sketch"><span class="toc-n" aria-hidden="true">06</span><span>Derivation sketch: from the HJB equation to the closed form</span></a></li>
+<li><a href="#avellaneda-stoikov-python-simulation"><span class="toc-n" aria-hidden="true">07</span><span>Avellaneda-Stoikov in Python: a runnable simulation</span></a></li>
+<li><a href="#is-the-avellaneda-stoikov-formula-exact"><span class="toc-n" aria-hidden="true">08</span><span>Is the Avellaneda-Stoikov formula exact? GLFT and later models</span></a></li>
+<li><a href="#estimating-k-and-a"><span class="toc-n" aria-hidden="true">09</span><span>How to estimate k (kappa) and A from market data</span></a></li>
+<li><a href="#avellaneda-stoikov-limitations"><span class="toc-n" aria-hidden="true">10</span><span>Avellaneda-Stoikov limitations: what the model leaves out</span></a></li>
+<li><a href="#next-steps"><span class="toc-n" aria-hidden="true">11</span><span>Where to go next</span></a></li>
+<li><a href="#faq"><span class="toc-n" aria-hidden="true">&bull;</span><span>Frequently asked questions</span></a></li>
+<li><a href="#references"><span class="toc-n" aria-hidden="true">&bull;</span><span>References</span></a></li>
+  </ol>
+</details>
+      </div>
+      <div class="post-main">
+<div class="prose">
+<h2 id="key-takeaways">Key takeaways<a class="anchor" href="#key-takeaways" aria-label="Link to this section: Key takeaways"></a></h2>
+<ul class="takeaways">
+<li>A market maker who is long wants to sell, so the model shifts both quotes down in proportion to inventory (the reservation price) and sets the spread from risk aversion, volatility, time left and fill-rate decay.</li>
+<li>The closed form is approximate. Guéant, Lehalle and Fernandez-Tapia note that it is a Taylor expansion of the exact quotes near the horizon; a check here finds it shifts quotes too far when much time remains and fills are frequent.</li>
+<li>In a 1,000-path simulation at γ = 0.1 (<a href="#avellaneda-stoikov-python-simulation">script below</a>), inventory-aware quoting halves the standard deviation of profit and loss (P&amp;L), 6.5 against 12.9, but earns slightly less (65.1 against 69.0): lower risk, not higher profit.</li>
+<li>The model ignores adverse selection, fees, tick size and queue priority: a framework for inventory risk, not a ready-made strategy.</li>
+</ul>
+
+<p>The Avellaneda-Stoikov model (2008) tells a <a href="/blog/what-is-market-making/">market maker</a> where to quote when inventory is risky. It centers the bid and ask on a reservation price, <var><span class="nowrap">r = s − qγσ²(T − t)</span></var>, below the mid-price <var>s</var> when the market maker is long <var>q</var> shares, and sets a total spread of <var><span class="nowrap">γσ²(T − t) + (2/γ)ln(1 + γ/k)</span></var>.</p>
+
+<h2 id="what-problem-does-the-avellaneda-stoikov-model-solve" data-n="01">What problem does the Avellaneda-Stoikov model solve?<a class="anchor" href="#what-problem-does-the-avellaneda-stoikov-model-solve" aria-label="Link to this section: What problem does the Avellaneda-Stoikov model solve?"></a></h2>
+<p>It tells a market maker (the paper's "dealer") where to place a bid and an ask around the mid-price, the halfway point between the best bid and best ask, when holding inventory is risky. Each fill earns part of the spread but changes the position: a dealer bidding 99.50 around a price of 100 that buys 5 shares earns 2.50 against the mid-price, but if the price then falls by 2 those shares lose 10. Avellaneda and Stoikov (A-S) framed this as a control problem.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+
+<h2 id="model-assumptions-and-symbols" data-n="02">Avellaneda-Stoikov model assumptions and symbols<a class="anchor" href="#model-assumptions-and-symbols" aria-label="Link to this section: Avellaneda-Stoikov model assumptions and symbols"></a></h2>
+<p>The 2008 paper's setup:<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+<ul>
+<li><strong>Price.</strong> The mid-price follows d<var>S</var> = σd<var>W</var>, with <var>W</var> a Brownian motion (a continuous random walk): constant volatility σ and no drift.</li>
+<li><strong>Quotes.</strong> The dealer posts a one-share bid at <var>s</var> − δ<sup>b</sup> and ask at <var>s</var> + δ<sup>a</sup>, updated continuously at no cost.</li>
+<li><strong>Fills.</strong> Market sells hit the bid and market buys lift the ask as Poisson processes (random events at a steady average rate). A quote at distance δ from the mid-price fills at rate λ(δ) = <var>A</var>e<sup>−<var>k</var>δ</sup>.</li>
+<li><strong>State.</strong> The dealer holds <var>q</var> shares (negative means short) and cash <var>X</var>. There are no fees, tick size or inventory limit.</li>
+<li><strong>Objective.</strong> Maximize the expected exponential utility of final wealth (a payoff that penalizes risk, scaled by γ), E[−exp(−γ(<var>X</var><sub><var>T</var></sub> + <var>q</var><sub><var>T</var></sub><var>S</var><sub><var>T</var></sub>))], with leftover inventory valued at the final mid-price.</li>
+</ul>
+<div class="tbl"><div class="table-wrap scroll-x"><table><caption>Symbols and units. σ is volatility, so the formulas contain σ².</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Meaning (units)</th></tr></thead><tbody><tr><th scope="row"><var>q</var></th><td>Inventory in shares (negative: short)</td></tr><tr><th scope="row"><var>T</var> − <var>t</var></th><td>Time left to the horizon</td></tr><tr><th scope="row">σ</th><td>Volatility of the mid-price (price per √time)</td></tr><tr><th scope="row">γ</th><td>Risk aversion (1/price)</td></tr><tr><th scope="row">δ<sup>b</sup>, δ<sup>a</sup></th><td>Bid and ask distance from the mid-price (price)</td></tr><tr><th scope="row"><var>A</var></th><td>Fill rate at the mid-price: the order arrival intensity (1/time)</td></tr><tr><th scope="row"><var>k</var></th><td>Decay of the fill rate with distance (1/price); also written κ, kappa</td></tr><tr><th scope="row"><var>r</var></th><td>Reservation price (price)</td></tr></tbody></table></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p></div>
+
+<h2 id="reservation-price" data-n="03">Avellaneda-Stoikov reservation price: how inventory moves your quotes<a class="anchor" href="#reservation-price" aria-label="Link to this section: Avellaneda-Stoikov reservation price: how inventory moves your quotes"></a></h2>
+<p>The reservation price is the dealer's inventory-adjusted fair value: the mid-price minus the marginal risk cost of the shares already held.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+<div class="eq scroll-x"><math display="block"><mrow><mi>r</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>q</mi><mo>,</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi><mo>−</mo><mi>q</mi><mi>γ</mi><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mi>T</mi><mo>−</mo><mi>t</mi><mo stretchy="false">)</mo></mrow></math><p class="eq-label">Equation 1: Reservation price</p></div>
+<p>In words: mid-price minus inventory times risk aversion times variance rate times time left. A long dealer (<var>q</var> &gt; 0) values the asset below the mid-price and prefers to sell; a short dealer (<var>q</var> &lt; 0) values it above and prefers to buy. The shift vanishes at the horizon, where leftover inventory is marked at the mid-price. Traders call this shift of both quotes the skew.</p>
+<p>Holding <var>q</var> shares until <var>T</var> exposes final wealth to a variance of <var>q</var>²σ²(<var>T</var> − <var>t</var>), which an exponential-utility dealer prices at about ½γσ²(<var>T</var> − <var>t</var>)<var>q</var>²; one more share adds the slope, proportional to <var>q</var>. For a dealer who stops trading, the paper's "frozen inventory" case, this is exact: Equation 1 is the average of the indifference prices for buying one more share and for selling one, which differ by γσ<sup>2</sup>(<var>T</var> − <var>t</var>).</p>
+<p>Take <var>s</var> = 100, γ = 0.1, σ = 2, <var>k</var> = 1.5 and <var>T</var> − <var>t</var> = 1. Each share shifts the price by 0.1 × 2² × 1 = 0.4, so a dealer long 5 shares values the asset at 98.00 and one short 5 shares at 102.00 (Figure 1).</p>
+<figure class="fig" id="fig-ladder"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 356" role="img" aria-labelledby="fig-ladder-t fig-ladder-d">
+    <title id="fig-ladder-t">Quotes for three inventory levels</title>
+    <desc id="fig-ladder-d">Bid and ask pairs for inventory of plus 5, 0 and minus 5 shares around a mid-price of 100; reservation prices 98.00, 100.00 and 102.00.</desc>
+    <path class="f-line f-dash" d="M24 198H616"/>
+    <text class="f-sub" x="24" y="214">mid-price 100</text>
+    <text class="f-text" x="120" y="30" text-anchor="middle">q = +5 (long)</text>
+    <rect class="f-box-neg" x="66" y="244.2" width="108" height="33.8" rx="6"/>
+    <rect class="f-box-pos" x="66" y="278" width="108" height="33.8" rx="6"/>
+    <text class="f-text" x="120" y="266.2" text-anchor="middle">ask 98.85</text>
+    <text class="f-text" x="120" y="300.8" text-anchor="middle">bid 97.15</text>
+    <circle class="f-dot" cx="120" cy="278" r="5"/>
+    <text class="f-sub" x="120" y="336.8" text-anchor="middle">r = 98.00</text>
+    <text class="f-text" x="320" y="30" text-anchor="middle">q = 0 (flat)</text>
+    <rect class="f-box-neg" x="266" y="164.2" width="108" height="33.8" rx="6"/>
+    <rect class="f-box-pos" x="266" y="198" width="108" height="33.8" rx="6"/>
+    <text class="f-text" x="320" y="186.2" text-anchor="middle">ask 100.85</text>
+    <text class="f-text" x="320" y="220.8" text-anchor="middle">bid 99.15</text>
+    <circle class="f-dot" cx="320" cy="198" r="5"/>
+    <text class="f-sub" x="320" y="256.8" text-anchor="middle">r = 100.00</text>
+    <text class="f-text" x="520" y="30" text-anchor="middle">q = −5 (short)</text>
+    <rect class="f-box-neg" x="466" y="84.2" width="108" height="33.8" rx="6"/>
+    <rect class="f-box-pos" x="466" y="118" width="108" height="33.8" rx="6"/>
+    <text class="f-text" x="520" y="106.2" text-anchor="middle">ask 102.85</text>
+    <text class="f-text" x="520" y="140.8" text-anchor="middle">bid 101.15</text>
+    <circle class="f-dot" cx="520" cy="118" r="5"/>
+    <text class="f-sub" x="520" y="176.8" text-anchor="middle">r = 102.00</text>
+  </svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+  <figcaption><strong>Figure 1.</strong> Quotes at <var>T</var> − <var>t</var> = 1, each pair 1.69 wide before rounding to cents. The dot is the reservation price <var>r</var>; inventory moves the pair, not its width.</figcaption>
+</figure>
+
+<h2 id="optimal-spread-formula" data-n="04">Avellaneda-Stoikov optimal spread formula<a class="anchor" href="#optimal-spread-formula" aria-label="Link to this section: Avellaneda-Stoikov optimal spread formula"></a></h2>
+<p>The paper's closed-form (approximate) spread is a risk term plus a fill-rate term, centered on the reservation price.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+<div class="eq scroll-x"><math display="block"><mtable><mtr><mtd><msup><mi>δ</mi><mi>a</mi></msup><mo>+</mo><msup><mi>δ</mi><mi>b</mi></msup><mo>=</mo><mi>γ</mi><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mi>T</mi><mo>−</mo><mi>t</mi><mo stretchy="false">)</mo></mtd></mtr><mtr><mtd><mo>+</mo><mfrac><mn>2</mn><mi>γ</mi></mfrac><mi>ln</mi><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mfrac><mi>γ</mi><mi>k</mi></mfrac><mo stretchy="false">)</mo></mtd></mtr></mtable></math><p class="eq-label">Equation 2: Total spread (closed form)</p></div>
+<p>The bid is <var>r</var> minus half the spread and the ask is <var>r</var> plus half. Measured from the mid-price, and writing <var>L</var> for the per-side fill-rate term (1/γ)ln(1 + γ/<var>k</var>), the offsets are:</p>
+<div class="eq scroll-x"><math display="block"><mtable><mtr><mtd><msup><mi>δ</mi><mi>b</mi></msup></mtd><mtd><mo>=</mo></mtd><mtd><mi>L</mi><mo>+</mo><mfrac><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mi>q</mi></mrow><mn>2</mn></mfrac><mi>γ</mi><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mi>T</mi><mo>−</mo><mi>t</mi><mo stretchy="false">)</mo></mtd></mtr><mtr><mtd><msup><mi>δ</mi><mi>a</mi></msup></mtd><mtd><mo>=</mo></mtd><mtd><mi>L</mi><mo>+</mo><mfrac><mrow><mn>1</mn><mo>−</mo><mn>2</mn><mi>q</mi></mrow><mn>2</mn></mfrac><mi>γ</mi><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mi>T</mi><mo>−</mo><mi>t</mi><mo stretchy="false">)</mo></mtd></mtr></mtable></math><p class="eq-label">Equation 3: Bid and ask offsets from the mid-price</p></div>
+<p>In words: each offset is <var>L</var> plus a share of the risk term that depends on inventory, so a long dealer (<var>q</var> &gt; 0) bids further below the mid-price and asks closer to it.</p>
+<ul>
+<li><strong>Risk term.</strong> γσ<sup>2</sup>(<var>T</var> − <var>t</var>) is the gap between the indifference prices for selling and for buying one share. It shrinks to zero at the horizon.</li>
+<li><strong>Fill-rate term.</strong> (2/γ)ln(1 + γ/<var>k</var>) trades margin against fill probability. As γ → 0 it tends to 2/<var>k</var>, the risk-neutral choice: a half-spread of 1/<var>k</var> maximizes the profit rate δ·λ(δ). It is also the spread's floor at the horizon: 1.29 for γ = 0.1 and <var>k</var> = 1.5.</li>
+</ul>
+<p>In this closed form <var>q</var> does not appear in the spread (the exact spread varies only slightly with <var>q</var>), so inventory moves the quotes without widening them.</p>
+<aside role="note" class="callout callout--warn"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5 2.5 20h19L12 3.5z"/><path d="M12 10v4.5M12 17.2v.01"/></svg><span><span class="visually-hidden">Warning: </span>Check the spread formula</span></p><p>At least one public student report prints the fill-rate term as ln(1 + γ/<var>k</var>) without the factor 2/γ, a twentyfold understatement at γ = 0.1.<sup class="cite"><a href="#ref-2" aria-label="Reference 2">[2]</a></sup> Check against equation (30) of the paper.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p></aside>
+
+<h2 id="what-gamma-sigma-kappa-and-a-mean" data-n="05">What gamma, sigma, kappa (k) and A mean<a class="anchor" href="#what-gamma-sigma-kappa-and-a-mean" aria-label="Link to this section: What gamma, sigma, kappa (k) and A mean"></a></h2>
+<p>γ is a preference, σ and <var>k</var> are measured from the market, and <var>A</var> does not matter for the closed-form quotes. The table shows the closed form's sensitivities, one input at a time; the exact solution responds differently.</p>
+<div class="tbl"><div class="table-wrap scroll-x"><table><caption>Closed form, one change at a time from γ = 0.1, σ = 2, <var>k</var> = 1.5, <var>T</var> − <var>t</var> = 1. Skew is per share held.</caption><thead><tr><th scope="col">Change</th><th scope="col">Skew</th><th scope="col">Spread</th></tr></thead><tbody><tr><th scope="row">Base case</th><td>0.40</td><td>1.69</td></tr><tr><th scope="row">γ doubled to 0.2</th><td>0.80</td><td>2.05</td></tr><tr><th scope="row">σ doubled to 4</th><td>1.60</td><td>2.89</td></tr><tr><th scope="row"><var>k</var> doubled to 3</th><td>0.40</td><td>1.06</td></tr><tr><th scope="row"><var>T</var> − <var>t</var> halved to 0.5</th><td>0.20</td><td>1.49</td></tr><tr><th scope="row"><var>A</var> doubled to 280</th><td>0.40</td><td>1.69</td></tr></tbody></table></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p></div>
+<p>Pick γ by simulating the inventory and P&amp;L spread you can tolerate. The paper tries 0.01 (close to risk neutral), 0.1, and 1 (very risk averse) at a price of 100.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> Its unit is 1/price, so values rarely transfer between assets. Figure 2 plots the spread against γ.</p>
+<figure class="fig" id="fig-spread-gamma"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 360" role="img" aria-labelledby="fig-spread-gamma-t fig-spread-gamma-d">
+    <title id="fig-spread-gamma-t">Total spread against risk aversion</title>
+    <desc id="fig-spread-gamma-d">Spread against gamma from 0.01 to 1: with time left it rises with gamma and falls as k grows; at the horizon it falls with gamma.</desc>
+    <path class="f-line" d="M84 54V272H536"/>
+    <path class="f-line" d="M84 272v6"/>
+    <text class="f-sub" x="84" y="296" text-anchor="middle">0.01</text>
+    <path class="f-line" d="M306 272v6"/>
+    <text class="f-sub" x="306" y="296" text-anchor="middle">0.1</text>
+    <path class="f-line" d="M528 272v6"/>
+    <text class="f-sub" x="528" y="296" text-anchor="middle">1</text>
+    <path class="f-line" d="M78 272h6"/>
+    <text class="f-sub" x="72" y="277" text-anchor="end">0</text>
+    <path class="f-line" d="M78 202.7h6"/>
+    <text class="f-sub" x="72" y="207.7" text-anchor="end">2</text>
+    <path class="f-line" d="M78 133.3h6"/>
+    <text class="f-sub" x="72" y="138.3" text-anchor="end">4</text>
+    <path class="f-line" d="M78 64h6"/>
+    <text class="f-sub" x="72" y="69" text-anchor="end">6</text>
+    <text class="f-sub" x="84" y="36">total spread</text>
+    <text class="f-sub" x="306" y="324" text-anchor="middle">risk aversion γ (log scale)</text>
+    <polyline class="f-stroke-neg" points="84,178.8 95.1,178.7 106.2,178.6 117.3,178.5 128.4,178.3 139.5,178.2 150.6,178 161.7,177.8 172.8,177.6 183.9,177.3 195,177.1 206.1,176.8 217.2,176.4 228.3,176 239.4,175.6 250.5,175.1 261.6,174.5 272.7,173.8 283.8,173.1 294.9,172.3 306,171.4 317.1,170.3 328.2,169.1 339.3,167.7 350.4,166.2 361.5,164.4 372.6,162.4 383.7,160.1 394.8,157.4 405.9,154.4 417,151 428.1,147.1 439.2,142.6 450.3,137.5 461.4,131.7 472.5,125 483.6,117.4 494.7,108.7 505.8,98.8 516.9,87.5 528,74.6"/>
+    <polyline class="f-line-accent" points="84,224.5 95.1,224.4 106.2,224.2 117.3,224 128.4,223.8 139.5,223.6 150.6,223.3 161.7,223 172.8,222.7 183.9,222.3 195,221.9 206.1,221.4 217.2,220.9 228.3,220.3 239.4,219.6 250.5,218.8 261.6,218 272.7,217 283.8,215.9 294.9,214.7 306,213.4 317.1,211.9 328.2,210.2 339.3,208.2 350.4,206.1 361.5,203.7 372.6,200.9 383.7,197.9 394.8,194.4 405.9,190.6 417,186.2 428.1,181.3 439.2,175.8 450.3,169.6 461.4,162.6 472.5,154.8 483.6,145.9 494.7,136 505.8,124.8 516.9,112.1 528,97.9"/>
+    <polyline class="f-stroke-pos" points="84,247.5 95.1,247.4 106.2,247.2 117.3,247 128.4,246.8 139.5,246.5 150.6,246.2 161.7,245.9 172.8,245.5 183.9,245.1 195,244.6 206.1,244.1 217.2,243.5 228.3,242.9 239.4,242.1 250.5,241.3 261.6,240.4 272.7,239.3 283.8,238.2 294.9,236.9 306,235.4 317.1,233.8 328.2,231.9 339.3,229.8 350.4,227.5 361.5,224.9 372.6,222 383.7,218.7 394.8,215 405.9,210.8 417,206.2 428.1,201 439.2,195.1 450.3,188.5 461.4,181.1 472.5,172.8 483.6,163.5 494.7,153.1 505.8,141.4 516.9,128.2 528,113.4"/>
+    <polyline class="f-line-accent f-dash" points="84,225.9 95.1,225.9 106.2,226 117.3,226 128.4,226 139.5,226 150.6,226.1 161.7,226.1 172.8,226.2 183.9,226.2 195,226.3 206.1,226.3 217.2,226.4 228.3,226.5 239.4,226.5 250.5,226.6 261.6,226.7 272.7,226.8 283.8,227 294.9,227.1 306,227.3 317.1,227.4 328.2,227.6 339.3,227.8 350.4,228.1 361.5,228.3 372.6,228.6 383.7,228.9 394.8,229.3 405.9,229.6 417,230.1 428.1,230.5 439.2,231 450.3,231.5 461.4,232.1 472.5,232.7 483.6,233.4 494.7,234.1 505.8,234.9 516.9,235.7 528,236.6"/>
+    <polyline class="f-stroke-neg" points="100,59 124,59"/>
+    <text class="f-sub" x="132" y="64">k = 0.75</text>
+    <polyline class="f-line-accent" points="100,81 124,81"/>
+    <text class="f-sub" x="132" y="86">k = 1.5</text>
+    <polyline class="f-stroke-pos" points="100,103 124,103"/>
+    <text class="f-sub" x="132" y="108">k = 3</text>
+    <polyline class="f-line-accent f-dash" points="100,125 124,125"/>
+    <text class="f-sub" x="132" y="130">k = 1.5 at T − t = 0</text>
+  </svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+  <figcaption><strong>Figure 2.</strong> Closed-form total spread (Equation 2) against γ for σ = 2. Solid: <var>T</var> − <var>t</var> = 1, where σ²(<var>T</var> − <var>t</var>) = 4 exceeds 1/<var>k</var>² and the risk term lifts the spread with γ. Dashed: the horizon, where only the shrinking fill-rate term remains.</figcaption>
+</figure>
+
+<h2 id="derivation-sketch" data-n="06">Derivation sketch: from the HJB equation to the closed form<a class="anchor" href="#derivation-sketch" aria-label="Link to this section: Derivation sketch: from the HJB equation to the closed form"></a></h2>
+<p>A sketch of the paper's argument, not a proof: it skips boundary conditions, regularity and verification.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> Let <var>u</var>(<var>s</var>, <var>x</var>, <var>q</var>, <var>t</var>) be the best expected utility reachable from price <var>s</var>, cash <var>x</var> and inventory <var>q</var> at time <var>t</var>. Dynamic programming gives the Hamilton-Jacobi-Bellman (HJB) equation below, with <var>u</var> = −exp(−γ(<var>x</var> + <var>qs</var>)) at <var>t</var> = <var>T</var>: the price diffuses, and each max term is one side's fill, at rate λ, which moves inventory by one share and cash by the fill price.</p>
+<div class="eq scroll-x"><math display="block"><mtable><mtr><mtd><mn>0</mn><mo>=</mo><msub><mi>u</mi><mi>t</mi></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>σ</mi><mn>2</mn></msup><msub><mi>u</mi><mrow><mi>s</mi><mi>s</mi></mrow></msub></mtd></mtr><mtr><mtd><mo>+</mo><munder><mo>max</mo><msup><mi>δ</mi><mi>b</mi></msup></munder><mi>λ</mi><mo stretchy="false">(</mo><msup><mi>δ</mi><mi>b</mi></msup><mo stretchy="false">)</mo></mtd></mtr><mtr><mtd><mo>×</mo><mo stretchy="false">[</mo><mi>u</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>x</mi><mo>−</mo><mi>s</mi><mo>+</mo><msup><mi>δ</mi><mi>b</mi></msup><mo>,</mo><mi>q</mi><mo>+</mo><mn>1</mn><mo>,</mo><mi>t</mi><mo stretchy="false">)</mo><mo>−</mo><mi>u</mi><mo stretchy="false">]</mo></mtd></mtr><mtr><mtd><mo>+</mo><munder><mo>max</mo><msup><mi>δ</mi><mi>a</mi></msup></munder><mi>λ</mi><mo stretchy="false">(</mo><msup><mi>δ</mi><mi>a</mi></msup><mo stretchy="false">)</mo></mtd></mtr><mtr><mtd><mo>×</mo><mo stretchy="false">[</mo><mi>u</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>x</mi><mo>+</mo><mi>s</mi><mo>+</mo><msup><mi>δ</mi><mi>a</mi></msup><mo>,</mo><mi>q</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>t</mi><mo stretchy="false">)</mo><mo>−</mo><mi>u</mi><mo stretchy="false">]</mo></mtd></mtr></mtable></math><p class="eq-label">Equation 4: The HJB equation of the market-making problem</p></div>
+<ol class="steps">
+<li><strong>Remove cash.</strong> The ansatz (a trial form) <var>u</var> = −exp(−γ<var>x</var>)·exp(−γθ(<var>s</var>, <var>q</var>, <var>t</var>)) separates cash out and leaves an equation for θ with θ = <var>qs</var> at <var>T</var>.</li>
+<li><strong>Place the quotes.</strong> The indifference prices are differences of θ: <var>r</var><sup>b</sup> = θ(<var>q</var> + 1) − θ(<var>q</var>) and <var>r</var><sup>a</sup> = θ(<var>q</var>) − θ(<var>q</var> − 1). With fill rate <var>A</var>e<sup>−<var>k</var>δ</sup>, each first-order condition puts the bid (1/γ)ln(1 + γ/<var>k</var>) below <var>r</var><sup>b</sup> and the ask the same distance above <var>r</var><sup>a</sup>: the fill-rate term of Equation 2.</li>
+<li><strong>Expand and linearize.</strong> The remaining equation is nonlinear, so the paper expands θ in powers of <var>q</var> and linearizes the exponential fill terms. The terms of order <var>q</var> and <var>q</var>² give Equations 1 and 2. The linearized fill term is what makes the reservation price equal the frozen-inventory one.</li>
+</ol>
+<aside role="note" class="callout callout--note"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.01"/></svg><span><span class="visually-hidden">Note: </span>Exact or approximate?</span></p><p>Exact: the frozen-inventory prices, the HJB equation and steps 1 and 2. Approximate, for a dealer who keeps quoting: Equations 1 and 2, because step 3 truncates the expansion and linearizes the fills, as the paper itself says.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p></aside>
+
+<h2 id="avellaneda-stoikov-python-simulation" data-n="07">Avellaneda-Stoikov in Python: a runnable simulation<a class="anchor" href="#avellaneda-stoikov-python-simulation" aria-label="Link to this section: Avellaneda-Stoikov in Python: a runnable simulation"></a></h2>
+<p>The script below repeats the paper's experiment in 55 lines of NumPy.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> Two dealers see the same 1,000 random price paths: a symmetric dealer centered on the mid-price, and one that follows Equations 1 and 2. As in the paper, the symmetric dealer uses the inventory-aware dealer's average spread. In each 0.005 step a quote fills with probability λ(δ) times the step, capped at 1. Run <code>pip install numpy</code>, save the code as <code>simulate.py</code> and execute it. The output is from Python 3.13.7 and NumPy 2.2.6 with seed 42; other seeds, versions or platforms change the digits but not the pattern.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></p>
+<figure class="code-card"><figcaption class="code-bar"><span class="code-title">simulate.py</span><span class="code-lang">Python</span></figcaption><pre class="code scroll-x" data-lang="python" data-title="simulate.py"><code><span class="tok-c">"""Toy Avellaneda-Stoikov simulation. Needs NumPy."""</span>
+<span class="tok-k">import</span> <span class="tok-f">numpy</span> <span class="tok-k">as</span> <span class="tok-f">np</span>
+
+S0<span class="tok-o">,</span> SIGMA <span class="tok-o">=</span> <span class="tok-m">100.0</span><span class="tok-o">,</span> <span class="tok-m">2.0</span>              <span class="tok-c"># start price, volatility per sqrt(time)</span>
+T<span class="tok-o">,</span> DT <span class="tok-o">=</span> <span class="tok-m">1.0</span><span class="tok-o">,</span> <span class="tok-m">0.005</span>                  <span class="tok-c"># horizon, time step</span>
+K<span class="tok-o">,</span> A <span class="tok-o">=</span> <span class="tok-m">1.5</span><span class="tok-o">,</span> <span class="tok-m">140.0</span>                   <span class="tok-c"># fill rate: A * exp(-K * delta)</span>
+N_STEPS <span class="tok-o">=</span> <span class="tok-f">int</span><span class="tok-o">(</span><span class="tok-f">round</span><span class="tok-o">(</span>T <span class="tok-o">/</span> DT<span class="tok-o">))</span>
+TAUS <span class="tok-o">=</span> T <span class="tok-o">-</span> np<span class="tok-o">.</span>arange<span class="tok-o">(</span>N_STEPS<span class="tok-o">)</span> <span class="tok-o">*</span> DT  <span class="tok-c"># time left at each step</span>
+
+<span class="tok-k">def</span> <span class="tok-f">as_spread</span><span class="tok-o">(</span>gamma<span class="tok-o">,</span> tau<span class="tok-o">):</span>          <span class="tok-c"># paper's (30) = Equation 2</span>
+    <span class="tok-k">return</span> gamma <span class="tok-o">*</span> SIGMA<span class="tok-o">**</span><span class="tok-m">2</span> <span class="tok-o">*</span> tau <span class="tok-o">+</span> <span class="tok-o">(</span><span class="tok-m">2</span> <span class="tok-o">/</span> gamma<span class="tok-o">)</span> <span class="tok-o">*</span> np<span class="tok-o">.</span>log<span class="tok-o">(</span><span class="tok-m">1</span> <span class="tok-o">+</span> gamma <span class="tok-o">/</span> K<span class="tok-o">)</span>
+
+<span class="tok-k">def</span> <span class="tok-f">quotes</span><span class="tok-o">(</span>strategy<span class="tok-o">,</span> gamma<span class="tok-o">,</span> s<span class="tok-o">,</span> q<span class="tok-o">,</span> tau<span class="tok-o">,</span> fixed_spread<span class="tok-o">):</span>
+    <span class="tok-k">if</span> strategy <span class="tok-o">==</span> <span class="tok-s">"symmetric"</span><span class="tok-o">:</span>
+        center<span class="tok-o">,</span> spread <span class="tok-o">=</span> s<span class="tok-o">,</span> fixed_spread          <span class="tok-c"># ignores inventory</span>
+    <span class="tok-k">else</span><span class="tok-o">:</span>
+        center <span class="tok-o">=</span> s <span class="tok-o">-</span> q <span class="tok-o">*</span> gamma <span class="tok-o">*</span> SIGMA<span class="tok-o">**</span><span class="tok-m">2</span> <span class="tok-o">*</span> tau   <span class="tok-c"># paper's (29) = Equation 1</span>
+        spread <span class="tok-o">=</span> as_spread<span class="tok-o">(</span>gamma<span class="tok-o">,</span> tau<span class="tok-o">)</span>
+    <span class="tok-k">return</span> center <span class="tok-o">-</span> spread <span class="tok-o">/</span> <span class="tok-m">2</span><span class="tok-o">,</span> center <span class="tok-o">+</span> spread <span class="tok-o">/</span> <span class="tok-m">2</span>   <span class="tok-c"># (bid, ask)</span>
+
+<span class="tok-k">def</span> <span class="tok-f">fill_prob</span><span class="tok-o">(</span>delta<span class="tok-o">):</span>               <span class="tok-c"># chance of a fill within one time step</span>
+    <span class="tok-k">return</span> np<span class="tok-o">.</span>minimum<span class="tok-o">(</span><span class="tok-m">1.0</span><span class="tok-o">,</span> A <span class="tok-o">*</span> np<span class="tok-o">.</span>exp<span class="tok-o">(-</span>K <span class="tok-o">*</span> delta<span class="tok-o">)</span> <span class="tok-o">*</span> DT<span class="tok-o">)</span>
+
+<span class="tok-k">def</span> <span class="tok-f">run</span><span class="tok-o">(</span>strategy<span class="tok-o">,</span> gamma<span class="tok-o">,</span> shocks<span class="tok-o">,</span> u_bid<span class="tok-o">,</span> u_ask<span class="tok-o">,</span> fixed_spread<span class="tok-o">):</span>
+    n_paths <span class="tok-o">=</span> shocks<span class="tok-o">.</span>shape<span class="tok-o">[</span><span class="tok-m">1</span><span class="tok-o">]</span>
+    s<span class="tok-o">,</span> q<span class="tok-o">,</span> cash <span class="tok-o">=</span> np<span class="tok-o">.</span>full<span class="tok-o">(</span>n_paths<span class="tok-o">,</span> S0<span class="tok-o">),</span> np<span class="tok-o">.</span>zeros<span class="tok-o">(</span>n_paths<span class="tok-o">),</span> np<span class="tok-o">.</span>zeros<span class="tok-o">(</span>n_paths<span class="tok-o">)</span>
+    <span class="tok-k">for</span> i <span class="tok-k">in</span> <span class="tok-f">range</span><span class="tok-o">(</span>N_STEPS<span class="tok-o">):</span>
+        bid<span class="tok-o">,</span> ask <span class="tok-o">=</span> quotes<span class="tok-o">(</span>strategy<span class="tok-o">,</span> gamma<span class="tok-o">,</span> s<span class="tok-o">,</span> q<span class="tok-o">,</span> TAUS<span class="tok-o">[</span>i<span class="tok-o">],</span> fixed_spread<span class="tok-o">)</span>
+        buy <span class="tok-o">=</span> u_bid<span class="tok-o">[</span>i<span class="tok-o">]</span> <span class="tok-o">&lt;</span> fill_prob<span class="tok-o">(</span>s <span class="tok-o">-</span> bid<span class="tok-o">)</span>    <span class="tok-c"># a market sell hits our bid</span>
+        sell <span class="tok-o">=</span> u_ask<span class="tok-o">[</span>i<span class="tok-o">]</span> <span class="tok-o">&lt;</span> fill_prob<span class="tok-o">(</span>ask <span class="tok-o">-</span> s<span class="tok-o">)</span>   <span class="tok-c"># a market buy lifts our ask</span>
+        q <span class="tok-o">+=</span> buy <span class="tok-o">*</span> <span class="tok-m">1.0</span> <span class="tok-o">-</span> sell <span class="tok-o">*</span> <span class="tok-m">1.0</span>
+        cash <span class="tok-o">+=</span> <span class="tok-o">-</span>bid <span class="tok-o">*</span> buy <span class="tok-o">+</span> ask <span class="tok-o">*</span> sell
+        s <span class="tok-o">=</span> s <span class="tok-o">+</span> shocks<span class="tok-o">[</span>i<span class="tok-o">]</span>                      <span class="tok-c"># random walk, +/- sigma*sqrt(dt)</span>
+    <span class="tok-k">return</span> cash <span class="tok-o">+</span> q <span class="tok-o">*</span> s<span class="tok-o">,</span> q                     <span class="tok-c"># cash + inventory at final mid</span>
+
+<span class="tok-k">def</span> <span class="tok-f">draw</span><span class="tok-o">(</span>n_paths<span class="tok-o">,</span> seed<span class="tok-o">):</span>
+    rng <span class="tok-o">=</span> np<span class="tok-o">.</span>random<span class="tok-o">.</span>default_rng<span class="tok-o">(</span>seed<span class="tok-o">)</span>
+    steps <span class="tok-o">=</span> rng<span class="tok-o">.</span>choice<span class="tok-o">([-</span><span class="tok-m">1.0</span><span class="tok-o">,</span> <span class="tok-m">1.0</span><span class="tok-o">],</span> size<span class="tok-o">=(</span>N_STEPS<span class="tok-o">,</span> n_paths<span class="tok-o">))</span>
+    u_bid<span class="tok-o">,</span> u_ask <span class="tok-o">=</span> rng<span class="tok-o">.</span>random<span class="tok-o">((</span><span class="tok-m">2</span><span class="tok-o">,</span> N_STEPS<span class="tok-o">,</span> n_paths<span class="tok-o">))</span>
+    <span class="tok-k">return</span> steps <span class="tok-o">*</span> SIGMA <span class="tok-o">*</span> np<span class="tok-o">.</span>sqrt<span class="tok-o">(</span>DT<span class="tok-o">),</span> u_bid<span class="tok-o">,</span> u_ask
+
+<span class="tok-k">def</span> <span class="tok-f">report</span><span class="tok-o">(</span>name<span class="tok-o">,</span> pnl<span class="tok-o">,</span> q_T<span class="tok-o">):</span>
+    <span class="tok-f">print</span><span class="tok-o">(</span><span class="tok-s">f"{</span>name<span class="tok-s">:&lt;19}{</span>pnl<span class="tok-o">.</span>mean<span class="tok-o">()</span><span class="tok-s">:9.1f}{</span>pnl<span class="tok-o">.</span>std<span class="tok-o">()</span><span class="tok-s">:9.1f}{</span>q_T<span class="tok-o">.</span>std<span class="tok-o">()</span><span class="tok-s">:9.2f}"</span><span class="tok-o">)</span>
+
+<span class="tok-k">def</span> <span class="tok-f">main</span><span class="tok-o">(</span>n_paths<span class="tok-o">=</span><span class="tok-m">1000</span><span class="tok-o">,</span> seed<span class="tok-o">=</span><span class="tok-m">42</span><span class="tok-o">):</span>
+    shocks<span class="tok-o">,</span> u_bid<span class="tok-o">,</span> u_ask <span class="tok-o">=</span> draw<span class="tok-o">(</span>n_paths<span class="tok-o">,</span> seed<span class="tok-o">)</span>  <span class="tok-c"># shared by both dealers</span>
+    <span class="tok-k">for</span> gamma <span class="tok-k">in</span> <span class="tok-o">(</span><span class="tok-m">0.01</span><span class="tok-o">,</span> <span class="tok-m">0.1</span><span class="tok-o">,</span> <span class="tok-m">1.0</span><span class="tok-o">):</span>
+        avg <span class="tok-o">=</span> as_spread<span class="tok-o">(</span>gamma<span class="tok-o">,</span> TAUS<span class="tok-o">).</span>mean<span class="tok-o">()</span>     <span class="tok-c"># symmetric dealer's spread</span>
+        <span class="tok-f">print</span><span class="tok-o">(</span><span class="tok-s">f"\ngamma = {</span>gamma<span class="tok-s">}  (average spread {</span>avg<span class="tok-s">:.2f}, {</span>n_paths<span class="tok-s">} paths)"</span><span class="tok-o">)</span>
+        <span class="tok-f">print</span><span class="tok-o">(</span><span class="tok-s">f"{'strategy':&lt;19}{'mean PnL':&gt;9}{'std PnL':&gt;9}{'std q_T':&gt;9}"</span><span class="tok-o">)</span>
+        <span class="tok-k">for</span> name <span class="tok-k">in</span> <span class="tok-o">(</span><span class="tok-s">"symmetric"</span><span class="tok-o">,</span> <span class="tok-s">"avellaneda-stoikov"</span><span class="tok-o">):</span>
+            report<span class="tok-o">(</span>name<span class="tok-o">,</span> <span class="tok-o">*</span>run<span class="tok-o">(</span>name<span class="tok-o">,</span> gamma<span class="tok-o">,</span> shocks<span class="tok-o">,</span> u_bid<span class="tok-o">,</span> u_ask<span class="tok-o">,</span> avg<span class="tok-o">))</span>
+
+<span class="tok-k">if</span> __name__ <span class="tok-o">==</span> <span class="tok-s">"__main__"</span><span class="tok-o">:</span>
+    main<span class="tok-o">()</span></code></pre></figure>
+<figure class="code-card code-card--output"><figcaption class="code-bar"><span class="code-title">Output</span><span class="code-lang">output</span></figcaption><pre class="code code--output scroll-x" data-lang="" data-title="Output"><code>gamma = 0.01  (average spread 1.35, 1000 paths)
+strategy            mean PnL  std PnL  std q_T
+symmetric               69.5     13.3     8.72
+avellaneda-stoikov      68.8      9.0     5.44
+
+gamma = 0.1  (average spread 1.49, 1000 paths)
+strategy            mean PnL  std PnL  std q_T
+symmetric               69.0     12.9     8.54
+avellaneda-stoikov      65.1      6.5     2.98
+
+gamma = 1.0  (average spread 3.03, 1000 paths)
+strategy            mean PnL  std PnL  std q_T
+symmetric               43.7     10.3     4.95
+avellaneda-stoikov      31.4      4.9     1.61</code></pre></figure>
+<p>At γ = 0.1 the inventory-aware dealer earned 65.1 against 69.0 for the symmetric dealer (Figure 3), with a P&amp;L standard deviation of 6.5 against 12.9 and a final-inventory standard deviation of 2.98 shares against 8.54. The paper's Table 1 gives 65.0, 6.6 and 2.9 against 68.4, 12.7 and 8.4, close to the script's. The closed-form dealer earns slightly less at γ = 0.01 (68.8 against 69.5) and much less at γ = 1 (31.4 against 43.7), each with lower risk; much of the γ = 1 gap is the closed form's own error (next section). P&amp;L is in price units for an asset at 100, not a return.</p>
+<figure class="fig" id="fig-distributions"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 392" role="img" aria-labelledby="fig-distributions-t fig-distributions-d">
+    <title id="fig-distributions-t">Final inventory and P&amp;L by strategy</title>
+    <desc id="fig-distributions-d">Histograms of 1,000 paths at gamma 0.1. Final inventory spans minus 31 to plus 26 shares for symmetric quoting and minus 11 to plus 10 for inventory-aware. Final P&amp;L is centered near 69 and 65, the second about half as wide.</desc>
+    <rect class="f-accent-2" x="84" y="14" width="14" height="14" rx="2"/>
+    <text class="f-sub" x="106" y="26">symmetric</text>
+    <rect class="f-accent" x="212" y="14" width="14" height="14" rx="2"/>
+    <text class="f-sub" x="234" y="26">Avellaneda-Stoikov</text>
+    <text class="f-text" x="84" y="60">Final inventory (shares)</text>
+    <path class="f-line" d="M84 70V178H616"/>
+    <path class="f-line" d="M78 178h6"/>
+    <text class="f-sub" x="72" y="183" text-anchor="end">0</text>
+    <path class="f-line" d="M78 74h6"/>
+    <text class="f-sub" x="72" y="79" text-anchor="end">400</text>
+    <rect class="f-accent-2" x="86.2" y="175.9" width="15" height="2.1"/>
+    <rect class="f-accent" x="102.2" y="178" width="15" height="0"/>
+    <rect class="f-accent-2" x="121.7" y="172" width="15" height="6"/>
+    <rect class="f-accent" x="137.7" y="178" width="15" height="0"/>
+    <rect class="f-accent-2" x="157.2" y="169.4" width="15" height="8.6"/>
+    <rect class="f-accent" x="173.2" y="178" width="15" height="0"/>
+    <rect class="f-accent-2" x="192.6" y="164.5" width="15" height="13.5"/>
+    <rect class="f-accent" x="208.6" y="177.7" width="15" height="0.3"/>
+    <rect class="f-accent-2" x="228.1" y="156.4" width="15" height="21.6"/>
+    <rect class="f-accent" x="244.1" y="176.7" width="15" height="1.3"/>
+    <rect class="f-accent-2" x="263.6" y="150.7" width="15" height="27.3"/>
+    <rect class="f-accent" x="279.6" y="159.5" width="15" height="18.5"/>
+    <rect class="f-accent-2" x="299" y="146.8" width="15" height="31.2"/>
+    <rect class="f-accent" x="315" y="116.4" width="15" height="61.6"/>
+    <rect class="f-accent-2" x="334.5" y="139" width="15" height="39"/>
+    <rect class="f-accent" x="350.5" y="76.9" width="15" height="101.1"/>
+    <rect class="f-accent-2" x="370" y="147.1" width="15" height="30.9"/>
+    <rect class="f-accent" x="386" y="115.9" width="15" height="62.1"/>
+    <rect class="f-accent-2" x="405.4" y="148.9" width="15" height="29.1"/>
+    <rect class="f-accent" x="421.4" y="164" width="15" height="14"/>
+    <rect class="f-accent-2" x="440.9" y="154.9" width="15" height="23.1"/>
+    <rect class="f-accent" x="456.9" y="177" width="15" height="1"/>
+    <rect class="f-accent-2" x="476.4" y="162.7" width="15" height="15.3"/>
+    <rect class="f-accent" x="492.4" y="178" width="15" height="0"/>
+    <rect class="f-accent-2" x="511.8" y="171.5" width="15" height="6.5"/>
+    <rect class="f-accent" x="527.8" y="178" width="15" height="0"/>
+    <rect class="f-accent-2" x="547.3" y="174.6" width="15" height="3.4"/>
+    <rect class="f-accent" x="563.3" y="178" width="15" height="0"/>
+    <rect class="f-accent-2" x="582.8" y="175.7" width="15" height="2.3"/>
+    <rect class="f-accent" x="598.8" y="178" width="15" height="0"/>
+    <path class="f-line" d="M137.2 178v6"/>
+    <text class="f-sub" x="137.2" y="200" text-anchor="middle">−18</text>
+    <path class="f-line" d="M350 178v6"/>
+    <text class="f-sub" x="350" y="200" text-anchor="middle">0</text>
+    <path class="f-line" d="M562.8 178v6"/>
+    <text class="f-sub" x="562.8" y="200" text-anchor="middle">18</text>
+    <text class="f-text" x="84" y="230">Final P&amp;L</text>
+    <path class="f-line" d="M84 240V348H616"/>
+    <path class="f-line" d="M78 348h6"/>
+    <text class="f-sub" x="72" y="353" text-anchor="end">0</text>
+    <path class="f-line" d="M78 244h6"/>
+    <text class="f-sub" x="72" y="249" text-anchor="end">300</text>
+    <rect class="f-accent-2" x="85.5" y="345.9" width="14.6" height="2.1"/>
+    <rect class="f-accent" x="101.1" y="348" width="14.6" height="0"/>
+    <rect class="f-accent-2" x="118.8" y="344.2" width="14.6" height="3.8"/>
+    <rect class="f-accent" x="134.4" y="348" width="14.6" height="0"/>
+    <rect class="f-accent-2" x="152" y="345.2" width="14.6" height="2.8"/>
+    <rect class="f-accent" x="167.6" y="348" width="14.6" height="0"/>
+    <rect class="f-accent-2" x="185.2" y="337.3" width="14.6" height="10.7"/>
+    <rect class="f-accent" x="200.9" y="343.8" width="14.6" height="4.2"/>
+    <rect class="f-accent-2" x="218.5" y="325.5" width="14.6" height="22.5"/>
+    <rect class="f-accent" x="234.1" y="332.4" width="14.6" height="15.6"/>
+    <rect class="f-accent-2" x="251.8" y="312.3" width="14.6" height="35.7"/>
+    <rect class="f-accent" x="267.4" y="290.5" width="14.6" height="57.5"/>
+    <rect class="f-accent-2" x="285" y="296" width="14.6" height="52"/>
+    <rect class="f-accent" x="300.6" y="254.7" width="14.6" height="93.3"/>
+    <rect class="f-accent-2" x="318.2" y="287.7" width="14.6" height="60.3"/>
+    <rect class="f-accent" x="333.9" y="249.9" width="14.6" height="98.1"/>
+    <rect class="f-accent-2" x="351.5" y="291.8" width="14.6" height="56.2"/>
+    <rect class="f-accent" x="367.1" y="292.2" width="14.6" height="55.8"/>
+    <rect class="f-accent-2" x="384.8" y="306.4" width="14.6" height="41.6"/>
+    <rect class="f-accent" x="400.4" y="329.3" width="14.6" height="18.7"/>
+    <rect class="f-accent-2" x="418" y="320.3" width="14.6" height="27.7"/>
+    <rect class="f-accent" x="433.6" y="345.2" width="14.6" height="2.8"/>
+    <rect class="f-accent-2" x="451.2" y="333.1" width="14.6" height="14.9"/>
+    <rect class="f-accent" x="466.9" y="347.3" width="14.6" height="0.7"/>
+    <rect class="f-accent-2" x="484.5" y="341.1" width="14.6" height="6.9"/>
+    <rect class="f-accent" x="500.1" y="348" width="14.6" height="0"/>
+    <rect class="f-accent-2" x="517.8" y="343.8" width="14.6" height="4.2"/>
+    <rect class="f-accent" x="533.4" y="348" width="14.6" height="0"/>
+    <rect class="f-accent-2" x="551" y="346.3" width="14.6" height="1.7"/>
+    <rect class="f-accent" x="566.6" y="348" width="14.6" height="0"/>
+    <rect class="f-accent-2" x="584.2" y="344.5" width="14.6" height="3.5"/>
+    <rect class="f-accent" x="599.9" y="348" width="14.6" height="0"/>
+    <path class="f-line" d="M84 348v6"/>
+    <text class="f-sub" x="84" y="370" text-anchor="middle">30</text>
+    <path class="f-line" d="M350 348v6"/>
+    <text class="f-sub" x="350" y="370" text-anchor="middle">70</text>
+    <path class="f-line" d="M616 348v6"/>
+    <text class="f-sub" x="616" y="370" text-anchor="middle">110</text>
+  </svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+  <figcaption><strong>Figure 3.</strong> Paths per bin at γ = 0.1, seed 42; left bar symmetric, right bar inventory-aware. End bins hold everything beyond them: inventory of 20 shares or more either way, P&amp;L below 35 or from 105 up.</figcaption>
+</figure>
+<aside role="note" class="callout callout--myth"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg><span>Myth: the model makes more money</span></p><p>Here, even with the exact quotes below, it earns slightly less than symmetric quoting at γ = 0.1. Across seeds 100 to 119 (1,000 paths each), the inventory-aware dealer had a lower mean P&amp;L in 20 of 20 runs and a lower P&amp;L standard deviation in 20 of 20. Judged by certainty equivalent, CE = −ln(mean(exp(−γ·P&amp;L)))/γ, the guaranteed amount a γ = 0.1 investor would accept instead of the P&amp;L distribution, it wins in 20 of 20 runs of 20,000 paths: 62.7 to 62.8 against 42 to 57 for symmetric quoting, whose figure swings because a few very bad paths dominate it.</p></aside>
+
+<h2 id="is-the-avellaneda-stoikov-formula-exact" data-n="08">Is the Avellaneda-Stoikov formula exact? GLFT and later models<a class="anchor" href="#is-the-avellaneda-stoikov-formula-exact" aria-label="Link to this section: Is the Avellaneda-Stoikov formula exact? GLFT and later models"></a></h2>
+<p>No. Guéant, Lehalle and Fernandez-Tapia (GLFT) note in a footnote that the quotes from Equations 1 and 2 are the Taylor expansion of the exact optimal quotes for times close to <var>T</var>.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup> Their exact solution keeps the model and adds an inventory limit.</p>
+<div class="tbl"><div class="table-wrap scroll-x"><table><caption>Computed for this article: skew per share at <var>q</var> = 2, inventory limit 30, γ = 0.1, σ = 2, <var>k</var> = 1.5, <var>A</var> = 140.</caption><thead><tr><th scope="col">Time left</th><th scope="col">A-S skew</th><th scope="col">Exact skew</th><th scope="col">Ratio</th></tr></thead><tbody><tr><th scope="row">0.05</th><td>0.0200</td><td>0.0191</td><td>1.05</td></tr><tr><th scope="row">0.1</th><td>0.0400</td><td>0.0337</td><td>1.19</td></tr><tr><th scope="row">0.2</th><td>0.0800</td><td>0.0476</td><td>1.68</td></tr><tr><th scope="row">0.5</th><td>0.2000</td><td>0.0524</td><td>3.82</td></tr><tr><th scope="row">1</th><td>0.4000</td><td>0.0524</td><td>7.63</td></tr></tbody></table></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p></div>
+<p>The exact quotes follow GLFT's Theorem 1. With α = <var>k</var>γσ²/2 and η = <var>A</var>(1 + γ/<var>k</var>)<sup>−(1 + <var>k</var>/γ)</sup>, let <var>M</var> be the tridiagonal matrix with diagonal α<var>q</var>² and off-diagonal −η for |<var>q</var>| ≤ 30, and <var>v</var> = exp(−<var>M</var>(<var>T</var> − <var>t</var>))·(1, …, 1). Then δ<sup>b</sup> = (1/<var>k</var>)ln(<var>v</var><sub><var>q</var></sub>/<var>v</var><sub><var>q</var>+1</sub>) + (1/γ)ln(1 + γ/<var>k</var>), δ<sup>a</sup> is the same with <var>v</var><sub><var>q</var>−1</sub>, and the skew per share is (δ<sup>b</sup> − δ<sup>a</sup>)/(2<var>q</var>), read at <var>q</var> = 2.</p>
+<p>The two agree near the horizon (ratio 1.05 at <var>T</var> − <var>t</var> = 0.05), but at the full horizon the closed form moves quotes 7.6 times as far per share, while the exact skew levels off near 0.052. That plateau matches GLFT's long-run closed form, √(σ²γ/(2<var>kA</var>) × (1 + γ/<var>k</var>)<sup>1 + <var>k</var>/γ</sup>), which needs no terminal time.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup> The ratio depends on <var>A</var>, which the closed form ignores: for <var>A</var> = 0.14, 1.4, 14, 140 and 1,400, the closed-form skew at <var>T</var> − <var>t</var> = 1 is 1.0, 1.2, 2.4, 7.6 and 24 times the exact skew. The closed form prices inventory held until <var>T</var>; frequent fills unwind it sooner.</p>
+<p>The exact solution also responds differently: doubling σ doubles the skew, doubling γ raises it about 1.4 times, doubling <var>A</var> or <var>k</var> lowers it by about 30%, and the spread falls slightly as γ rises. In the simulation (seed 100, 20,000 paths, computed for this article) the closed-form spread at γ = 1, <var>q</var> = 0 and <var>T</var> − <var>t</var> = 1 is 5.02 against the exact 1.22, and the closed-form dealer earns 31.5 against 64.0 for the exact quotes. At γ = 0.1 the exact quotes earn 67.9 (standard deviation 7.3) against 68.3 (13.4) for symmetric quoting: still slightly less profit, with about half the risk.</p>
+<h3 id="cartea-jaimungal-and-other-extensions">Cartea-Jaimungal and other extensions<a class="anchor" href="#cartea-jaimungal-and-other-extensions" aria-label="Link to this section: Cartea-Jaimungal and other extensions"></a></h3>
+<p>Cartea, Jaimungal and co-authors replace exponential utility with a running penalty on squared inventory and add adverse selection, short-term price predictors and self-exciting order flow.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup> Guéant (2017) reconciles both formulations.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup></p>
+
+<h2 id="estimating-k-and-a" data-n="09">How to estimate k (kappa) and A from market data<a class="anchor" href="#estimating-k-and-a" aria-label="Link to this section: How to estimate k (kappa) and A from market data"></a></h2>
+<p>For σ, divide the standard deviation of recent mid-price changes by the square root of the time step. For <var>k</var> and <var>A</var>, count how often market trades reached each depth per unit time and fit ln λ = ln <var>A</var> − <var>k</var>δ by least squares: slope −<var>k</var>, intercept ln <var>A</var>.<sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup> Fits are fragile: one public tutorial, fitting ten minutes of ETHUSDT data, got <var>k</var> ≈ 0.018 per tick over the full depth range and 0.042 over the nearest 70 ticks, ignoring queue position when measuring fill rates.<sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup></p>
+
+<h2 id="avellaneda-stoikov-limitations" data-n="10">Avellaneda-Stoikov limitations: what the model leaves out<a class="anchor" href="#avellaneda-stoikov-limitations" aria-label="Link to this section: Avellaneda-Stoikov limitations: what the model leaves out"></a></h2>
+<ul>
+<li><strong>Adverse selection.</strong> The paper sets aside the risk from informed traders.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> A dealer can be filled at the bid just before the price falls, the winner's curse, as a 2025 preprint (revised 2026) calls it.<sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup></li>
+<li><strong>Fees, rebates, ticks and queues.</strong> A public GLFT backtest tutorial assumes a 0.005% maker rebate and says its five-day profits come from rebates earned by posting quotes at high volume.<sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup> Guéant notes that A-S-style models can hardly be applied to most stock markets, where prices are discrete and order books are priority queues.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup></li>
+<li><strong>Constant parameters.</strong> The model fixes σ, <var>A</var> and <var>k</var> over the horizon; one public tutorial refits them every 5 seconds.<sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup></li>
+</ul>
+<aside role="note" class="callout callout--warn"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5 2.5 20h19L12 3.5z"/><path d="M12 10v4.5M12 17.2v.01"/></svg><span><span class="visually-hidden">Warning: </span>Units differ between implementations</span></p><p>As of October 2026, the docs of Hummingbot's Avellaneda strategy (a V1 strategy its Foundation no longer actively maintains) call its <code>risk_factor</code> unit-less, with common values between 1 and 20: not the paper's γ = 0.1 in units of 1/price. Check units before copying parameters.<sup class="cite"><a href="#ref-9" aria-label="Reference 9">[9]</a></sup></p></aside>
+
+<h2 id="next-steps" data-n="11">Where to go next<a class="anchor" href="#next-steps" aria-label="Link to this section: Where to go next"></a></h2>
+<ul>
+<li><a href="/blog/what-is-market-making/">What Is Market Making?</a> explains bid, ask, spread, inventory and adverse selection.</li>
+<li><a href="/blog/solana-mev-bots-explained/">Solana MEV Bots Explained</a> covers a different edge, transaction ordering rather than quoting.</li>
+</ul>
+</div>
+<div class="post-note" role="note">
+  <p><strong class="post-note-label">Disclaimer</strong> Educational content only, not financial, investment or trading advice; the simulation is a toy model with no fees, adverse selection, latency or queue priority, so its results say nothing about real trading performance.</p>
+</div>
+<section class="post-faq" id="faq" aria-labelledby="faq-title">
+  <h2 id="faq-title">Frequently asked questions</h2>
+<details class="faq-item"><summary>What is the Avellaneda-Stoikov model?</summary><div class="faq-a"><p>It is a 2008 stochastic-control model of market making by Marco Avellaneda and Sasha Stoikov, published in <em>Quantitative Finance</em>. A market maker (the paper's dealer) posts one-share bid and ask limit orders around a Brownian mid-price, fills arrive at a rate that falls exponentially with distance, and the dealer maximizes expected exponential utility of final wealth. The approximate closed-form solution quotes around the reservation price r = s − qγσ²(T − t) with a total spread of γσ²(T − t) + (2/γ)ln(1 + γ/k).</p></div></details>
+<details class="faq-item"><summary>What is the reservation price in the Avellaneda-Stoikov model?</summary><div class="faq-a"><p>It is the market maker's inventory-adjusted fair value: the mid-price minus the marginal risk cost of the shares held, r = s − qγσ²(T − t). A long market maker (q &gt; 0) has a reservation price below the mid-price and a short one (q &lt; 0) has one above it, and the gap closes as t approaches T. It is exact for a dealer who stops trading and approximate for one who keeps quoting.</p></div></details>
+<details class="faq-item"><summary>How is the Avellaneda-Stoikov optimal spread calculated?</summary><div class="faq-a"><p>The total spread is γσ²(T − t) + (2/γ)ln(1 + γ/k), centered on the reservation price. The first term is the inventory-risk gap and falls to zero at the horizon. The second balances margin against fill probability and tends to 2/k as γ → 0. In this closed form the spread does not depend on inventory, so the skew comes entirely from the reservation price.</p></div></details>
+<details class="faq-item"><summary>What do gamma, sigma, kappa (k) and A mean, and how do I choose gamma?</summary><div class="faq-a"><p>γ is risk aversion (units of 1/price), σ is price volatility per square root of time, k (also written κ, kappa) is how fast the fill rate decays with distance from the mid-price (1/price) and A is the fill rate at the mid-price (1/time). A does not appear in the closed-form quotes. γ is a preference rather than a measurement, so choose it by simulating the inventory and P&amp;L spread you can tolerate; the paper tries 0.01, 0.1 and 1 at a price of 100 with σ = 2.</p></div></details>
+<details class="faq-item"><summary>Is the Avellaneda-Stoikov formula exact?</summary><div class="faq-a"><p>No. It comes from a truncated expansion in inventory plus a linearized fill rate. Guéant, Lehalle and Fernandez-Tapia state that it is the Taylor expansion of the exact quotes near the horizon. In a numerical check computed for this article (γ = 0.1, σ = 2, k = 1.5, A = 140, inventory limit 30), the closed form moved the quotes 7.6 times as far per share as the exact solution at T − t = 1, and 1.05 times as far at T − t = 0.05. The factor depends strongly on A.</p></div></details>
+<details class="faq-item"><summary>How do I estimate k (kappa) and A from market data?</summary><div class="faq-a"><p>Record how far from the mid-price market trades occurred, count the fills each depth would have received per unit time, and fit ln(rate) = ln A − kδ by least squares: the slope is −k and the intercept is ln A. The result depends strongly on the depth range. One public tutorial, fitting a ten-minute window of ETHUSDT data, found k ≈ 0.018 per tick over the full range and 0.042 over the nearest 70 ticks, ignored queue position when measuring fill rates and refitted every 5 seconds.</p></div></details>
+<details class="faq-item"><summary>Does the Avellaneda-Stoikov model make money in real markets?</summary><div class="faq-a"><p>The model gives no such guarantee. It leaves out adverse selection, fees and rebates, tick size and queue priority. In the paper and in the simulation here, inventory-aware quoting lowers risk rather than raising profit: at γ = 0.1 the mean P&amp;L is 65.1 against 69.0 for symmetric quoting, with about half the standard deviation. This is education, not advice.</p></div></details>
+<details class="faq-item"><summary>How does it differ from Guéant-Lehalle-Fernandez-Tapia and Cartea-Jaimungal?</summary><div class="faq-a"><p>GLFT keep the Avellaneda-Stoikov model, add an inventory limit and solve it exactly with linear differential equations, with closed-form long-run approximations. Cartea and Jaimungal replace exponential utility with a running penalty on squared inventory and add adverse selection, short-term price predictors and self-exciting order flow. Guéant (2017) reconciles both formulations in one framework.</p></div></details>
+</section>
+<section class="post-refs" id="references" aria-labelledby="references-title">
+  <h2 id="references-title">References</h2>
+  <ol class="refs">
+<li id="ref-1"><span class="ref-text">Avellaneda, M. and Stoikov, S. (2008). High-frequency trading in a limit order book. <em>Quantitative Finance</em> 8(3), 217-224. DOI 10.1080/14697680701381228. Copy hosted by NYU Mathematics.</span> <a class="ref-link" href="https://math.nyu.edu/inmemoriam/avellaneda/HighFrequencyTrading.pdf" target="_blank" rel="noopener">https://math.nyu.edu/inmemoriam/avellaneda/HighFrequencyTrading.pdf</a></li>
+<li id="ref-2"><span class="ref-text">Fushimi, T., González Rojas, C. and Herman, M. (2018). Optimal high-frequency market making. Student report, Stanford University, 11 June 2018 (hosted under the MS&amp;E 448 course pages).</span> <a class="ref-link" href="https://web.stanford.edu/class/msande448/2018/Final/Reports/gr5.pdf" target="_blank" rel="noopener">https://web.stanford.edu/class/msande448/2018/Final/Reports/gr5.pdf</a></li>
+<li id="ref-3"><span class="ref-text">NumPy documentation. Compatibility policy for numpy.random (checked 29 October 2026).</span> <a class="ref-link" href="https://numpy.org/doc/stable/reference/random/compatibility.html" target="_blank" rel="noopener">https://numpy.org/doc/stable/reference/random/compatibility.html</a></li>
+<li id="ref-4"><span class="ref-text">Guéant, O., Lehalle, C.-A. and Fernandez-Tapia, J. (2013). Dealing with the inventory risk: a solution to the market making problem. <em>Mathematics and Financial Economics</em> 7(4), 477-507. Read as arXiv:1105.3115 (version 5).</span> <a class="ref-link" href="https://arxiv.org/abs/1105.3115" target="_blank" rel="noopener">https://arxiv.org/abs/1105.3115</a></li>
+<li id="ref-5"><span class="ref-text">Cartea, Á., Jaimungal, S. and Ricci, J. (2014). Buy low, sell high: a high frequency trading perspective. <em>SIAM Journal on Financial Mathematics</em> 5(1), 415-444. DOI 10.1137/130911196. Read as the 2012 preprint.</span> <a class="ref-link" href="https://doi.org/10.1137/130911196" target="_blank" rel="noopener">https://doi.org/10.1137/130911196</a></li>
+<li id="ref-6"><span class="ref-text">Guéant, O. (2017). Optimal market making. <em>Applied Mathematical Finance</em> 24(2), 112-154. Read as arXiv:1605.01862 (version 5).</span> <a class="ref-link" href="https://arxiv.org/abs/1605.01862" target="_blank" rel="noopener">https://arxiv.org/abs/1605.01862</a></li>
+<li id="ref-7"><span class="ref-text">hftbacktest documentation. Guéant-Lehalle-Fernandez-Tapia market making model and grid trading (tutorial; undated; page author not stated; checked 29 October 2026).</span> <a class="ref-link" href="https://hft.readthedocs.io/en/latest/tutorials/GLFT%20Market%20Making%20Model%20and%20Grid%20Trading.html" target="_blank" rel="noopener">https://hft.readthedocs.io/en/latest/tutorials/GLFT%20Market%20Making%20Model%20and%20Grid%20Trading.html</a></li>
+<li id="ref-8"><span class="ref-text">Barzykin, A., Bergault, P., Guéant, O. and Lemmel, M. (2025). Optimal quoting under adverse selection and price reading. arXiv:2508.20225, preprint (first posted 27 August 2025; version 3 of 16 November 2025 read, statements re-checked in version 6 of 7 August 2026).</span> <a class="ref-link" href="https://arxiv.org/abs/2508.20225" target="_blank" rel="noopener">https://arxiv.org/abs/2508.20225</a></li>
+<li id="ref-9"><span class="ref-text">Hummingbot documentation. Avellaneda market making, under Strategies V1 (checked 29 October 2026).</span> <a class="ref-link" href="https://hummingbot.org/strategies/v1-strategies/avellaneda-market-making/" target="_blank" rel="noopener">https://hummingbot.org/strategies/v1-strategies/avellaneda-market-making/</a></li>
+  </ol>
+</section>
+<section class="author card" id="author" aria-labelledby="author-title">
+  <figure class="author-photo">
+    <picture>
+      <source type="image/avif" srcset="/assets/img/yashvardhan-gupta-avatar-96.avif 96w, /assets/img/yashvardhan-gupta-avatar-192.avif 192w" sizes="96px">
+      <source type="image/webp" srcset="/assets/img/yashvardhan-gupta-avatar-96.webp 96w, /assets/img/yashvardhan-gupta-avatar-192.webp 192w" sizes="96px">
+      <img src="/assets/img/yashvardhan-gupta-avatar-192.jpg" srcset="/assets/img/yashvardhan-gupta-avatar-96.jpg 96w, /assets/img/yashvardhan-gupta-avatar-192.jpg 192w" sizes="96px" width="96" height="96" alt="YashVardhan Gupta" loading="lazy" decoding="async">
+    </picture>
+  </figure>
+  <div class="author-body">
+    <h2 class="author-kicker" id="author-title">About the author</h2>
+    <p class="author-name"><a href="/about/">YashVardhan Gupta</a></p>
+    <p class="author-bio">Quantitative developer, researcher and trader at a trading firm based in Dubai and Singapore. Founder of <a href="https://quantnova.in" target="_blank" rel="noopener">QuantNova</a>, a quantitative backtesting platform, and open to freelance work.</p>
+    <p class="author-ai">This article was drafted with AI assistance and checked against the primary sources listed in References.</p>
+    <div class="author-actions">
+      <a class="btn btn--sm btn--tangerine" href="/contact/">Hire me</a>
+      <a class="social-link" href="https://github.com/yashvardhancse" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
+      <a class="social-link" href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn</a>
+    </div>
+  </div>
+</section>
+      </div>
+    </div>
+  </div>
+</div>
+<section class="section sec--alt post-related" id="related" aria-labelledby="related-title">
+  <div class="container">
+    <h2 class="post-related-title" id="related-title">Keep <span class="hl">reading</span></h2>
+    <ul class="related-grid">
+<li class="bcard card" data-tag="Markets">
+  <div class="post-art post-art--mint">
+    <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+      <path d="M180 14v122" stroke-dasharray="3 7"/>
+      <rect x="156" y="106" width="20" height="18" rx="4" class="m"/><rect x="132" y="82" width="44" height="18" rx="4" class="m"/><rect x="96" y="58" width="80" height="18" rx="4" class="m"/><rect x="62" y="34" width="114" height="18" rx="4" class="m"/>
+      <rect x="184" y="106" width="20" height="18" rx="4" class="t"/><rect x="184" y="82" width="52" height="18" rx="4" class="t"/><rect x="184" y="58" width="88" height="18" rx="4" class="t"/><rect x="184" y="34" width="120" height="18" rx="4" class="t"/>
+      <path d="M170 140h20" stroke-width="5" class="st-c"/>
+      <text x="62" y="22" class="art-text">BID</text>
+      <text x="304" y="22" class="art-text" text-anchor="end">ASK</text>
+    </svg>
+  </div>
+  <div class="bcard-body">
+    <p class="bcard-meta"><span class="tag tag--mint">Markets</span><time datetime="2026-10-29">Oct 29, 2026</time><span>16 min read</span></p>
+    <h3 class="bcard-title"><a class="stretch" href="/blog/what-is-market-making/">What Is Market Making? How Market Makers Earn the Spread</a></h3>
+    <p class="bcard-teaser">Bid, ask, spread, inventory and adverse selection: the plain-English guide to the firms that keep markets liquid.</p>
+    <p class="bcard-go" aria-hidden="true">Read the article <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></p>
+  </div>
+</li>
+<li class="bcard card" data-tag="Crypto">
+  <div class="post-art post-art--tangerine">
+    <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+      <circle cx="46" cy="66" r="16" class="p"/><circle cx="46" cy="66" r="5" class="f"/>
+      <path d="M64 66h38" stroke-dasharray="2 8"/>
+      <rect x="104" y="12" width="140" height="108" rx="16" stroke-dasharray="3 7"/>
+      <rect x="118" y="24" width="112" height="24" rx="8" class="p"/>
+      <rect x="118" y="55" width="112" height="24" rx="8" class="m"/>
+      <rect x="118" y="86" width="112" height="24" rx="8" class="p"/>
+      <circle cx="132" cy="36" r="4" class="f"/><circle cx="132" cy="67" r="4" class="f"/><circle cx="132" cy="98" r="4" class="f"/>
+      <path d="M146 36h62M146 67h62M146 98h62" stroke-width="2.5"/>
+      <path d="M246 66h30M270 59l8 7-8 7" stroke-dasharray="2 8"/>
+      <circle cx="318" cy="66" r="24" class="s"/><circle cx="318" cy="66" r="13"/>
+      <text x="24" y="142" class="art-text">BUNDLE + TIP, ALL OR NOTHING</text>
+    </svg>
+  </div>
+  <div class="bcard-body">
+    <p class="bcard-meta"><span class="tag tag--sun">Crypto</span><time datetime="2026-10-29">Oct 29, 2026</time><span>16 min read</span></p>
+    <h3 class="bcard-title"><a class="stretch" href="/blog/solana-mev-bots-explained/">Solana MEV Bots Explained: How They Work &amp; What They Earn</a></h3>
+    <p class="bcard-teaser">Arbitrage, liquidations and sandwiches on Solana: how searchers use Jito bundles and tips, what the economics look like, and how to spot the &quot;$50k a day&quot; bot scams.</p>
+    <p class="bcard-go" aria-hidden="true">Read the article <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></p>
+  </div>
+</li>
+    </ul>
+  </div>
+</section>
+</article>
+<section class="section sec--tangerine contact" id="contact" aria-labelledby="contact-title">
+  <div class="finish" aria-hidden="true"></div>
+  <div class="container contact-grid">
+    <div class="contact-copy">
+      <p class="sec-label">Contact</p>
+      <h2 class="contact-title" id="contact-title">Got a system to build? <span class="nowrap">Let&rsquo;s talk.</span></h2>
+      <p class="contact-sub">Open to freelance work, consulting and collaborations. Book a call or send an email, and I&rsquo;ll reply as soon as I can.</p>
+      <div class="contact-actions">
+        <a class="btn btn--lg btn--ink" href="https://calendly.com/yashvardhancse" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-calendar"/></svg>Book a call</a>
+        <a class="btn btn--lg btn--paper" href="mailto:yashvardhancse@gmail.com"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg>Email me</a>
+      </div>
+    </div>
+    <div class="contact-card card">
+      <p class="contact-card-title">Prefer to copy and paste?</p>
+      <div class="copy-row">
+        <code class="copy-email" id="copy-email">yashvardhancse@gmail.com</code>
+        <button class="btn btn--sm btn--sun copy-btn" type="button" data-copy="yashvardhancse@gmail.com" aria-describedby="copy-status"><svg class="i i-copy" aria-hidden="true"><use href="#i-copy"/></svg><svg class="i i-done" aria-hidden="true"><use href="#i-check"/></svg><span class="copy-label">Copy email</span></button>
+      </div>
+      <p class="visually-hidden" id="copy-status" role="status" aria-live="polite"></p>
+      <ul class="contact-links">
+        <li><a class="social-link" href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn</a></li>
+        <li><a class="social-link" href="https://github.com/yashvardhancse" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a></li>
+        <li><a class="social-link" href="https://instagram.com/camera.yash" target="_blank" rel="noopener me"><svg class="i" aria-hidden="true"><use href="#i-instagram"/></svg>Instagram</a></li>
+      </ul>
+      <p class="contact-note">Based in India, working in IST (UTC+5:30).</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="brand brand--footer" href="/">
+        <span class="brand-mark" aria-hidden="true">YG</span>
+        <span class="brand-name">YashVardhan Gupta</span>
+      </a>
+      <p class="footer-blurb">Quantitative developer and software engineer from India. Trading systems, backtesting, ML and full-stack products.</p>
+      <a class="btn btn--sm btn--paper" href="#top"><svg class="i" aria-hidden="true"><use href="#i-arrow-up"/></svg>Back to top</a>
+    </div>
+    <nav class="footer-col" aria-label="Footer: site">
+      <h2 class="footer-title">Explore</h2>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/#projects">Projects</a></li>
+        <li><a href="/blog/">Blog</a></li>
+        <li><a href="/learning-log/">Learning Log</a></li>
+        <li><a href="/explorations/">Explorations</a></li>
+        <li><a href="/contact/">Contact</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-col footer-col--writing" aria-label="Footer: writing">
+      <h2 class="footer-title">Writing</h2>
+      <ul>
+        <li><a href="/blog/how-credit-card-machines-work-in-flight-without-internet/">Card payments in flight</a></li>
+        <li><a href="/blog/what-is-market-making/">What is market making?</a></li>
+        <li><a href="/blog/emv-offline-authorization-explained/">EMV offline authorization</a></li>
+        <li><a href="/blog/avellaneda-stoikov-market-making-model/">Avellaneda-Stoikov model</a></li>
+        <li><a href="/blog/solana-mev-bots-explained/">Solana MEV bots explained</a></li>
+        <li><a href="/blog/2026/05/04/how-to-start-open-source-contribution/">Open source contribution</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-col" aria-label="Footer: elsewhere">
+      <h2 class="footer-title">Elsewhere</h2>
+      <ul>
+        <li><a href="https://github.com/yashvardhancse" target="_blank" rel="noopener me">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me">LinkedIn</a></li>
+        <li><a href="https://instagram.com/camera.yash" target="_blank" rel="noopener me">Instagram</a></li>
+        <li><a href="https://quantnova.in" target="_blank" rel="noopener">QuantNova</a></li>
+        <li><a href="https://calendly.com/yashvardhancse" target="_blank" rel="noopener">Book a call</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="container footer-bar">
+    <p>&copy; 2026 YashVardhan Gupta</p>
+    <p><a class="rss-link" href="/feed.xml"><svg class="i" aria-hidden="true"><use href="#i-rss"/></svg>RSS feed</a></p>
+  </div>
+  <p class="footer-wordmark" aria-hidden="true"></p>
+</footer>
+
+<script src="/assets/js/main.js" defer onerror="document.documentElement.classList.remove('js')"></script>
+</body>
+</html>

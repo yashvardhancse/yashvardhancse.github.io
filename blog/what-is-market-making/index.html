@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Is Market Making? How Market Makers Earn the Spread</title>
+<meta name="description" content="Market making explained: how market makers quote a bid and an ask, earn the spread, and manage inventory and adverse-selection risk, with a worked example.">
+<link rel="canonical" href="https://yashvardhangupta.com/blog/what-is-market-making/">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="author" content="YashVardhan Gupta">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0f0d0b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="YashVardhan Gupta">
+<meta property="og:locale" content="en_IN">
+<meta property="og:title" content="What Is Market Making? How Market Makers Earn the Spread">
+<meta property="og:description" content="Market making explained: how market makers quote a bid and an ask, earn the spread, and manage inventory and adverse-selection risk, with a worked example.">
+<meta property="og:url" content="https://yashvardhangupta.com/blog/what-is-market-making/">
+<meta property="og:image" content="https://yashvardhangupta.com/assets/og/what-is-market-making-v1.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What Is Market Making? How Market Makers Earn the Spread">
+<meta property="article:published_time" content="2026-10-29T09:10:00+05:30">
+<meta property="article:modified_time" content="2026-10-29T09:10:00+05:30">
+<meta property="article:author" content="https://yashvardhangupta.com/about/">
+<meta property="article:section" content="Markets">
+<meta property="article:tag" content="market making">
+<meta property="article:tag" content="market maker">
+<meta property="article:tag" content="what is a market maker">
+<meta property="article:tag" content="bid ask spread">
+<meta property="article:tag" content="how do market makers make money">
+<meta property="article:tag" content="market maker vs market taker">
+<meta property="article:tag" content="limit order book">
+<meta property="article:tag" content="adverse selection">
+<meta property="article:tag" content="automated market maker">
+<meta property="article:tag" content="impermanent loss">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What Is Market Making? How Market Makers Earn the Spread">
+<meta name="twitter:description" content="Market making explained: how market makers quote a bid and an ask, earn the spread, and manage inventory and adverse-selection risk, with a worked example.">
+<meta name="twitter:image" content="https://yashvardhangupta.com/assets/og/what-is-market-making-v1.png">
+<meta name="twitter:image:alt" content="What Is Market Making? How Market Makers Earn the Spread">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="alternate" type="application/atom+xml" title="YashVardhan Gupta - Blog" href="/feed.xml">
+<link rel="me" href="https://github.com/yashvardhancse">
+<link rel="me" href="https://www.linkedin.com/in/yashvardhancse/">
+<script>
+/* Early setup (inline, tiny, before first paint): marks html.js, applies the stored or OS theme as data-theme (no flash of the
+   wrong theme) and the stored "Pause animations" choice as html.motion-off. Without this script (or without JS) the CSS
+   follows prefers-color-scheme on its own, the navigation is a plain list and nothing moves. */
+(function(){var d=document.documentElement,t,m,s,i,c;try{t=localStorage.getItem('theme');m=localStorage.getItem('motion')}catch(e){}
+s=t==='light'||t==='dark';
+if(!s){t=window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}
+d.setAttribute('data-theme',t);d.classList.add('js');if(m==='paused'){d.classList.add('motion-off')}
+if(s){c=document.querySelectorAll('meta[name="theme-color"]');for(i=0;i<c.length;i++){c[i].removeAttribute('media');c[i].setAttribute('content',t==='dark'?'#0f0d0b':'#f4efe6')}}})();
+</script>
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/blog.css">
+<script src="/assets/js/article.js" defer></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": "https://yashvardhangupta.com/blog/what-is-market-making/#article",
+      "headline": "What Is Market Making? How Market Makers Earn the Spread",
+      "description": "Market making explained: how market makers quote a bid and an ask, earn the spread, and manage inventory and adverse-selection risk, with a worked example.",
+      "image": [
+        "https://yashvardhangupta.com/assets/og/what-is-market-making-v1.png"
+      ],
+      "datePublished": "2026-10-29T09:10:00+05:30",
+      "dateModified": "2026-10-29T09:10:00+05:30",
+      "author": {
+        "@type": "Person",
+        "@id": "https://yashvardhangupta.com/#person",
+        "name": "YashVardhan Gupta",
+        "url": "https://yashvardhangupta.com/about/"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://yashvardhangupta.com/#person",
+        "name": "YashVardhan Gupta",
+        "url": "https://yashvardhangupta.com/about/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://yashvardhangupta.com/blog/what-is-market-making/"
+      },
+      "url": "https://yashvardhangupta.com/blog/what-is-market-making/",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "isPartOf": {
+        "@type": "Blog",
+        "@id": "https://yashvardhangupta.com/blog/#blog"
+      },
+      "keywords": "market making, market maker, what is a market maker, bid ask spread, how do market makers make money, market maker vs market taker, limit order book, adverse selection, automated market maker, impermanent loss",
+      "articleSection": "Markets",
+      "wordCount": 3489,
+      "timeRequired": "PT16M"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://yashvardhangupta.com/blog/what-is-market-making/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://yashvardhangupta.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://yashvardhangupta.com/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "What Is Market Making? How Market Makers Earn the Spread",
+          "item": "https://yashvardhangupta.com/blog/what-is-market-making/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+<script>
+/* Google Analytics 4 (G-EZNSFMP4V2): loaded on the first interaction or after 6 s, whichever comes first.
+   Never on localhost, 127.0.0.1 or file pages. */
+(function(){var h=location.hostname;
+if(location.protocol==='file:'||h===''||h==='localhost'||h==='127.0.0.1'||h==='[::1]'){return}
+var ev=['pointerdown','keydown','scroll','touchstart'],o={passive:true,once:true},done=false,t=0;
+function go(){if(done){return}done=true;clearTimeout(t);
+ev.forEach(function(e){removeEventListener(e,go,o)});
+var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-EZNSFMP4V2';document.head.appendChild(s);
+window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-EZNSFMP4V2')}
+ev.forEach(function(e){addEventListener(e,go,o)});t=setTimeout(go,6000)})();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3 7 9 6.5L21 7"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15H4.5A2.5 2.5 0 0 1 2 12.5v-8A2.5 2.5 0 0 1 4.5 2h8A2.5 2.5 0 0 1 15 4.5V5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/></symbol>
+  <symbol id="i-rss" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2.5"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12.5a8.5 8.5 0 0 1-12.4 7.5L3 21l1.3-4.9A8.5 8.5 0 1 1 21 12.5z"/></symbol>
+  <symbol id="i-branch" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2.5"/><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="8" r="2.5"/><path d="M6 7.5v9M18 10.5c0 4-6 3.5-10.5 7"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3.5" width="18" height="17" rx="3"/><path d="M3 9.5h18M9.5 9.5v11"/></symbol>
+  <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14 -1.5 8 5-3 5 3-1.5-8"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6M12 19h8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.7a3.5 3.5 0 0 1 0 6.6M18 14.3c2.2.7 3.5 2.6 3.5 5.7"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.2 2.9.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></symbol>
+  <symbol id="i-linkedin" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></symbol>
+  <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></symbol>
+</svg>
+
+<header class="site-header" id="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">YG</span>
+      <span class="brand-name">YashVardhan Gupta</span>
+    </a>
+    <nav class="site-nav" id="site-nav" aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="/" data-nav="home">Home</a></li>
+        <li><a href="/about/" data-nav="about">About</a></li>
+        <li><a href="/#projects" data-nav="projects">Projects</a></li>
+        <li><a href="/blog/" data-nav="blog" aria-current="page">Blog</a></li>
+        <li><a href="/learning-log/" data-nav="learning">Learning Log</a></li>
+        <li><a href="/explorations/" data-nav="explorations">Explorations</a></li>
+        <li><a href="/contact/" data-nav="contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn theme-toggle" type="button" aria-pressed="false" aria-label="Dark theme">
+        <svg class="i i-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+        <svg class="i i-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+      </button>
+      <a class="btn btn--sm btn--tangerine header-cta" href="/contact/">Hire me</a>
+      <button class="icon-btn nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+        <svg class="i i-open" aria-hidden="true"><use href="#i-menu"/></svg>
+        <svg class="i i-close" aria-hidden="true"><use href="#i-x"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="main" tabindex="-1">
+<article class="post-page">
+<header class="section sec--ink post-hero" id="top">
+  <div class="container post-hero-grid">
+    <div class="post-hero-copy">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol class="sec-label">
+          <li><a href="/blog/"><span class="sec-num" aria-hidden="true"><svg class="i"><use href="#i-arrow-right"/></svg></span>Blog</a></li>
+          <li><a href="/blog/#tag-markets">Markets</a></li>
+          <li class="visually-hidden" aria-current="page">What Is Market Making? How Market Makers Earn the Spread</li>
+        </ol>
+      </nav>
+      <h1 class="post-h1"><span class="hl">What Is Market Making</span>? How Market Makers Earn the Spread</h1>
+      <p class="post-dek">Market makers post a price to buy and a price to sell at the same time, and in our worked example one books $4.00 of spread edge yet ends $16.00 down after a ten-cent fall. This guide shows why, and where automated market makers and the rules fit in.</p>
+      <p class="post-meta">
+        <span class="tag tag--mint">Markets</span>
+        <time datetime="2026-10-29T09:10:00+05:30">Oct 29, 2026</time>
+        
+        <span>16 min read</span>
+        <span>By <a href="/about/" rel="author">YashVardhan Gupta</a></span>
+      </p>
+    </div>
+    <div class="post-hero-art card">
+      <div class="post-art post-art--mint">
+        <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+          <path d="M180 14v122" stroke-dasharray="3 7"/>
+          <rect x="156" y="106" width="20" height="18" rx="4" class="m"/><rect x="132" y="82" width="44" height="18" rx="4" class="m"/><rect x="96" y="58" width="80" height="18" rx="4" class="m"/><rect x="62" y="34" width="114" height="18" rx="4" class="m"/>
+          <rect x="184" y="106" width="20" height="18" rx="4" class="t"/><rect x="184" y="82" width="52" height="18" rx="4" class="t"/><rect x="184" y="58" width="88" height="18" rx="4" class="t"/><rect x="184" y="34" width="120" height="18" rx="4" class="t"/>
+          <path d="M170 140h20" stroke-width="5" class="st-c"/>
+          <text x="62" y="22" class="art-text">BID</text>
+          <text x="304" y="22" class="art-text" text-anchor="end">ASK</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="post-sheet">
+  <div class="container">
+    <div class="post-layout">
+      <div class="post-toc" id="toc">
+<nav class="toc card toc-rail" aria-label="Table of contents">
+  <p class="toc-title">On this page</p>
+  <ol class="toc-list">
+<li><a href="#key-takeaways"><span class="toc-n" aria-hidden="true">&bull;</span><span>Key takeaways</span></a></li>
+<li><a href="#what-is-market-making"><span class="toc-n" aria-hidden="true">01</span><span>What is market making, and why do markets need it?</span></a></li>
+<li><a href="#limit-order-book-price-time-priority"><span class="toc-n" aria-hidden="true">02</span><span>How a limit order book works: price-time priority and the queue</span></a></li>
+<li><a href="#market-making-example"><span class="toc-n" aria-hidden="true">03</span><span>A market making example: earning the spread, then an inventory loss</span></a></li>
+<li><a href="#how-market-makers-make-money"><span class="toc-n" aria-hidden="true">04</span><span>How do market makers make money?</span></a></li>
+<li><a href="#adverse-selection-inventory-risk"><span class="toc-n" aria-hidden="true">05</span><span>What eats a market maker’s profit? Adverse selection and inventory risk</span></a></li>
+<li><a href="#how-market-makers-set-prices"><span class="toc-n" aria-hidden="true">06</span><span>How do market makers set prices? Fair value, skew and hedging</span></a></li>
+<li><a href="#types-of-market-makers"><span class="toc-n" aria-hidden="true">07</span><span>Types of market makers</span></a></li>
+<li><a href="#automated-market-maker-vs-order-book"><span class="toc-n" aria-hidden="true">08</span><span>Automated market makers vs order-book market making</span></a></li>
+<li><a href="#market-maker-obligations-regulation"><span class="toc-n" aria-hidden="true">09</span><span>Do market makers have to keep quoting? Obligations and rules</span></a></li>
+<li><a href="#do-market-makers-manipulate-prices"><span class="toc-n" aria-hidden="true">10</span><span>Do market makers manipulate prices? Myths and spoofing</span></a></li>
+<li><a href="#next-steps"><span class="toc-n" aria-hidden="true">11</span><span>Where to go next</span></a></li>
+<li><a href="#faq"><span class="toc-n" aria-hidden="true">&bull;</span><span>Frequently asked questions</span></a></li>
+<li><a href="#references"><span class="toc-n" aria-hidden="true">&bull;</span><span>References</span></a></li>
+  </ol>
+</nav>
+<details class="toc card toc-inline">
+  <summary><span>On this page</span><span class="toc-count">14 sections</span></summary>
+  <ol class="toc-list">
+<li><a href="#key-takeaways"><span class="toc-n" aria-hidden="true">&bull;</span><span>Key takeaways</span></a></li>
+<li><a href="#what-is-market-making"><span class="toc-n" aria-hidden="true">01</span><span>What is market making, and why do markets need it?</span></a></li>
+<li><a href="#limit-order-book-price-time-priority"><span class="toc-n" aria-hidden="true">02</span><span>How a limit order book works: price-time priority and the queue</span></a></li>
+<li><a href="#market-making-example"><span class="toc-n" aria-hidden="true">03</span><span>A market making example: earning the spread, then an inventory loss</span></a></li>
+<li><a href="#how-market-makers-make-money"><span class="toc-n" aria-hidden="true">04</span><span>How do market makers make money?</span></a></li>
+<li><a href="#adverse-selection-inventory-risk"><span class="toc-n" aria-hidden="true">05</span><span>What eats a market maker’s profit? Adverse selection and inventory risk</span></a></li>
+<li><a href="#how-market-makers-set-prices"><span class="toc-n" aria-hidden="true">06</span><span>How do market makers set prices? Fair value, skew and hedging</span></a></li>
+<li><a href="#types-of-market-makers"><span class="toc-n" aria-hidden="true">07</span><span>Types of market makers</span></a></li>
+<li><a href="#automated-market-maker-vs-order-book"><span class="toc-n" aria-hidden="true">08</span><span>Automated market makers vs order-book market making</span></a></li>
+<li><a href="#market-maker-obligations-regulation"><span class="toc-n" aria-hidden="true">09</span><span>Do market makers have to keep quoting? Obligations and rules</span></a></li>
+<li><a href="#do-market-makers-manipulate-prices"><span class="toc-n" aria-hidden="true">10</span><span>Do market makers manipulate prices? Myths and spoofing</span></a></li>
+<li><a href="#next-steps"><span class="toc-n" aria-hidden="true">11</span><span>Where to go next</span></a></li>
+<li><a href="#faq"><span class="toc-n" aria-hidden="true">&bull;</span><span>Frequently asked questions</span></a></li>
+<li><a href="#references"><span class="toc-n" aria-hidden="true">&bull;</span><span>References</span></a></li>
+  </ol>
+</details>
+      </div>
+      <div class="post-main">
+<div class="prose">
+<h2 id="key-takeaways">Key takeaways<a class="anchor" href="#key-takeaways" aria-label="Link to this section: Key takeaways"></a></h2>
+<ul class="takeaways">
+<li>Market making is a business of risk: the spread is gross pay for carrying inventory and facing better-informed traders, not a guaranteed profit.</li>
+<li>In the worked example below, a market maker books $4.00 of spread edge, then loses $20.00 on its remaining shares as the price falls ten cents.</li>
+<li>“Maker” in maker-taker fees means any resting limit order, whoever places it.</li>
+<li>Market makers are not required to trade at any price. Most obligations are quoting tests, though some designated market makers must also trade against the trend.</li>
+<li>An automated market maker swaps quotes for a formula, and its signature cost is impermanent loss.</li>
+</ul>
+<p>Market making is the practice of continuously quoting both a price to buy (the bid) and a price to sell (the ask) in the same instrument, so others can trade at once. The market maker earns the gap between them, the spread, and bears the risk that prices move against the inventory it accumulates.</p>
+
+<h2 id="what-is-market-making" data-n="01">What is market making, and why do markets need it?<a class="anchor" href="#what-is-market-making" aria-label="Link to this section: What is market making, and why do markets need it?"></a></h2>
+<p>Buyers and sellers do not always arrive at the same moment, especially in thinly traded stocks. A market maker fills the gap by standing ready on both sides, so you trade against its inventory instead of waiting for a counterparty.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+<p>US securities law counts as a market maker any dealer that holds itself out as willing to buy and sell a security for its own account on a regular or continuous basis.<sup class="cite"><a href="#ref-2" aria-label="Reference 2">[2]</a></sup> A dealer trades as a principal, while a broker is an agent that executes orders for others.<sup class="cite"><a href="#ref-2" aria-label="Reference 2">[2]</a></sup></p>
+
+<h3 id="bid-ask-spread">What are the bid, ask and spread?<a class="anchor" href="#bid-ask-spread" aria-label="Link to this section: What are the bid, ask and spread?"></a></h3>
+<p>The bid is the best price a buyer currently offers, and the ask (or offer) is the best price a seller currently accepts. Their difference is the bid-ask spread, and the midpoint is the mid-price.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup> In our running example the bid is $49.99, the ask is $50.01, the spread is $0.02 and the mid-price is $50.00.</p>
+
+
+<h2 id="limit-order-book-price-time-priority" data-n="02">How a limit order book works: price-time priority and the queue<a class="anchor" href="#limit-order-book-price-time-priority" aria-label="Link to this section: How a limit order book works: price-time priority and the queue"></a></h2>
+<p>A limit order names a price and waits in the order book until an opposite order meets it. A market order executes at once at the best available price.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup> On an exchange, a market maker’s quotes are limit orders.</p>
+<p>When orders rest at the same price, a common rule is price-time priority: best price first, then earliest arrival. <abbr title="Chicago Mercantile Exchange">CME</abbr> says its first-in-first-out algorithm ranks orders by price and then time only, and an order loses its place if you increase its size or change its price, so queue position has value.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup> The rule is not universal: CME also runs pro-rata algorithms that split fills by size.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup></p>
+<figure class="fig" id="fig-order-book"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 306" role="img" aria-labelledby="fig-order-book-t fig-order-book-d">
+    <title id="fig-order-book-t">Limit order book with a two-cent spread</title>
+    <desc id="fig-order-book-d">Asks at 50.01 and 50.02 sit above bids at 49.99 and 49.98. The market maker’s 500 shares queue behind another trader’s order at 50.01 and at 49.99.</desc>
+    <text class="f-sub" x="108" y="24">Asks: sell orders</text>
+    <text class="f-text f-mono" x="64" y="62" text-anchor="middle">50.02</text>
+    <rect class="f-box" x="108" y="42" width="120" height="28" rx="6"/>
+    <text class="f-sub" x="168" y="61" text-anchor="middle">Other 400</text>
+    <text class="f-text f-mono" x="64" y="102" text-anchor="middle">50.01</text>
+    <rect class="f-box" x="108" y="82" width="90" height="28" rx="6"/>
+    <text class="f-sub" x="153" y="101" text-anchor="middle">Other 300</text>
+    <rect class="f-box-accent" x="202" y="82" width="150" height="28" rx="6"/>
+    <text class="f-text" x="277" y="102" text-anchor="middle">MM 500</text>
+    <line class="f-line f-dash" x1="108" y1="138" x2="188" y2="138"/>
+    <line class="f-line f-dash" x1="308" y1="138" x2="388" y2="138"/>
+    <text class="f-text" x="248" y="144" text-anchor="middle">spread $0.02</text>
+    <text class="f-sub" x="248" y="164" text-anchor="middle">mid 50.00</text>
+    <text class="f-sub" x="108" y="196">Bids: buy orders</text>
+    <text class="f-text f-mono" x="64" y="230" text-anchor="middle">49.99</text>
+    <rect class="f-box" x="108" y="210" width="120" height="28" rx="6"/>
+    <text class="f-sub" x="168" y="229" text-anchor="middle">Other 400</text>
+    <rect class="f-box-accent" x="232" y="210" width="150" height="28" rx="6"/>
+    <text class="f-text" x="307" y="230" text-anchor="middle">MM 500</text>
+    <text class="f-text f-mono" x="64" y="270" text-anchor="middle">49.98</text>
+    <rect class="f-box" x="108" y="250" width="180" height="28" rx="6"/>
+    <text class="f-sub" x="198" y="269" text-anchor="middle">Other 600</text>
+  </svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+  <figcaption><strong>Figure 1.</strong> A toy order book for stock XYZ on one exchange. Box width is proportional to shares, and the box nearest the price is first in line.</figcaption>
+</figure>
+<p>In Figure 1 the market maker (MM) is second in line at both 49.99 and 50.01, so a small market order fills the trader ahead first.</p>
+
+<h2 id="market-making-example" data-n="03">A market making example: earning the spread, then an inventory loss<a class="anchor" href="#market-making-example" aria-label="Link to this section: A market making example: earning the spread, then an inventory loss"></a></h2>
+<p>This toy example uses invented numbers and is not a strategy. The market maker buys at its bid, where takers sell into it, and sells at its ask, where takers buy from it. Profit and loss (P&amp;L) is cash plus shares held times the current mid-price.</p>
+<p>From the book in Figure 1, a taker first buys 400 shares with a market order: the trader ahead takes 300 and the market maker sells 100 at 50.01. Later a taker sells 700: the trader ahead takes 400 and the market maker buys 300 at 49.99. Then bad news arrives.</p>
+<div class="tbl"><div class="table-wrap scroll-x"><table>
+<caption>Ledger for the market maker (MM). Cash and shares are running totals, and negative shares mean the MM is short. P&amp;L uses mid-price 50.00, then 49.90.</caption>
+<thead><tr><th scope="col">Step</th><th scope="col">Cash</th><th scope="col">Shares</th><th scope="col">P&amp;L</th></tr></thead>
+<tbody>
+<tr><th scope="row">1. Taker buys 400</th><td>5,001.00</td><td>−100</td><td>+1.00</td></tr>
+<tr><th scope="row">2. Taker sells 700</th><td>−9,996.00</td><td>+200</td><td>+4.00</td></tr>
+<tr><th scope="row">3. News: mid falls to 49.90</th><td>−9,996.00</td><td>+200</td><td>−16.00</td></tr>
+</tbody></table></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p></div>
+<p>The <span class="nowrap">+$4.00</span> is the market maker’s spread edge: each of the 400 shares it traded was one cent better than the 50.00 mid-price, and 400 × $0.01 = $4.00. Only $2.00 is locked in, from 100 shares bought at 49.99 and sold at 50.01; the other 200 are marked $2.00 above cost.</p>
+<p>Then the mid-price falls to 49.90. The 200 shares lose 200 × $0.10 = $20.00 in value, while spread edge stays at <span class="nowrap">+$4.00</span>, so the result is <span class="nowrap">−$16.00</span>. A ten-cent move cost five times the spread edge: spread arrives a cent at a time, and inventory risk arrives in lumps.</p>
+<figure class="fig" id="fig-pnl"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 324" role="img" aria-labelledby="fig-pnl-t fig-pnl-d">
+    <title id="fig-pnl-t">Profit and loss of the worked example</title>
+    <desc id="fig-pnl-d">Spread edge plus 4 dollars, inventory move minus 20, net minus 16.</desc>
+    <line class="f-line" x1="8" y1="104" x2="384" y2="104"/>
+    <text class="f-sub" x="380" y="96" text-anchor="end">$0</text>
+    <rect class="f-box-pos" x="16" y="66" width="100" height="38" rx="6"/>
+    <text class="f-text" x="66" y="56" text-anchor="middle">+$4.00</text>
+    <text class="f-sub" x="66" y="128" text-anchor="middle">400 × $0.01</text>
+    <rect class="f-box-neg" x="146" y="66" width="100" height="190" rx="6"/>
+    <text class="f-text" x="196" y="170" text-anchor="middle">−$20.00</text>
+    <text class="f-sub" x="196" y="192" text-anchor="middle">200 × −$0.10</text>
+    <rect class="f-box-neg" x="276" y="104" width="100" height="152" rx="6"/>
+    <text class="f-text" x="326" y="170" text-anchor="middle">−$16.00</text>
+    <text class="f-sub" x="326" y="192" text-anchor="middle">4.00 − 20.00</text>
+    <line class="f-line f-dash" x1="116" y1="66" x2="146" y2="66"/>
+    <line class="f-line f-dash" x1="246" y1="256" x2="276" y2="256"/>
+    <text class="f-text" x="66" y="296" text-anchor="middle">Spread edge</text>
+    <text class="f-text" x="196" y="296" text-anchor="middle">Inventory move</text>
+    <text class="f-text" x="326" y="296" text-anchor="middle">Net P&amp;L</text>
+  </svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+  <figcaption><strong>Figure 2.</strong> The spread edge on 400 filled shares (<span class="nowrap">+$4.00</span>) is outweighed by the fall from 50.00 to 49.90 on the 200 shares still held (<span class="nowrap">−$20.00</span>).</figcaption>
+</figure>
+<p>This script replays the book in Figure 1 and prints the same figures as the ledger. It uses only the Python standard library.</p>
+<figure class="code-card"><figcaption class="code-bar"><span class="code-title">mm_example.py</span><span class="code-lang">Python</span></figcaption><pre class="code scroll-x" data-lang="python" data-title="mm_example.py"><code><span class="tok-k">from</span> <span class="tok-f">collections</span> <span class="tok-k">import</span> deque
+
+<span class="tok-c"># Prices in integer cents. Each level is a FIFO queue of [owner, shares]; "MM" is</span>
+<span class="tok-c"># our market maker, and this is the book in Figure 1.</span>
+asks <span class="tok-o">=</span> <span class="tok-o">{</span><span class="tok-m">5001</span><span class="tok-o">:</span> deque<span class="tok-o">([[</span><span class="tok-s">"Other"</span><span class="tok-o">,</span> <span class="tok-m">300</span><span class="tok-o">],</span> <span class="tok-o">[</span><span class="tok-s">"MM"</span><span class="tok-o">,</span> <span class="tok-m">500</span><span class="tok-o">]]),</span>
+        <span class="tok-m">5002</span><span class="tok-o">:</span> deque<span class="tok-o">([[</span><span class="tok-s">"Other"</span><span class="tok-o">,</span> <span class="tok-m">400</span><span class="tok-o">]])}</span>
+bids <span class="tok-o">=</span> <span class="tok-o">{</span><span class="tok-m">4999</span><span class="tok-o">:</span> deque<span class="tok-o">([[</span><span class="tok-s">"Other"</span><span class="tok-o">,</span> <span class="tok-m">400</span><span class="tok-o">],</span> <span class="tok-o">[</span><span class="tok-s">"MM"</span><span class="tok-o">,</span> <span class="tok-m">500</span><span class="tok-o">]]),</span>
+        <span class="tok-m">4998</span><span class="tok-o">:</span> deque<span class="tok-o">([[</span><span class="tok-s">"Other"</span><span class="tok-o">,</span> <span class="tok-m">600</span><span class="tok-o">]])}</span>
+cash <span class="tok-o">=</span> shares <span class="tok-o">=</span> <span class="tok-m">0</span>                    <span class="tok-c"># the market maker's own account</span>
+
+<span class="tok-k">def</span> <span class="tok-f">market_order</span><span class="tok-o">(</span>side<span class="tok-o">,</span> qty<span class="tok-o">):</span>
+    <span class="tok-c">"""A taker sweeps the book: best price first, then first in line."""</span>
+    <span class="tok-k">global</span> cash<span class="tok-o">,</span> shares
+    book <span class="tok-o">=</span> asks <span class="tok-k">if</span> side <span class="tok-o">==</span> <span class="tok-s">"buy"</span> <span class="tok-k">else</span> bids
+    <span class="tok-k">for</span> price <span class="tok-k">in</span> <span class="tok-f">sorted</span><span class="tok-o">(</span>book<span class="tok-o">,</span> reverse<span class="tok-o">=(</span>side <span class="tok-o">==</span> <span class="tok-s">"sell"</span><span class="tok-o">)):</span>
+        queue <span class="tok-o">=</span> book<span class="tok-o">[</span>price<span class="tok-o">]</span>
+        <span class="tok-k">while</span> qty <span class="tok-k">and</span> queue<span class="tok-o">:</span>
+            owner<span class="tok-o">,</span> size <span class="tok-o">=</span> queue<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">]</span>
+            fill <span class="tok-o">=</span> <span class="tok-f">min</span><span class="tok-o">(</span>qty<span class="tok-o">,</span> size<span class="tok-o">)</span>
+            qty <span class="tok-o">-=</span> fill
+            queue<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">][</span><span class="tok-m">1</span><span class="tok-o">]</span> <span class="tok-o">-=</span> fill
+            <span class="tok-k">if</span> queue<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">][</span><span class="tok-m">1</span><span class="tok-o">]</span> <span class="tok-o">==</span> <span class="tok-m">0</span><span class="tok-o">:</span>
+                queue<span class="tok-o">.</span>popleft<span class="tok-o">()</span>
+            <span class="tok-k">if</span> owner <span class="tok-o">==</span> <span class="tok-s">"MM"</span><span class="tok-o">:</span>
+                <span class="tok-c"># MM sells to a buyer and buys from a seller</span>
+                sign <span class="tok-o">=</span> <span class="tok-o">-</span><span class="tok-m">1</span> <span class="tok-k">if</span> side <span class="tok-o">==</span> <span class="tok-s">"buy"</span> <span class="tok-k">else</span> <span class="tok-m">1</span>
+                shares <span class="tok-o">+=</span> sign <span class="tok-o">*</span> fill
+                cash <span class="tok-o">-=</span> sign <span class="tok-o">*</span> fill <span class="tok-o">*</span> price
+
+<span class="tok-k">def</span> <span class="tok-f">show</span><span class="tok-o">(</span>label<span class="tok-o">,</span> mid<span class="tok-o">=</span><span class="tok-m">5000</span><span class="tok-o">):</span>
+    pnl <span class="tok-o">=</span> <span class="tok-o">(</span>cash <span class="tok-o">+</span> shares <span class="tok-o">*</span> mid<span class="tok-o">)</span> <span class="tok-o">/</span> <span class="tok-m">100</span>
+    <span class="tok-f">print</span><span class="tok-o">(</span><span class="tok-s">f"{</span>label<span class="tok-s">:&lt;16}cash {</span>cash <span class="tok-o">/</span> <span class="tok-m">100</span><span class="tok-s">:&gt;10,.2f}  shares {</span>shares<span class="tok-s">:&gt;+5d}  "</span>
+          <span class="tok-s">f"P&amp;L {</span>pnl<span class="tok-s">:&gt;+7.2f} at mid {</span>mid <span class="tok-o">/</span> <span class="tok-m">100</span><span class="tok-s">:.2f}"</span><span class="tok-o">)</span>
+
+market_order<span class="tok-o">(</span><span class="tok-s">"buy"</span><span class="tok-o">,</span> <span class="tok-m">400</span><span class="tok-o">)</span>
+show<span class="tok-o">(</span><span class="tok-s">"taker buys 400"</span><span class="tok-o">)</span>
+market_order<span class="tok-o">(</span><span class="tok-s">"sell"</span><span class="tok-o">,</span> <span class="tok-m">700</span><span class="tok-o">)</span>
+show<span class="tok-o">(</span><span class="tok-s">"taker sells 700"</span><span class="tok-o">)</span>
+show<span class="tok-o">(</span><span class="tok-s">"news"</span><span class="tok-o">,</span> <span class="tok-m">4990</span><span class="tok-o">)</span></code></pre></figure>
+<figure class="code-card code-card--output"><figcaption class="code-bar"><span class="code-title">Output</span><span class="code-lang">output</span></figcaption><pre class="code code--output scroll-x" data-lang="" data-title="Output"><code>taker buys 400  cash   5,001.00  shares  -100  P&amp;L   +1.00 at mid 50.00
+taker sells 700 cash  -9,996.00  shares  +200  P&amp;L   +4.00 at mid 50.00
+news            cash  -9,996.00  shares  +200  P&amp;L  -16.00 at mid 49.90</code></pre></figure>
+
+<h2 id="how-market-makers-make-money" data-n="04">How do market makers make money?<a class="anchor" href="#how-market-makers-make-money" aria-label="Link to this section: How do market makers make money?"></a></h2>
+<p>Mainly by buying at the bid and selling at the ask. The <abbr title="U.S. Securities and Exchange Commission">SEC</abbr>’s 2010 description of passive market making names two sources of profit: earning the spread, and capturing the liquidity rebates trading centers pay to resting orders.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup></p>
+<p>Rebates come from maker-taker pricing, the predominant exchange fee structure in US stocks: the venue charges the order that takes liquidity and pays the order that provides it, typically funded by the access fee takers pay.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup> At Cboe BZX, for example, the standard rate from 19 October 2026 pays $0.0016 per share to add liquidity and charges $0.0030 to remove it for stocks at $1.00 or more; rates vary by tier.<sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup> On the 400 shares in our example the rebate would be $0.64, against $4.00 of spread edge.</p>
+
+<h3 id="market-maker-vs-market-taker">Maker vs taker: what “maker” means<a class="anchor" href="#market-maker-vs-market-taker" aria-label="Link to this section: Maker vs taker: what “maker” means"></a></h3>
+<p>On US stock exchanges, a maker is any order that rests in the book and adds liquidity, and a taker is any order that executes against a resting order.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup> A retail investor’s resting limit order is a maker order,<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup> and a market maker that crosses the spread to flatten a position is a taker.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup> A few venues invert the model and pay the taker.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup><sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup></p>
+<figure class="fig" id="fig-maker-taker"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 332" role="img" aria-labelledby="fig-maker-taker-t fig-maker-taker-d">
+    <title id="fig-maker-taker-t">Maker and taker order flow</title>
+    <desc id="fig-maker-taker-d">A maker rests an order and usually earns a rebate on US stock exchanges. A taker trades against it and pays an access fee. Inverted venues swap the two.</desc>
+    <defs><marker id="fig-maker-taker-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="f-arrow-head" d="M0 0L10 5L0 10z"/></marker></defs>
+    <rect class="f-box-accent" x="16" y="16" width="170" height="84" rx="12"/>
+    <text class="f-text" x="101" y="44" text-anchor="middle">1. Maker</text>
+    <text class="f-sub" x="101" y="68" text-anchor="middle">rests an order,</text>
+    <text class="f-sub" x="101" y="88" text-anchor="middle">adds liquidity</text>
+    <path class="f-arrow" d="M101 100V122" marker-end="url(#fig-maker-taker-ah)"/>
+    <rect class="f-box" x="16" y="124" width="170" height="72" rx="12"/>
+    <text class="f-text" x="101" y="166" text-anchor="middle">Order book</text>
+    <path class="f-arrow" d="M101 220V198" marker-end="url(#fig-maker-taker-ah)"/>
+    <rect class="f-box" x="16" y="220" width="170" height="84" rx="12"/>
+    <text class="f-text" x="101" y="248" text-anchor="middle">2. Taker</text>
+    <text class="f-sub" x="101" y="270" text-anchor="middle">hits that order,</text>
+    <text class="f-sub" x="101" y="290" text-anchor="middle">removes liquidity</text>
+    <path class="f-line" d="M186 58H222"/>
+    <rect class="f-box-pos" x="222" y="28" width="164" height="60" rx="12"/>
+    <text class="f-text" x="304" y="54" text-anchor="middle">Rebate</text>
+    <text class="f-sub" x="304" y="76" text-anchor="middle">US stock exchanges</text>
+    <text class="f-sub" x="304" y="158" text-anchor="middle">Inverted venues</text>
+    <text class="f-sub" x="304" y="178" text-anchor="middle">swap the two.</text>
+    <path class="f-line" d="M186 262H222"/>
+    <rect class="f-box-neg" x="222" y="232" width="164" height="60" rx="12"/>
+    <text class="f-text" x="304" y="258" text-anchor="middle">Access fee</text>
+    <text class="f-sub" x="304" y="280" text-anchor="middle">cap $0.003 a share</text>
+  </svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+  <figcaption><strong>Figure 3.</strong> “Maker” and “taker” describe what an order does, not who sent it. This is the US stock exchange convention; crypto and other markets differ. The cap is for stocks at $1.00 or more, as of 29 October 2026.</figcaption>
+</figure>
+<p>In the usual sense of payment for order flow, an off-exchange market maker pays a retail broker for the right to trade against its customers’ orders. Maker-taker rebates are a different arrangement, though a 2021 SEC staff report also calls exchange rebates “a form of payment for order flow” and notes that exchange pricing is posted publicly while wholesaler payments are negotiated individually.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></p>
+
+<h2 id="adverse-selection-inventory-risk" data-n="05">What eats a market maker’s profit? Adverse selection and inventory risk<a class="anchor" href="#adverse-selection-inventory-risk" aria-label="Link to this section: What eats a market maker’s profit? Adverse selection and inventory risk"></a></h2>
+<p>Bank of England staff (Benos and Wetherilt, 2012) describe two main risks: trading against someone who knows more (adverse selection) and holding a position while the price moves (inventory risk).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> Quotes are also standing offers, so a faster trader can pick off a stale one, which is why latency, the delay in updating quotes, matters.</p>
+
+<h3 id="adverse-selection">Adverse selection: trading against better-informed traders<a class="anchor" href="#adverse-selection" aria-label="Link to this section: Adverse selection: trading against better-informed traders"></a></h3>
+<p>If a seller who expects a fall hits a market maker’s bid, the price tends to drop right afterwards, which the Bank of England article describes as forcing the dealer effectively to buy high and sell low.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+<aside role="note" class="callout callout--example"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 3h6M10 3v6.2L4.8 18.5A2 2 0 0 0 6.5 21.5h11a2 2 0 0 0 1.7-3L14 9.2V3"/><path d="M7.5 15h9"/></svg><span><span class="visually-hidden">Example: </span>A one-cent fall erases the half-spread</span></p><p>Say your bid at 49.99 is hit for 1,000 shares by a seller who knows the price is about to fall. Against the 50.00 mid-price you earned $10.00. If the mid-price falls one cent to 49.99, that edge is gone. At 49.95 you are down $40.00, and at 49.90 you are down $90.00.</p></aside>
+<p>Even a competitive market maker with zero expected profit needs a spread when some traders are informed. In a simplified illustration in the spirit of the Glosten-Milgrom model,<sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup> a stock is worth $99 or $101 with equal odds, one trader in five knows which, and the rest are equally likely to buy or sell.</p>
+<p>A buy is 60% likely when the value is $101 and 40% likely when it is $99, so after a buy the value is $101 with probability 0.6. The break-even ask is 0.6 × $101 + 0.4 × $99 = $100.20, and by symmetry the bid is $99.80. The $0.40 spread equals the informed share (0.2) times the $2 gap in value. Estimates of the adverse-selection share of real spreads vary: 8 to 13 percent for small trades in a 1991 study of pre-decimal US data, against over 40 percent in earlier work, with order-processing costs the largest component.<sup class="cite"><a href="#ref-9" aria-label="Reference 9">[9]</a></sup></p>
+
+
+<h2 id="how-market-makers-set-prices" data-n="06">How do market makers set prices? Fair value, skew and hedging<a class="anchor" href="#how-market-makers-set-prices" aria-label="Link to this section: How do market makers set prices? Fair value, skew and hedging"></a></h2>
+<p>A market maker quotes around an estimate of the asset’s true value, which the Avellaneda-Stoikov dealer model takes to be the mid-price. The gap between a quote and that value is its edge: wide enough to cover adverse selection, fees and inventory risk, narrow enough to be filled before rivals. Wider quotes earn more per fill but fill less often, and more informed traders or higher volatility push spreads out.<sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup><sup class="cite"><a href="#ref-10" aria-label="Reference 10">[10]</a></sup> Firms can judge the edge by the price move after each fill, a markout; the SEC’s realized spread measures a similar idea.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup></p>
+<p>To manage inventory, market makers skew: they move both quotes in the direction that reduces the position, so a long market maker lowers both prices and its cheaper ask attracts buyers. One illustrative rule shifts both quotes down one cent for every 500 shares held. With no inventory the quotes are 49.99 and 50.01; at +1,000 shares they are 49.97 and 49.99, and in Figure 1’s book that 49.99 offer would hit the resting 49.99 bids at once, selling at the bid as a taker to shed shares. Firms also set position limits and may hedge the rest with an offsetting position in a related instrument, such as index futures.</p>
+<p>The Avellaneda-Stoikov model formalizes the skew: given its inventory, the dealer computes a personal indifference price, usually called the reservation price, and quotes around it.<sup class="cite"><a href="#ref-10" aria-label="Reference 10">[10]</a></sup> In the authors’ simulation (1,000 runs, risk aversion γ = 0.1, no informed traders), inventory-aware quotes averaged a profit of 65.0 with a standard deviation of 6.6, against 68.4 and 12.7 for symmetric quotes with the same average spread of 1.49. Skewing gave up about 5% of profit but nearly halved the standard deviation of profit and cut that of final inventory from 8.4 to 2.9 units.<sup class="cite"><a href="#ref-10" aria-label="Reference 10">[10]</a></sup> The <a href="/blog/avellaneda-stoikov-market-making-model/">Avellaneda-Stoikov deep dive</a> derives the formulas.</p>
+
+<h2 id="types-of-market-makers" data-n="07">Types of market makers<a class="anchor" href="#types-of-market-makers" aria-label="Link to this section: Types of market makers"></a></h2>
+<p>Market makers differ in who appoints them and what they owe in return:</p>
+<ul>
+<li><strong>Designated market makers.</strong> A trading venue contracts them for particular securities, with quoting duties and incentives such as fee waivers or stipends.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></li>
+<li><strong>Electronic liquidity providers.</strong> In US equities, proprietary firms that post resting orders and earn spread and rebates, with no special privileges or obligations and free to enter and exit at will.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup><sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> They overlap with high-frequency traders, though high-frequency trading is a technique: the SEC’s 2010 release lists passive market making as one of four strategy types it associated with high-frequency firms, with arbitrage, structural and directional ones.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup></li>
+<li><strong>Off-exchange wholesalers.</strong> Firms that retail brokers send customer orders to. They may take the other side themselves or route the order elsewhere, pricing off public exchange quotes.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></li>
+<li><strong>Dealers.</strong> In 2012 the Bank of England described foreign exchange and many derivatives markets as relying almost exclusively on dealers.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></li>
+</ul>
+
+<h2 id="automated-market-maker-vs-order-book" data-n="08">Automated market makers vs order-book market making<a class="anchor" href="#automated-market-maker-vs-order-book" aria-label="Link to this section: Automated market makers vs order-book market making"></a></h2>
+<p>An automated market maker (AMM) replaces quotes with a formula. Liquidity providers deposit two tokens into a pool, and swaps execute against its reserves, so no counterparty order has to be waiting.<sup class="cite"><a href="#ref-11" aria-label="Reference 11">[11]</a></sup> In a constant-product pool such as Uniswap v2, a decentralized exchange, reserves x and y must keep x × y = k, which stays constant or grows with every trade, so large trades move the price more.<sup class="cite"><a href="#ref-11" aria-label="Reference 11">[11]</a></sup></p>
+
+<h3 id="what-is-impermanent-loss">What is impermanent loss?<a class="anchor" href="#what-is-impermanent-loss" aria-label="Link to this section: What is impermanent loss?"></a></h3>
+<p>The signature cost is impermanent loss: the shortfall of the pool position against holding the same two tokens after their relative price changes. For a constant-product pool with equal value of each token and no fees, it depends only on r, the new price divided by the price at deposit.<sup class="cite"><a href="#ref-12" aria-label="Reference 12">[12]</a></sup></p>
+<div class="eq scroll-x"><math display="block"><mrow><mi>IL</mi><mo>=</mo><mfrac><mrow><mn>2</mn><msqrt><mi>r</mi></msqrt></mrow><mrow><mn>1</mn><mo>+</mo><mi>r</mi></mrow></mfrac><mo>−</mo><mn>1</mn></mrow></math><p class="eq-label">Equation 1: Impermanent loss in a constant-product pool, without fees</p></div>
+<p>In words: twice the square root of r, divided by one plus r, minus one. The result is negative because it is a shortfall: −5.7% at r = 2 and −20.0% at r = 4, and a halving costs the same as a doubling. The loss is “impermanent” because it vanishes if the price returns, and fees can offset it.</p>
+
+<h3 id="beyond-impermanent-loss">Beyond impermanent loss<a class="anchor" href="#beyond-impermanent-loss" aria-label="Link to this section: Beyond impermanent loss"></a></h3>
+<p>A more recent view names the AMM counterpart of adverse selection “loss-versus-rebalancing”: the value lost to arbitrageurs who trade the pool back to the market price.<sup class="cite"><a href="#ref-13" aria-label="Reference 13">[13]</a></sup> Concentrated-liquidity designs let providers confine capital to a price range; liquidity outside it is inactive and earns no fees,<sup class="cite"><a href="#ref-14" aria-label="Reference 14">[14]</a></sup> and Equation 1 does not describe these positions. Providers also face risks this article does not cover, such as smart-contract risk. For arbitrage bots that trade against such pools on Solana, see <a href="/blog/solana-mev-bots-explained/">Solana MEV bots explained</a>.</p>
+<div class="tbl"><div class="table-wrap scroll-x"><table>
+<caption>An order-book market maker compared with an AMM liquidity provider.</caption>
+<thead><tr><th scope="col">Question</th><th scope="col">Order-book market maker</th><th scope="col">AMM liquidity provider</th></tr></thead>
+<tbody>
+<tr><th scope="row">Who sets the price?</th><td>The market maker, by updating quotes</td><td>A formula reading the pool’s reserves</td></tr>
+<tr><th scope="row">How do trades match?</th><td>Takers meet resting orders, usually by price then time</td><td>Traders swap against the pool, with no queue</td></tr>
+<tr><th scope="row">Main trading risk</th><td>Adverse selection and inventory risk</td><td>Impermanent loss and loss-versus-rebalancing</td></tr>
+<tr><th scope="row">Income</th><td>Spread, rebates and exchange incentives</td><td>Swap fees</td></tr>
+</tbody></table></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p></div>
+
+<h2 id="market-maker-obligations-regulation" data-n="09">Do market makers have to keep quoting? Obligations and rules<a class="anchor" href="#market-maker-obligations-regulation" aria-label="Link to this section: Do market makers have to keep quoting? Obligations and rules"></a></h2>
+<p>Only market makers with a formal role at a venue, such as a designation, registration or agreement, must keep quoting, and the rules set how much, often a set share of the trading day.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> No rule reviewed here makes a market maker trade at any price, though a published quote must be honored up to its displayed size.<sup class="cite"><a href="#ref-15" aria-label="Reference 15">[15]</a></sup> Most obligations test how often, how large and how close to the best price a firm quotes, with exceptions, but some designated market makers must also trade against the trend.</p>
+
+<h3 id="designated-market-maker-obligations">Designated market maker obligations at NYSE<a class="anchor" href="#designated-market-maker-obligations" aria-label="Link to this section: Designated market maker obligations at NYSE"></a></h3>
+<p><abbr title="New York Stock Exchange">NYSE</abbr> Rule 104 requires a designated market maker (DMM) to assist in maintaining a fair and orderly market insofar as reasonably practicable, which NYSE said in 2023 includes trading for its own account when price continuity or depth is lacking.<sup class="cite"><a href="#ref-16" aria-label="Reference 16">[16]</a></sup> Bank of England staff note that such duties can force a DMM to buy into a falling market at a loss.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+<p>The same filing described a quoting test: hold a bid or an offer at the national best bid or offer (the best displayed price across US exchanges) for a minimum share of the trading day. The minimum is 15% for stocks averaging under a million shares a day, 10% for higher-volume stocks and 25% for exchange-traded products. Rules change, so read the current Rule 104.</p>
+
+<h3 id="eu-market-making-rules">EU rules for algorithmic market makers<a class="anchor" href="#eu-market-making-rules" aria-label="Link to this section: EU rules for algorithmic market makers"></a></h3>
+<p>As of 29 October 2026, <abbr title="Markets in Financial Instruments Directive II">MiFID II</abbr> requires a firm that runs a market making strategy through algorithmic trading to provide liquidity regularly and predictably under a binding written agreement with the venue, except in exceptional circumstances. The technical standard <abbr title="Regulatory Technical Standard 8">RTS 8</abbr> sets the trigger: two-way quotes of comparable size at competitive prices for at least 50% of daily continuous trading hours on half the trading days of a month.<sup class="cite"><a href="#ref-17" aria-label="Reference 17">[17]</a></sup></p>
+
+<h3 id="fee-cap-tick-size-changes">US access fee cap and tick size: adopted, compliance not yet required<a class="anchor" href="#fee-cap-tick-size-changes" aria-label="Link to this section: US access fee cap and tick size: adopted, compliance not yet required"></a></h3>
+<p>Under Regulation NMS, the SEC’s rulebook for US stock trading, Rule 610(c) caps the access fee, the fee for taking liquidity, at $0.003 per share for protected quotes priced at $1.00 or more. Rule 612 sets the minimum tick, the smallest price step, at one cent at those prices.<sup class="cite"><a href="#ref-15" aria-label="Reference 15">[15]</a></sup> Protected quotes are an exchange’s best displayed bids and offers, which other venues generally may not trade through.</p>
+<p>In September 2024 the SEC adopted amendments that cut the cap to $0.001 and set a half-cent minimum increment for stocks whose average quoted spread is 1.5 cents or less.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup> The electronic <abbr title="Code of Federal Regulations">CFR</abbr> already prints the amended text, but an SEC order of 11 June 2026 delayed compliance until the first business day of November 2027, the second extension.<sup class="cite"><a href="#ref-15" aria-label="Reference 15">[15]</a></sup><sup class="cite"><a href="#ref-18" aria-label="Reference 18">[18]</a></sup> The order does not restate the earlier limits, so that $0.003 and $0.01 still apply on 29 October 2026 is an inference. It fits venue practice, since Cboe BZX still charges $0.0030 to remove liquidity,<sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup> but check the current status of both rules.</p>
+
+<h2 id="do-market-makers-manipulate-prices" data-n="10">Do market makers manipulate prices? Myths and spoofing<a class="anchor" href="#do-market-makers-manipulate-prices" aria-label="Link to this section: Do market makers manipulate prices? Myths and spoofing"></a></h2>
+<p>Ordinary market making is not manipulation, and its profit comes from the spread, not from betting against you: the SEC’s 2010 release describes passive market making as earning the spread and rebates.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup> A market maker loses money when it trades against better-informed flow, which is why off-exchange market makers try to tell retail orders apart and can offer them lower spreads.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></p>
+<p>The sharper criticism is about conflicts of interest: SEC staff note that payments for retail order flow can create one for the retail broker.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup> Nor does a market maker always win: in a 2012 Bank of England sample of six liquid stocks, the volatile week brought larger losses as well as larger profits.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+<aside role="note" class="callout callout--myth"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg><span>Myth: heavy canceling means spoofing</span></p><p>The SEC’s 2010 description of passive market making says cancellation rates of 90% or more are possible and orders may live a second or less.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup> In US futures markets, spoofing means bidding or offering with the intent to cancel before execution; the <abbr title="Commodity Futures Trading Commission">CFTC</abbr> reads the law as requiring intent beyond recklessness, with good-faith cancellations lawful.<sup class="cite"><a href="#ref-19" aria-label="Reference 19">[19]</a></sup> Regulators can infer intent from patterns such as fill characteristics, so a high cancel rate is neither proof of spoofing nor a defense.</p></aside>
+<p>In US securities markets similar conduct is charged as layering: in an SEC case a jury found in 2019 that placing and canceling orders to trick others into trading was manipulation, and the Second Circuit affirmed in 2022.<sup class="cite"><a href="#ref-20" aria-label="Reference 20">[20]</a></sup> EU market abuse rules use different wording and are not covered here.</p>
+
+<h2 id="next-steps" data-n="11">Where to go next<a class="anchor" href="#next-steps" aria-label="Link to this section: Where to go next"></a></h2>
+<ul>
+<li><a href="/blog/avellaneda-stoikov-market-making-model/">The Avellaneda-Stoikov market making model</a>: reservation price, optimal spread and a runnable simulation.</li>
+<li><a href="/blog/solana-mev-bots-explained/">Solana MEV bots explained</a>: how arbitrage bots trade against on-chain pools.</li>
+</ul>
+</div>
+<div class="post-note" role="note">
+  <p><strong class="post-note-label">Disclaimer</strong> Educational content only, not investment, legal or tax advice: trading and liquidity provision can lose money, and the sources cited here were read on 29 October 2026, while the rules, fees and figures in them change.</p>
+</div>
+<section class="post-faq" id="faq" aria-labelledby="faq-title">
+  <h2 id="faq-title">Frequently asked questions</h2>
+<details class="faq-item"><summary>What is market making?</summary><div class="faq-a"><p>Market making is continuously quoting both a price to buy (the bid) and a price to sell (the ask) so that other traders can trade immediately. The market maker earns the spread between them and bears the risk that prices move against the inventory it accumulates. In US law a market maker includes any dealer that holds itself out as willing to buy and sell a security for its own account on a regular or continuous basis.</p></div></details>
+<details class="faq-item"><summary>How do market makers make money?</summary><div class="faq-a"><p>Mainly by buying at the bid and selling at the ask, plus exchange rebates for adding liquidity and incentives paid to designated market makers. Those gains are reduced by adverse selection (trading against better-informed traders), inventory losses, fees and technology costs, so they are not guaranteed. In the worked example above a market maker books $4.00 of spread edge and then loses $20.00 on its remaining shares.</p></div></details>
+<details class="faq-item"><summary>What is the difference between a market maker and a market taker?</summary><div class="faq-a"><p>In maker-taker pricing, a maker is any order that rests in the book and adds liquidity, and a taker is an order that executes against a resting order. On US stock exchanges makers usually earn a rebate and takers pay a fee, although a few venues invert this, and other markets, including crypto exchanges, set fees differently. The exchange pays any rebate to the member firm that routes the order, usually a broker, which may or may not pass it on to the investor. The labels describe orders, not firms: any trader can place a maker order or a taker order.</p></div></details>
+<details class="faq-item"><summary>Do market makers have to buy and sell at any price?</summary><div class="faq-a"><p>No: a market maker must honor a quote it has published, up to the displayed size, but no rule reviewed here makes it trade at any price. Most obligations are specific tests, such as quoting at the best bid or offer for a minimum share of the trading day or within a maximum spread, and they come with exceptions. Some designated market makers also have a qualified duty to trade against the trend to keep prices orderly. MiFID II’s RTS 8 lists exceptional circumstances such as extreme volatility or a data-feed failure, and the Bank of England notes that designated market makers may have no option but to withdraw in extreme stress.</p></div></details>
+<details class="faq-item"><summary>Is a market maker the same as a broker or a high-frequency trader?</summary><div class="faq-a"><p>No. A broker acts as an agent for clients, while a market maker is a dealer trading for its own account. High-frequency trading describes fast, high-volume proprietary trading, and the SEC’s 2010 concept release discussed passive market making as only one of four strategy types, so many fast traders are not market makers, although the two overlap.</p></div></details>
+<details class="faq-item"><summary>Do market makers manipulate prices or bet against retail traders?</summary><div class="faq-a"><p>A market maker earns the spread on both sides rather than betting on direction, and it loses money when it trades against better-informed flow. Manipulation is illegal: in US futures, spoofing means bidding or offering with the intent to cancel before execution, and US securities regulators charge similar conduct as layering. Ordinary cancellations are not manipulation, and the SEC’s 2010 concept release notes that passive market making can involve cancellation rates of 90% or more.</p></div></details>
+<details class="faq-item"><summary>What is adverse selection, and why does a spread exist?</summary><div class="faq-a"><p>Adverse selection means trading against someone who knows more than you do, so the price moves against you right after the trade. In a simplified Glosten-Milgrom style model a spread appears even with zero costs and zero expected profit, because the ask must reflect the value given that someone wants to buy. How much of real spreads this explains varies with the method: a 1991 study of pre-decimal US data put it at 8 to 13 percent for small trades, against over 40 percent in earlier work, and found order-processing costs the largest component.</p></div></details>
+<details class="faq-item"><summary>How is an automated market maker different from a market maker?</summary><div class="faq-a"><p>An AMM replaces quotes with a pool of tokens and a formula such as x times y equals k, so traders swap against the pool instead of against posted orders. There are no quote decisions or price-time queues, and the main cost is impermanent loss: in a constant-product pool without fees, a doubling of the price leaves a liquidity provider about 5.7% behind holding the tokens. Concentrated-liquidity designs let providers choose a price range.</p></div></details>
+</section>
+<section class="post-refs" id="references" aria-labelledby="references-title">
+  <h2 id="references-title">References</h2>
+  <ol class="refs">
+<li id="ref-1"><span class="ref-text">Benos, E. and Wetherilt, A. (2012). The role of designated market makers in the new trading landscape. <em>Bank of England Quarterly Bulletin</em>, 2012 Q4, pp. 343-353.</span> <a class="ref-link" href="https://www.bankofengland.co.uk/-/media/boe/files/quarterly-bulletin/2012/the-role-of-designated-market-makers-in-the-new-trading-landscape" target="_blank" rel="noopener">https://www.bankofengland.co.uk/-/media/boe/files/quarterly-bulletin/2012/the-role-of-designated-market-makers-in-the-new-trading-landscape</a></li>
+<li id="ref-2"><span class="ref-text">United States Code, Title 15, section 78c: definitions under the Securities Exchange Act of 1934 (paragraphs 4, 5 and 38 define broker, dealer and market maker). Legal Information Institute, Cornell Law School.</span> <a class="ref-link" href="https://www.law.cornell.edu/uscode/text/15/78c" target="_blank" rel="noopener">https://www.law.cornell.edu/uscode/text/15/78c</a></li>
+<li id="ref-3"><span class="ref-text">SEC Staff (2021). <em>Staff Report on Equity and Options Market Structure Conditions in Early 2021</em>. U.S. Securities and Exchange Commission, 14 October 2021. Staff views, not rules.</span> <a class="ref-link" href="https://www.sec.gov/files/staff-report-equity-options-market-struction-conditions-early-2021.pdf" target="_blank" rel="noopener">https://www.sec.gov/files/staff-report-equity-options-market-struction-conditions-early-2021.pdf</a></li>
+<li id="ref-4"><span class="ref-text">CME Group. <em>Supported Matching Algorithms</em> (FIFO, pro-rata and lead market maker allocation). CME Group Client Systems Wiki; the page shows “Updated Feb 11, 2025”; read 29 October 2026.</span> <a class="ref-link" href="https://cmegroupclientsite.atlassian.net/wiki/spaces/EPICSANDBOX/pages/457218479" target="_blank" rel="noopener">https://cmegroupclientsite.atlassian.net/wiki/spaces/EPICSANDBOX/pages/457218479</a></li>
+<li id="ref-5"><span class="ref-text">U.S. Securities and Exchange Commission (2010). <em>Concept Release on Equity Market Structure</em>. Release No. 34-61358, 75 Federal Register 3594, 21 January 2010.</span> <a class="ref-link" href="https://www.govinfo.gov/content/pkg/FR-2010-01-21/pdf/2010-1045.pdf" target="_blank" rel="noopener">https://www.govinfo.gov/content/pkg/FR-2010-01-21/pdf/2010-1045.pdf</a></li>
+<li id="ref-6"><span class="ref-text">U.S. Securities and Exchange Commission (2024). <em>Regulation NMS: Minimum Pricing Increments, Access Fees, and Transparency of Better Priced Orders</em>. Release No. 34-101070, 89 Federal Register 81620, 8 October 2024.</span> <a class="ref-link" href="https://www.govinfo.gov/content/pkg/FR-2024-10-08/pdf/2024-21867.pdf" target="_blank" rel="noopener">https://www.govinfo.gov/content/pkg/FR-2024-10-08/pdf/2024-21867.pdf</a></li>
+<li id="ref-7"><span class="ref-text">Cboe BZX Exchange. <em>U.S. Equities Fee Schedule</em>, effective 19 October 2026 (standard rates); read 29 October 2026. Fee schedules change often.</span> <a class="ref-link" href="https://www.cboe.com/us/equities/membership/fee_schedule/bzx/" target="_blank" rel="noopener">https://www.cboe.com/us/equities/membership/fee_schedule/bzx/</a></li>
+<li id="ref-8"><span class="ref-text">Glosten, L.R. and Milgrom, P.R. (1985). Bid, ask and transaction prices in a specialist market with heterogeneously informed traders. <em>Journal of Financial Economics</em> 14(1), 71-100. Model summary used here: Chamley, C., <em>Learning in financial markets: sequential trades</em>, EC 717 lecture notes, Boston University.</span> <a class="ref-link" href="https://people.bu.edu/chamley/0-EC-717/notes7(GM).pdf" target="_blank" rel="noopener">https://people.bu.edu/chamley/0-EC-717/notes7(GM).pdf</a></li>
+<li id="ref-9"><span class="ref-text">George, T.J., Kaul, G. and Nimalendran, M. (1991). Estimation of the bid-ask spread and its components: a new approach. <em>Review of Financial Studies</em> 4(4), 623-656.</span> <a class="ref-link" href="https://doi.org/10.1093/rfs/4.4.623" target="_blank" rel="noopener">https://doi.org/10.1093/rfs/4.4.623</a></li>
+<li id="ref-10"><span class="ref-text">Avellaneda, M. and Stoikov, S. (2008). High-frequency trading in a limit order book. <em>Quantitative Finance</em> 8(3), 217-224. DOI 10.1080/14697680701381228. Simulation figures are from Table 1 of this journal version (author-hosted copy).</span> <a class="ref-link" href="https://math.nyu.edu/inmemoriam/avellaneda/HighFrequencyTrading.pdf" target="_blank" rel="noopener">https://math.nyu.edu/inmemoriam/avellaneda/HighFrequencyTrading.pdf</a></li>
+<li id="ref-11"><span class="ref-text">Uniswap Labs. <em>How Uniswap Works</em>. Uniswap developer documentation; read 29 October 2026.</span> <a class="ref-link" href="https://developers.uniswap.org/docs/get-started/concepts/how-uniswap-works" target="_blank" rel="noopener">https://developers.uniswap.org/docs/get-started/concepts/how-uniswap-works</a></li>
+<li id="ref-12"><span class="ref-text">Uniswap Labs. <em>Understanding Returns</em> (Uniswap v2 documentation, impermanent loss); read 29 October 2026.</span> <a class="ref-link" href="https://developers.uniswap.org/docs/protocols/v2/concepts/understanding-returns" target="_blank" rel="noopener">https://developers.uniswap.org/docs/protocols/v2/concepts/understanding-returns</a></li>
+<li id="ref-13"><span class="ref-text">Milionis, J., Moallemi, C.C., Roughgarden, T. and Zhang, A.L. <em>Automated Market Making and Loss-Versus-Rebalancing</em>. arXiv:2208.06046, first posted August 2022; version 6 dated 20 August 2026.</span> <a class="ref-link" href="https://arxiv.org/abs/2208.06046" target="_blank" rel="noopener">https://arxiv.org/abs/2208.06046</a></li>
+<li id="ref-14"><span class="ref-text">Uniswap Labs. <em>Concentrated Liquidity</em>. Uniswap developer documentation; read 29 October 2026.</span> <a class="ref-link" href="https://developers.uniswap.org/docs/get-started/concepts/liquidity-providers/concentrated-liquidity" target="_blank" rel="noopener">https://developers.uniswap.org/docs/get-started/concepts/liquidity-providers/concentrated-liquidity</a></li>
+<li id="ref-15"><span class="ref-text">17 CFR Part 242 (Regulation NMS), rules 602, 610 and 612. Electronic Code of Federal Regulations, current to 27 October 2026, and the versions in force on 1 September 2024.</span> <a class="ref-link" href="https://www.ecfr.gov/current/title-17/part-242" target="_blank" rel="noopener">https://www.ecfr.gov/current/title-17/part-242</a></li>
+<li id="ref-16"><span class="ref-text">U.S. Securities and Exchange Commission (2023). Notice of filing of proposed enhancements to the NYSE Designated Market Maker program, Release No. 34-98869, File No. SR-NYSE-2023-36, 88 Federal Register 77625, 13 November 2023 (Rule 104 summary in footnote 29).</span> <a class="ref-link" href="https://www.govinfo.gov/content/pkg/FR-2023-11-13/pdf/2023-24868.pdf" target="_blank" rel="noopener">https://www.govinfo.gov/content/pkg/FR-2023-11-13/pdf/2023-24868.pdf</a></li>
+<li id="ref-17"><span class="ref-text">Commission Delegated Regulation (EU) 2017/578 of 13 June 2016 (RTS 8) on market making agreements and schemes under MiFID II. <em>Official Journal of the European Union</em> L 87, 31 March 2017, p. 183.</span> <a class="ref-link" href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32017R0578" target="_blank" rel="noopener">https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32017R0578</a></li>
+<li id="ref-18"><span class="ref-text">U.S. Securities and Exchange Commission (2026). <em>Order Granting Temporary Exemptive Relief ... from Compliance with Rule 600(b)(89)(i)(F), Rule 610(c) and Rule 612 of Regulation NMS, as Amended</em>. Release No. 34-105656, 11 June 2026.</span> <a class="ref-link" href="https://www.sec.gov/files/rules/exorders/2026/34-105656.pdf" target="_blank" rel="noopener">https://www.sec.gov/files/rules/exorders/2026/34-105656.pdf</a></li>
+<li id="ref-19"><span class="ref-text">Commodity Futures Trading Commission (2013). <em>Antidisruptive Practices Authority</em> (interpretive guidance and policy statement). 78 Federal Register 31890, 28 May 2013.</span> <a class="ref-link" href="https://www.federalregister.gov/d/2013-12365" target="_blank" rel="noopener">https://www.federalregister.gov/d/2013-12365</a></li>
+<li id="ref-20"><span class="ref-text">U.S. Securities and Exchange Commission (2022). <em>Second Circuit Affirms Judgment for SEC in Layering, Manipulative Trading Case</em>. Litigation Release No. 25427, 17 June 2022.</span> <a class="ref-link" href="https://www.sec.gov/enforcement-litigation/litigation-releases/lr-25427" target="_blank" rel="noopener">https://www.sec.gov/enforcement-litigation/litigation-releases/lr-25427</a></li>
+  </ol>
+</section>
+<section class="author card" id="author" aria-labelledby="author-title">
+  <figure class="author-photo">
+    <picture>
+      <source type="image/avif" srcset="/assets/img/yashvardhan-gupta-avatar-96.avif 96w, /assets/img/yashvardhan-gupta-avatar-192.avif 192w" sizes="96px">
+      <source type="image/webp" srcset="/assets/img/yashvardhan-gupta-avatar-96.webp 96w, /assets/img/yashvardhan-gupta-avatar-192.webp 192w" sizes="96px">
+      <img src="/assets/img/yashvardhan-gupta-avatar-192.jpg" srcset="/assets/img/yashvardhan-gupta-avatar-96.jpg 96w, /assets/img/yashvardhan-gupta-avatar-192.jpg 192w" sizes="96px" width="96" height="96" alt="YashVardhan Gupta" loading="lazy" decoding="async">
+    </picture>
+  </figure>
+  <div class="author-body">
+    <h2 class="author-kicker" id="author-title">About the author</h2>
+    <p class="author-name"><a href="/about/">YashVardhan Gupta</a></p>
+    <p class="author-bio">Quantitative developer, researcher and trader at a trading firm based in Dubai and Singapore. Founder of <a href="https://quantnova.in" target="_blank" rel="noopener">QuantNova</a>, a quantitative backtesting platform, and open to freelance work.</p>
+    <p class="author-ai">This article was drafted with AI assistance and checked against the primary sources listed in References.</p>
+    <div class="author-actions">
+      <a class="btn btn--sm btn--tangerine" href="/contact/">Hire me</a>
+      <a class="social-link" href="https://github.com/yashvardhancse" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
+      <a class="social-link" href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn</a>
+    </div>
+  </div>
+</section>
+      </div>
+    </div>
+  </div>
+</div>
+<section class="section sec--alt post-related" id="related" aria-labelledby="related-title">
+  <div class="container">
+    <h2 class="post-related-title" id="related-title">Keep <span class="hl">reading</span></h2>
+    <ul class="related-grid">
+<li class="bcard card" data-tag="Quant">
+  <div class="post-art post-art--paper">
+    <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+      <path d="M24 100 62 62 92 84 128 40 162 70 200 36 236 58 272 24 332 46" class="st-c" stroke-width="3.5"/>
+      <path d="M24 118 60 98 92 112 128 82 162 104 200 74 236 94 272 64 332 82" stroke-dasharray="3 7"/>
+      <path d="M24 82 62 44 92 66 128 22 162 52 200 18 236 40 272 8 332 28" stroke-dasharray="3 7"/>
+      <circle cx="272" cy="24" r="6" class="t"/><circle cx="272" cy="64" r="6" class="m"/>
+      <path d="M272 30v28" />
+      <text x="24" y="140" class="art-text">RESERVATION PRICE + OPTIMAL SPREAD</text>
+    </svg>
+  </div>
+  <div class="bcard-body">
+    <p class="bcard-meta"><span class="tag tag--cobalt">Quant</span><time datetime="2026-10-29">Oct 29, 2026</time><span>16 min read</span></p>
+    <h3 class="bcard-title"><a class="stretch" href="/blog/avellaneda-stoikov-market-making-model/">Avellaneda-Stoikov Model Explained (With Python Code)</a></h3>
+    <p class="bcard-teaser">Reservation price, optimal spread and inventory risk: the classic market-making model with a runnable simulation.</p>
+    <p class="bcard-go" aria-hidden="true">Read the article <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></p>
+  </div>
+</li>
+<li class="bcard card" data-tag="Crypto">
+  <div class="post-art post-art--tangerine">
+    <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+      <circle cx="46" cy="66" r="16" class="p"/><circle cx="46" cy="66" r="5" class="f"/>
+      <path d="M64 66h38" stroke-dasharray="2 8"/>
+      <rect x="104" y="12" width="140" height="108" rx="16" stroke-dasharray="3 7"/>
+      <rect x="118" y="24" width="112" height="24" rx="8" class="p"/>
+      <rect x="118" y="55" width="112" height="24" rx="8" class="m"/>
+      <rect x="118" y="86" width="112" height="24" rx="8" class="p"/>
+      <circle cx="132" cy="36" r="4" class="f"/><circle cx="132" cy="67" r="4" class="f"/><circle cx="132" cy="98" r="4" class="f"/>
+      <path d="M146 36h62M146 67h62M146 98h62" stroke-width="2.5"/>
+      <path d="M246 66h30M270 59l8 7-8 7" stroke-dasharray="2 8"/>
+      <circle cx="318" cy="66" r="24" class="s"/><circle cx="318" cy="66" r="13"/>
+      <text x="24" y="142" class="art-text">BUNDLE + TIP, ALL OR NOTHING</text>
+    </svg>
+  </div>
+  <div class="bcard-body">
+    <p class="bcard-meta"><span class="tag tag--sun">Crypto</span><time datetime="2026-10-29">Oct 29, 2026</time><span>16 min read</span></p>
+    <h3 class="bcard-title"><a class="stretch" href="/blog/solana-mev-bots-explained/">Solana MEV Bots Explained: How They Work &amp; What They Earn</a></h3>
+    <p class="bcard-teaser">Arbitrage, liquidations and sandwiches on Solana: how searchers use Jito bundles and tips, what the economics look like, and how to spot the &quot;$50k a day&quot; bot scams.</p>
+    <p class="bcard-go" aria-hidden="true">Read the article <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></p>
+  </div>
+</li>
+    </ul>
+  </div>
+</section>
+</article>
+<section class="section sec--tangerine contact" id="contact" aria-labelledby="contact-title">
+  <div class="finish" aria-hidden="true"></div>
+  <div class="container contact-grid">
+    <div class="contact-copy">
+      <p class="sec-label">Contact</p>
+      <h2 class="contact-title" id="contact-title">Got a system to build? <span class="nowrap">Let&rsquo;s talk.</span></h2>
+      <p class="contact-sub">Open to freelance work, consulting and collaborations. Book a call or send an email, and I&rsquo;ll reply as soon as I can.</p>
+      <div class="contact-actions">
+        <a class="btn btn--lg btn--ink" href="https://calendly.com/yashvardhancse" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-calendar"/></svg>Book a call</a>
+        <a class="btn btn--lg btn--paper" href="mailto:yashvardhancse@gmail.com"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg>Email me</a>
+      </div>
+    </div>
+    <div class="contact-card card">
+      <p class="contact-card-title">Prefer to copy and paste?</p>
+      <div class="copy-row">
+        <code class="copy-email" id="copy-email">yashvardhancse@gmail.com</code>
+        <button class="btn btn--sm btn--sun copy-btn" type="button" data-copy="yashvardhancse@gmail.com" aria-describedby="copy-status"><svg class="i i-copy" aria-hidden="true"><use href="#i-copy"/></svg><svg class="i i-done" aria-hidden="true"><use href="#i-check"/></svg><span class="copy-label">Copy email</span></button>
+      </div>
+      <p class="visually-hidden" id="copy-status" role="status" aria-live="polite"></p>
+      <ul class="contact-links">
+        <li><a class="social-link" href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn</a></li>
+        <li><a class="social-link" href="https://github.com/yashvardhancse" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a></li>
+        <li><a class="social-link" href="https://instagram.com/camera.yash" target="_blank" rel="noopener me"><svg class="i" aria-hidden="true"><use href="#i-instagram"/></svg>Instagram</a></li>
+      </ul>
+      <p class="contact-note">Based in India, working in IST (UTC+5:30).</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="brand brand--footer" href="/">
+        <span class="brand-mark" aria-hidden="true">YG</span>
+        <span class="brand-name">YashVardhan Gupta</span>
+      </a>
+      <p class="footer-blurb">Quantitative developer and software engineer from India. Trading systems, backtesting, ML and full-stack products.</p>
+      <a class="btn btn--sm btn--paper" href="#top"><svg class="i" aria-hidden="true"><use href="#i-arrow-up"/></svg>Back to top</a>
+    </div>
+    <nav class="footer-col" aria-label="Footer: site">
+      <h2 class="footer-title">Explore</h2>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/#projects">Projects</a></li>
+        <li><a href="/blog/">Blog</a></li>
+        <li><a href="/learning-log/">Learning Log</a></li>
+        <li><a href="/explorations/">Explorations</a></li>
+        <li><a href="/contact/">Contact</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-col footer-col--writing" aria-label="Footer: writing">
+      <h2 class="footer-title">Writing</h2>
+      <ul>
+        <li><a href="/blog/how-credit-card-machines-work-in-flight-without-internet/">Card payments in flight</a></li>
+        <li><a href="/blog/what-is-market-making/">What is market making?</a></li>
+        <li><a href="/blog/emv-offline-authorization-explained/">EMV offline authorization</a></li>
+        <li><a href="/blog/avellaneda-stoikov-market-making-model/">Avellaneda-Stoikov model</a></li>
+        <li><a href="/blog/solana-mev-bots-explained/">Solana MEV bots explained</a></li>
+        <li><a href="/blog/2026/05/04/how-to-start-open-source-contribution/">Open source contribution</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-col" aria-label="Footer: elsewhere">
+      <h2 class="footer-title">Elsewhere</h2>
+      <ul>
+        <li><a href="https://github.com/yashvardhancse" target="_blank" rel="noopener me">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me">LinkedIn</a></li>
+        <li><a href="https://instagram.com/camera.yash" target="_blank" rel="noopener me">Instagram</a></li>
+        <li><a href="https://quantnova.in" target="_blank" rel="noopener">QuantNova</a></li>
+        <li><a href="https://calendly.com/yashvardhancse" target="_blank" rel="noopener">Book a call</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="container footer-bar">
+    <p>&copy; 2026 YashVardhan Gupta</p>
+    <p><a class="rss-link" href="/feed.xml"><svg class="i" aria-hidden="true"><use href="#i-rss"/></svg>RSS feed</a></p>
+  </div>
+  <p class="footer-wordmark" aria-hidden="true"></p>
+</footer>
+
+<script src="/assets/js/main.js" defer onerror="document.documentElement.classList.remove('js')"></script>
+</body>
+</html>

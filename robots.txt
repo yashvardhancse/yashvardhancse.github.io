@@ -1,10 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /admin/
-Disallow: /.git/
-Disallow: /node_modules/
 
-# Crawl delay
-Crawl-delay: 1
-
-Sitemap: https://yashvardhancse.github.io/sitemap.xml
+Sitemap: https://yashvardhangupta.com/sitemap.xml

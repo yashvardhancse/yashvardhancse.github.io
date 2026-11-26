@@ -1,0 +1,35 @@
+# YashVardhan Gupta
+
+> Personal portfolio, blog and learning log of YashVardhan Gupta, a quantitative developer and software engineer from India. He builds trading systems, backtesting platforms, machine learning and full-stack products, and takes on freelance work. Site: https://yashvardhangupta.com/
+
+- Name: YashVardhan Gupta (also written Yash Vardhan Gupta, Yashvardhan Gupta; GitHub handle yashvardhancse)
+- Current role: Quantitative Developer, Researcher & Trader at a Dubai & Singapore based trading firm
+- Also: Founder & Project Admin of QuantNova (https://quantnova.in), a quantitative backtesting platform; Founder & Ride Lead of the Manipal Riders Club
+- Focus areas: quantitative finance, algorithmic trading, market microstructure, market making, low-latency systems, Python, C++, Rust, CUDA, machine learning, full-stack development
+- Contact: yashvardhancse@gmail.com
+
+## Pages
+- [Home](https://yashvardhangupta.com/): overview, featured projects, and how to hire him
+- [About](https://yashvardhangupta.com/about/): background, current roles, and highlights (including SIH 2025 internal-round entries)
+- [Contact](https://yashvardhangupta.com/contact/): services offered and how to get in touch
+- [Explorations](https://yashvardhangupta.com/explorations/): notes from long-distance motorcycle riding
+- [Learning log](https://yashvardhangupta.com/learning-log/): ongoing study notes
+
+## Blog
+- [Blog index](https://yashvardhangupta.com/blog/): writing on market making, payments, quant and crypto
+- [What Is Market Making? How Market Makers Earn the Spread](https://yashvardhangupta.com/blog/what-is-market-making/)
+- [Avellaneda-Stoikov Model Explained (With Python Code)](https://yashvardhangupta.com/blog/avellaneda-stoikov-market-making-model/)
+- [Solana MEV Bots Explained: How They Work & What They Earn](https://yashvardhangupta.com/blog/solana-mev-bots-explained/)
+- [EMV Offline Authorization: ARQC, TC, AAC and Floor Limits](https://yashvardhangupta.com/blog/emv-offline-authorization-explained/)
+- [How Credit Card Machines Work in Flight (With No Internet)](https://yashvardhangupta.com/blog/how-credit-card-machines-work-in-flight-without-internet/)
+- [How to Start Open Source Contribution](https://yashvardhangupta.com/blog/2026/05/04/how-to-start-open-source-contribution/)
+
+## Projects (SIH 2025, internal round qualifier)
+- [Pashu Saathi - AI Livestock Analyzer](https://github.com/yashvardhancse/Pashu-Saathi-AI-Livestock-Analyser-Mobile-Application-SIH-2025-PS-25005-): Flutter mobile app for livestock analysis and health monitoring
+- [OrbitIQ - ISRO GNSS Satellite Modeling](https://github.com/yashvardhancse/OrbitIQ-ISRO-GNSS-Satellite-Clock-Orbit-Error-Modelling-SIH-2025-PS-25176-): satellite clock and orbit error modeling for an ISRO problem statement
+
+## Optional
+- [RSS / Atom feed](https://yashvardhangupta.com/feed.xml)
+- [Sitemap](https://yashvardhangupta.com/sitemap.xml)
+- [GitHub](https://github.com/yashvardhancse)
+- [LinkedIn](https://www.linkedin.com/in/yashvardhancse/)

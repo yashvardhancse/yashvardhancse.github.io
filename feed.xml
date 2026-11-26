@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+  <id>https://yashvardhangupta.com/feed.xml</id>
+  <title>YashVardhan Gupta - Blog</title>
+  <subtitle>Portfolio, blog and learning log of YashVardhan Gupta, a quantitative developer and software engineer from India.</subtitle>
+  <updated>2026-10-29T09:40:00+05:30</updated>
+  <link rel="self" type="application/atom+xml" href="https://yashvardhangupta.com/feed.xml"/>
+  <link rel="alternate" type="text/html" href="https://yashvardhangupta.com/blog/"/>
+  <author><name>YashVardhan Gupta</name><uri>https://yashvardhangupta.com/about/</uri></author>
+  <icon>https://yashvardhangupta.com/icon-192.png</icon>
+  <entry>
+    <id>https://yashvardhangupta.com/blog/solana-mev-bots-explained/</id>
+    <title>Solana MEV Bots Explained: How They Work &amp; What They Earn</title>
+    <link rel="alternate" type="text/html" href="https://yashvardhangupta.com/blog/solana-mev-bots-explained/"/>
+    <published>2026-10-29T09:40:00+05:30</published>
+    <updated>2026-10-29T09:40:00+05:30</updated>
+    <category term="Crypto"/>
+    <summary type="text">Arbitrage, liquidations and sandwiches on Solana: how searchers use Jito bundles and tips, what the economics look like, and how to spot the "$50k a day" bot scams.</summary>
+  </entry>
+  <entry>
+    <id>https://yashvardhangupta.com/blog/avellaneda-stoikov-market-making-model/</id>
+    <title>Avellaneda-Stoikov Model Explained (With Python Code)</title>
+    <link rel="alternate" type="text/html" href="https://yashvardhangupta.com/blog/avellaneda-stoikov-market-making-model/"/>
+    <published>2026-10-29T09:30:00+05:30</published>
+    <updated>2026-10-29T09:30:00+05:30</updated>
+    <category term="Quant"/>
+    <summary type="text">Reservation price, optimal spread and inventory risk: the classic market-making model with a runnable simulation.</summary>
+  </entry>
+  <entry>
+    <id>https://yashvardhangupta.com/blog/emv-offline-authorization-explained/</id>
+    <title>EMV Offline Authorization: ARQC, TC, AAC and Floor Limits</title>
+    <link rel="alternate" type="text/html" href="https://yashvardhangupta.com/blog/emv-offline-authorization-explained/"/>
+    <published>2026-10-29T09:20:00+05:30</published>
+    <updated>2026-10-29T09:20:00+05:30</updated>
+    <category term="Payments"/>
+    <summary type="text">A developer's walk-through of the chip transaction flow and how the card and terminal decide between approving offline and going online.</summary>
+  </entry>
+  <entry>
+    <id>https://yashvardhangupta.com/blog/what-is-market-making/</id>
+    <title>What Is Market Making? How Market Makers Earn the Spread</title>
+    <link rel="alternate" type="text/html" href="https://yashvardhangupta.com/blog/what-is-market-making/"/>
+    <published>2026-10-29T09:10:00+05:30</published>
+    <updated>2026-10-29T09:10:00+05:30</updated>
+    <category term="Markets"/>
+    <summary type="text">Bid, ask, spread, inventory and adverse selection: the plain-English guide to the firms that keep markets liquid.</summary>
+  </entry>
+  <entry>
+    <id>https://yashvardhangupta.com/blog/how-credit-card-machines-work-in-flight-without-internet/</id>
+    <title>How Credit Card Machines Work in Flight (With No Internet)</title>
+    <link rel="alternate" type="text/html" href="https://yashvardhangupta.com/blog/how-credit-card-machines-work-in-flight-without-internet/"/>
+    <published>2026-10-29T09:00:00+05:30</published>
+    <updated>2026-10-29T09:00:00+05:30</updated>
+    <category term="Payments"/>
+    <summary type="text">Some airlines take card payments at 35,000 feet with no signal. Here is how offline EMV checks, store-and-forward and risk limits make that possible.</summary>
+  </entry>
+  <entry>
+    <id>https://yashvardhangupta.com/blog/2026/05/04/how-to-start-open-source-contribution/</id>
+    <title>How to Start Open Source Contribution</title>
+    <link rel="alternate" type="text/html" href="https://yashvardhangupta.com/blog/2026/05/04/how-to-start-open-source-contribution/"/>
+    <published>2026-05-04T10:00:00+05:30</published>
+    <updated>2026-05-04T10:00:00+05:30</updated>
+    <category term="Open Source"/>
+    <summary type="text">A beginner’s guide to getting started with open source contributions and why it matters for your career.</summary>
+  </entry>
+</feed>

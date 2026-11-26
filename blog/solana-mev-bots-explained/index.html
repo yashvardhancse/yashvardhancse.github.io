@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solana MEV Bots Explained: How They Work &amp; What They Earn</title>
+<meta name="description" content="How a Solana MEV bot works: Jito bundles and tips, arbitrage vs sandwiches, a Python simulation, and why $50,000 a day is not a typical result.">
+<link rel="canonical" href="https://yashvardhangupta.com/blog/solana-mev-bots-explained/">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="author" content="YashVardhan Gupta">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0f0d0b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="YashVardhan Gupta">
+<meta property="og:locale" content="en_IN">
+<meta property="og:title" content="Solana MEV Bots Explained: How They Work &amp; What They Earn">
+<meta property="og:description" content="How a Solana MEV bot works: Jito bundles and tips, arbitrage vs sandwiches, a Python simulation, and why $50,000 a day is not a typical result.">
+<meta property="og:url" content="https://yashvardhangupta.com/blog/solana-mev-bots-explained/">
+<meta property="og:image" content="https://yashvardhangupta.com/assets/og/solana-mev-bots-explained-v1.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Solana MEV Bots Explained: How They Work &amp; What They Earn">
+<meta property="article:published_time" content="2026-10-29T09:40:00+05:30">
+<meta property="article:modified_time" content="2026-10-29T09:40:00+05:30">
+<meta property="article:author" content="https://yashvardhangupta.com/about/">
+<meta property="article:section" content="Crypto">
+<meta property="article:tag" content="solana mev bot">
+<meta property="article:tag" content="mev on solana">
+<meta property="article:tag" content="jito bundles">
+<meta property="article:tag" content="jito tips">
+<meta property="article:tag" content="solana arbitrage bot">
+<meta property="article:tag" content="solana sandwich attack">
+<meta property="article:tag" content="solana mev bot profit per day">
+<meta property="article:tag" content="solana mev bot scam">
+<meta property="article:tag" content="solana mempool">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Solana MEV Bots Explained: How They Work &amp; What They Earn">
+<meta name="twitter:description" content="How a Solana MEV bot works: Jito bundles and tips, arbitrage vs sandwiches, a Python simulation, and why $50,000 a day is not a typical result.">
+<meta name="twitter:image" content="https://yashvardhangupta.com/assets/og/solana-mev-bots-explained-v1.png">
+<meta name="twitter:image:alt" content="Solana MEV Bots Explained: How They Work &amp; What They Earn">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="alternate" type="application/atom+xml" title="YashVardhan Gupta - Blog" href="/feed.xml">
+<link rel="me" href="https://github.com/yashvardhancse">
+<link rel="me" href="https://www.linkedin.com/in/yashvardhancse/">
+<script>
+/* Early setup (inline, tiny, before first paint): marks html.js, applies the stored or OS theme as data-theme (no flash of the
+   wrong theme) and the stored "Pause animations" choice as html.motion-off. Without this script (or without JS) the CSS
+   follows prefers-color-scheme on its own, the navigation is a plain list and nothing moves. */
+(function(){var d=document.documentElement,t,m,s,i,c;try{t=localStorage.getItem('theme');m=localStorage.getItem('motion')}catch(e){}
+s=t==='light'||t==='dark';
+if(!s){t=window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}
+d.setAttribute('data-theme',t);d.classList.add('js');if(m==='paused'){d.classList.add('motion-off')}
+if(s){c=document.querySelectorAll('meta[name="theme-color"]');for(i=0;i<c.length;i++){c[i].removeAttribute('media');c[i].setAttribute('content',t==='dark'?'#0f0d0b':'#f4efe6')}}})();
+</script>
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/blog.css">
+<script src="/assets/js/article.js" defer></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": "https://yashvardhangupta.com/blog/solana-mev-bots-explained/#article",
+      "headline": "Solana MEV Bots Explained: How They Work & What They Earn",
+      "description": "How a Solana MEV bot works: Jito bundles and tips, arbitrage vs sandwiches, a Python simulation, and why $50,000 a day is not a typical result.",
+      "image": [
+        "https://yashvardhangupta.com/assets/og/solana-mev-bots-explained-v1.png"
+      ],
+      "datePublished": "2026-10-29T09:40:00+05:30",
+      "dateModified": "2026-10-29T09:40:00+05:30",
+      "author": {
+        "@type": "Person",
+        "@id": "https://yashvardhangupta.com/#person",
+        "name": "YashVardhan Gupta",
+        "url": "https://yashvardhangupta.com/about/"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://yashvardhangupta.com/#person",
+        "name": "YashVardhan Gupta",
+        "url": "https://yashvardhangupta.com/about/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://yashvardhangupta.com/blog/solana-mev-bots-explained/"
+      },
+      "url": "https://yashvardhangupta.com/blog/solana-mev-bots-explained/",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "isPartOf": {
+        "@type": "Blog",
+        "@id": "https://yashvardhangupta.com/blog/#blog"
+      },
+      "keywords": "solana mev bot, mev on solana, jito bundles, jito tips, solana arbitrage bot, solana sandwich attack, solana mev bot profit per day, solana mev bot scam, solana mempool",
+      "articleSection": "Crypto",
+      "wordCount": 3499,
+      "timeRequired": "PT16M"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://yashvardhangupta.com/blog/solana-mev-bots-explained/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://yashvardhangupta.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://yashvardhangupta.com/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Solana MEV Bots Explained: How They Work & What They Earn",
+          "item": "https://yashvardhangupta.com/blog/solana-mev-bots-explained/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+<script>
+/* Google Analytics 4 (G-EZNSFMP4V2): loaded on the first interaction or after 6 s, whichever comes first.
+   Never on localhost, 127.0.0.1 or file pages. */
+(function(){var h=location.hostname;
+if(location.protocol==='file:'||h===''||h==='localhost'||h==='127.0.0.1'||h==='[::1]'){return}
+var ev=['pointerdown','keydown','scroll','touchstart'],o={passive:true,once:true},done=false,t=0;
+function go(){if(done){return}done=true;clearTimeout(t);
+ev.forEach(function(e){removeEventListener(e,go,o)});
+var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-EZNSFMP4V2';document.head.appendChild(s);
+window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-EZNSFMP4V2')}
+ev.forEach(function(e){addEventListener(e,go,o)});t=setTimeout(go,6000)})();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3 7 9 6.5L21 7"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15H4.5A2.5 2.5 0 0 1 2 12.5v-8A2.5 2.5 0 0 1 4.5 2h8A2.5 2.5 0 0 1 15 4.5V5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/></symbol>
+  <symbol id="i-rss" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2.5"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12.5a8.5 8.5 0 0 1-12.4 7.5L3 21l1.3-4.9A8.5 8.5 0 1 1 21 12.5z"/></symbol>
+  <symbol id="i-branch" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2.5"/><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="8" r="2.5"/><path d="M6 7.5v9M18 10.5c0 4-6 3.5-10.5 7"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3.5" width="18" height="17" rx="3"/><path d="M3 9.5h18M9.5 9.5v11"/></symbol>
+  <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14 -1.5 8 5-3 5 3-1.5-8"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6M12 19h8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.7a3.5 3.5 0 0 1 0 6.6M18 14.3c2.2.7 3.5 2.6 3.5 5.7"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.2 2.9.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></symbol>
+  <symbol id="i-linkedin" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></symbol>
+  <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></symbol>
+</svg>
+
+<header class="site-header" id="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">YG</span>
+      <span class="brand-name">YashVardhan Gupta</span>
+    </a>
+    <nav class="site-nav" id="site-nav" aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="/" data-nav="home">Home</a></li>
+        <li><a href="/about/" data-nav="about">About</a></li>
+        <li><a href="/#projects" data-nav="projects">Projects</a></li>
+        <li><a href="/blog/" data-nav="blog" aria-current="page">Blog</a></li>
+        <li><a href="/learning-log/" data-nav="learning">Learning Log</a></li>
+        <li><a href="/explorations/" data-nav="explorations">Explorations</a></li>
+        <li><a href="/contact/" data-nav="contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn theme-toggle" type="button" aria-pressed="false" aria-label="Dark theme">
+        <svg class="i i-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+        <svg class="i i-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+      </button>
+      <a class="btn btn--sm btn--tangerine header-cta" href="/contact/">Hire me</a>
+      <button class="icon-btn nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+        <svg class="i i-open" aria-hidden="true"><use href="#i-menu"/></svg>
+        <svg class="i i-close" aria-hidden="true"><use href="#i-x"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="main" tabindex="-1">
+<article class="post-page">
+<header class="section sec--ink post-hero" id="top">
+  <div class="container post-hero-grid">
+    <div class="post-hero-copy">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol class="sec-label">
+          <li><a href="/blog/"><span class="sec-num" aria-hidden="true"><svg class="i"><use href="#i-arrow-right"/></svg></span>Blog</a></li>
+          <li><a href="/blog/#tag-crypto">Crypto</a></li>
+          <li class="visually-hidden" aria-current="page">Solana MEV Bots Explained: How They Work &amp; What They Earn</li>
+        </ol>
+      </nav>
+      <h1 class="post-h1"><span class="hl">Solana MEV Bots</span> Explained: How They Work &amp; What They Earn</h1>
+      <p class="post-dek">Reports show some operators made far more than $50,000 a day at the 2024-25 peak, but no public data shows that is typical. Here is how searchers, Jito bundles and tips work, what the data says bots earn, and how the &quot;$50k a day&quot; scams operate.</p>
+      <p class="post-meta">
+        <span class="tag tag--sun">Crypto</span>
+        <time datetime="2026-10-29T09:40:00+05:30">Oct 29, 2026</time>
+        
+        <span>16 min read</span>
+        <span>By <a href="/about/" rel="author">YashVardhan Gupta</a></span>
+      </p>
+    </div>
+    <div class="post-hero-art card">
+      <div class="post-art post-art--tangerine">
+        <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+          <circle cx="46" cy="66" r="16" class="p"/><circle cx="46" cy="66" r="5" class="f"/>
+          <path d="M64 66h38" stroke-dasharray="2 8"/>
+          <rect x="104" y="12" width="140" height="108" rx="16" stroke-dasharray="3 7"/>
+          <rect x="118" y="24" width="112" height="24" rx="8" class="p"/>
+          <rect x="118" y="55" width="112" height="24" rx="8" class="m"/>
+          <rect x="118" y="86" width="112" height="24" rx="8" class="p"/>
+          <circle cx="132" cy="36" r="4" class="f"/><circle cx="132" cy="67" r="4" class="f"/><circle cx="132" cy="98" r="4" class="f"/>
+          <path d="M146 36h62M146 67h62M146 98h62" stroke-width="2.5"/>
+          <path d="M246 66h30M270 59l8 7-8 7" stroke-dasharray="2 8"/>
+          <circle cx="318" cy="66" r="24" class="s"/><circle cx="318" cy="66" r="13"/>
+          <text x="24" y="142" class="art-text">BUNDLE + TIP, ALL OR NOTHING</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="post-sheet">
+  <div class="container">
+    <div class="post-layout">
+      <div class="post-toc" id="toc">
+<nav class="toc card toc-rail" aria-label="Table of contents">
+  <p class="toc-title">On this page</p>
+  <ol class="toc-list">
+<li><a href="#key-takeaways"><span class="toc-n" aria-hidden="true">&bull;</span><span>Key takeaways</span></a></li>
+<li><a href="#can-a-solana-mev-bot-make-50000-a-day"><span class="toc-n" aria-hidden="true">01</span><span>Can a Solana MEV bot really make $50,000 a day?</span></a></li>
+<li><a href="#what-is-mev-on-solana"><span class="toc-n" aria-hidden="true">02</span><span>What is MEV on Solana, and how does it differ from Ethereum?</span></a></li>
+<li><a href="#solana-has-no-public-mempool"><span class="toc-n" aria-hidden="true">03</span><span>Why does Solana have no public mempool?</span></a></li>
+<li><a href="#how-jito-bundles-and-tips-work"><span class="toc-n" aria-hidden="true">04</span><span>How do Jito bundles and tips work?</span></a></li>
+<li><a href="#solana-mev-bot-strategies"><span class="toc-n" aria-hidden="true">05</span><span>What strategies do Solana MEV bots use?</span></a></li>
+<li><a href="#solana-arbitrage-bot-python-simulation"><span class="toc-n" aria-hidden="true">06</span><span>How does a Solana arbitrage bot work? A Python simulation</span></a></li>
+<li><a href="#cost-to-run-a-solana-mev-bot"><span class="toc-n" aria-hidden="true">07</span><span>What does it cost to run a Solana MEV bot, and who actually earns?</span></a></li>
+<li><a href="#protect-yourself-from-sandwich-attacks"><span class="toc-n" aria-hidden="true">08</span><span>How do you protect yourself from sandwich attacks on Solana?</span></a></li>
+<li><a href="#are-solana-mev-bots-legal"><span class="toc-n" aria-hidden="true">09</span><span>Are Solana MEV bots legal?</span></a></li>
+<li><a href="#solana-mev-bot-scams"><span class="toc-n" aria-hidden="true">10</span><span>How do &quot;$X a day&quot; Solana MEV bot scams work?</span></a></li>
+<li><a href="#next-steps"><span class="toc-n" aria-hidden="true">11</span><span>Where to go next</span></a></li>
+<li><a href="#faq"><span class="toc-n" aria-hidden="true">&bull;</span><span>Frequently asked questions</span></a></li>
+<li><a href="#references"><span class="toc-n" aria-hidden="true">&bull;</span><span>References</span></a></li>
+  </ol>
+</nav>
+<details class="toc card toc-inline">
+  <summary><span>On this page</span><span class="toc-count">14 sections</span></summary>
+  <ol class="toc-list">
+<li><a href="#key-takeaways"><span class="toc-n" aria-hidden="true">&bull;</span><span>Key takeaways</span></a></li>
+<li><a href="#can-a-solana-mev-bot-make-50000-a-day"><span class="toc-n" aria-hidden="true">01</span><span>Can a Solana MEV bot really make $50,000 a day?</span></a></li>
+<li><a href="#what-is-mev-on-solana"><span class="toc-n" aria-hidden="true">02</span><span>What is MEV on Solana, and how does it differ from Ethereum?</span></a></li>
+<li><a href="#solana-has-no-public-mempool"><span class="toc-n" aria-hidden="true">03</span><span>Why does Solana have no public mempool?</span></a></li>
+<li><a href="#how-jito-bundles-and-tips-work"><span class="toc-n" aria-hidden="true">04</span><span>How do Jito bundles and tips work?</span></a></li>
+<li><a href="#solana-mev-bot-strategies"><span class="toc-n" aria-hidden="true">05</span><span>What strategies do Solana MEV bots use?</span></a></li>
+<li><a href="#solana-arbitrage-bot-python-simulation"><span class="toc-n" aria-hidden="true">06</span><span>How does a Solana arbitrage bot work? A Python simulation</span></a></li>
+<li><a href="#cost-to-run-a-solana-mev-bot"><span class="toc-n" aria-hidden="true">07</span><span>What does it cost to run a Solana MEV bot, and who actually earns?</span></a></li>
+<li><a href="#protect-yourself-from-sandwich-attacks"><span class="toc-n" aria-hidden="true">08</span><span>How do you protect yourself from sandwich attacks on Solana?</span></a></li>
+<li><a href="#are-solana-mev-bots-legal"><span class="toc-n" aria-hidden="true">09</span><span>Are Solana MEV bots legal?</span></a></li>
+<li><a href="#solana-mev-bot-scams"><span class="toc-n" aria-hidden="true">10</span><span>How do &quot;$X a day&quot; Solana MEV bot scams work?</span></a></li>
+<li><a href="#next-steps"><span class="toc-n" aria-hidden="true">11</span><span>Where to go next</span></a></li>
+<li><a href="#faq"><span class="toc-n" aria-hidden="true">&bull;</span><span>Frequently asked questions</span></a></li>
+<li><a href="#references"><span class="toc-n" aria-hidden="true">&bull;</span><span>References</span></a></li>
+  </ol>
+</details>
+      </div>
+      <div class="post-main">
+<div class="prose">
+<h2 id="key-takeaways">Key takeaways<a class="anchor" href="#key-takeaways" aria-label="Link to this section: Key takeaways"></a></h2>
+<ul class="takeaways">
+<li>No public data shows $50,000 a day is typical for a Solana MEV bot, though Helius reported far more for one sandwich program over 30 days at the 2024-25 peak. Everyone who paid Jito tips spent about $193,000 a day in the 30 days to 28 October 2026.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></li>
+<li>Solana has no public mempool. Many searchers send bundles through Jito's Block Engine; others send ordinary transactions with priority fees, which still cost a fee when they fail.</li>
+<li>Profit per opportunity is small: in this article's simulation a 2% gap between two 10,000 SOL pools earns about $41.51 after pool fees, before the tip.</li>
+<li>A daily-income MEV bot for sale matches the standard scam lure, and fake bot packages are built to steal private keys.<sup class="cite"><a href="#ref-2" aria-label="Reference 2">[2]</a></sup> Never paste a key into code you did not write and read.</li>
+</ul>
+<p>A <strong>Solana <abbr title="maximal extractable value">MEV</abbr> bot</strong> is an automated program, called a searcher, that watches on-chain prices and sends transactions or Jito bundles with a tip to capture profit from the order of transactions in a block. Arbitrage and liquidation bots keep prices aligned and lenders repaid; sandwich bots, which profit at users' expense, do the clearest harm.</p>
+
+<h2 id="can-a-solana-mev-bot-make-50000-a-day" data-n="01">Can a Solana MEV bot really make $50,000 a day?<a class="anchor" href="#can-a-solana-mev-bot-make-50000-a-day" aria-label="Link to this section: Can a Solana MEV bot really make $50,000 a day?"></a></h2>
+<p>Not as a normal outcome, though some operators did far more at the 2024-25 peak. Helius reported one sandwich program's profit at roughly $448,000 a day for 30 days, taken from other users (net of tips not stated), when the daily tip pool was more than 20 times larger in dollars.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup><sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> No public dataset reports what a typical bot earns, and today's aggregates make $50,000 a day unlikely for one.</p>
+<p>DefiLlama counted about $193,000 a day in tips from everyone who paid Jito over the 30 days to 28 October 2026.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> A bot netting $50,000 a day after tips and fees, but before servers, capital and developer time, would need roughly 5% to 60% of that, depending on its tip share.</p>
+
+<h3 id="tips-are-a-cost-and-the-pool-is-jito-only">Tips are a cost, and the pool counts Jito tips only<a class="anchor" href="#tips-are-a-cost-and-the-pool-is-jito-only" aria-label="Link to this section: Tips are a cost, and the pool counts Jito tips only"></a></h3>
+<p>DefiLlama's series counts only tips paid to Jito's tip accounts. It leaves out priority fees (DefiLlama counts $23.8 million of base and priority fees paid by Solana users over the same 30 days<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup>), tips to other landing services (51% of tip volume in March 2026, per Syndica) and private deals.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup></p>
+
+<figure class="fig" id="fig-tip-pool"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 260" role="img" aria-labelledby="fig-tip-pool-t fig-tip-pool-d">
+<title id="fig-tip-pool-t">Daily Jito tips next to a hypothetical $50,000 a day</title>
+<desc id="fig-tip-pool-d">Jito tips: $9.42M a day in January 2025 (bar cut off), $193k over the last 30 days, and a hypothetical bot's tips of $50k, 26 percent of that.</desc>
+<text class="f-text" x="16" y="30">Jan 2025 average day: $9.42M (cut off, 49x)</text>
+<path class="f-accent" d="M16 42H604L595 50L604 58L595 66L604 74H16Z"/>
+<text class="f-text" x="16" y="116">30 days to 28 Oct 2026: $193k a day</text>
+<rect class="f-accent" x="16" y="128" width="340" height="32" rx="4"/>
+<text class="f-text" x="16" y="200">Tips of a bot netting $50k a day</text>
+<rect class="f-accent-2" x="16" y="212" width="88" height="32" rx="4"/>
+<text class="f-sub" x="116" y="224">26% of the 30-day bar</text>
+<text class="f-sub" x="116" y="244">hypothetical, 50% tip share</text>
+</svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+<figcaption><strong>Figure 1.</strong> Tips paid by everyone who tips through Jito, not bot profit. Dollars at each day's SOL price. Source: DefiLlama.</figcaption>
+</figure>
+
+<h3 id="the-50000-a-day-arithmetic">The $50,000 arithmetic, as scenarios<a class="anchor" href="#the-50000-a-day-arithmetic" aria-label="Link to this section: The $50,000 arithmetic, as scenarios"></a></h3>
+<p>Say a bot pays a share <var>s</var> of its pre-tip profit as tips. To net $50,000 it must pay $50,000 × <var>s</var> / (1 − <var>s</var>) in tips daily. Published shares are sparse: about 5% of the gain in The Block's back-run (below), and 26% to 35% of profit for the Helius sandwich program, depending on whether its profit is before or after tips.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup><sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></p>
+<div class="tbl"><div class="table-wrap scroll-x"><table>
+<caption>Hypothetical tips to net $50,000 a day against the $192,992 average daily pool (DefiLlama, 30 days to 28 Oct 2026); shares are assumed.</caption>
+<thead><tr><th scope="col">Assumed tip share</th><th scope="col">Share of all Jito tips</th><th scope="col">Tips paid per day</th></tr></thead>
+<tbody>
+<tr><th scope="row">15%</th><td>5%</td><td>$8,824</td></tr>
+<tr><th scope="row">30%</th><td>11%</td><td>$21,429</td></tr>
+<tr><th scope="row">50%</th><td>26%</td><td>$50,000</td></tr>
+<tr><th scope="row">70%</th><td>60%</td><td>$116,667</td></tr>
+</tbody></table></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p></div>
+<p>A second test avoids tips: Bitquery put all sandwich takings at $29.7 million from 30 October 2025 to 7 October 2026, about $87,000 a day before costs, so one bot netting $50,000 would need over half.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup> In January 2025 the same $50,000 was 0.5% of the average day's tips.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> The pool has since fallen 49-fold in dollars but about 24-fold in SOL, because SOL's price roughly halved.</p>
+<p>The Block reported a January 2024 back-run that turned 703 SOL into 19,035 SOL in about 20 seconds, caused by another trader's mistake.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup> Neither it nor the sandwich program Helius reported is a typical daily income.</p>
+
+<h2 id="what-is-mev-on-solana" data-n="02">What is MEV on Solana, and how does it differ from Ethereum?<a class="anchor" href="#what-is-mev-on-solana" aria-label="Link to this section: What is MEV on Solana, and how does it differ from Ethereum?"></a></h2>
+<p><abbr title="maximal extractable value">MEV</abbr> stands for maximal extractable value: the extra value someone can capture by including, excluding or reordering transactions in a block, beyond the block reward and fees.<sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup> On Solana the validator producing the current block, the slot leader, controls the order, and searchers compete for good positions in it.</p>
+<p>Ethereum builders assemble whole blocks, while on Solana Jito's Block Engine auctions bundles and the leader builds the rest.<sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup> Ethereum also has a public mempool and Solana's design has none.<sup class="cite"><a href="#ref-9" aria-label="Reference 9">[9]</a></sup></p>
+
+<h2 id="solana-has-no-public-mempool" data-n="03">Why does Solana have no public mempool?<a class="anchor" href="#solana-has-no-public-mempool" aria-label="Link to this section: Why does Solana have no public mempool?"></a></h2>
+<p>Because Solana forwards transactions instead of pooling them. A mempool is a shared waiting room for pending transactions; Solana's Gulf Stream design sends each one toward the upcoming leaders, so there is no queue to read or reorder.<sup class="cite"><a href="#ref-10" aria-label="Reference 10">[10]</a></sup> As of 29 October 2026, SIMD-0525, a Solana Improvement Document from Anza, is Activated and sets a 200 ms target slot time, down from 400 ms, and a leader gets four slots in a row, about 800 ms.<sup class="cite"><a href="#ref-11" aria-label="Reference 11">[11]</a></sup></p>
+
+<figure class="fig" id="fig-no-mempool"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 344" role="img" aria-labelledby="fig-no-mempool-t fig-no-mempool-d">
+<title id="fig-no-mempool-t">Where a Solana transaction goes</title>
+<desc id="fig-no-mempool-d">A wallet's or bot's plain transaction reaches the slot leader through an RPC node, a searcher's bundle through a Block Engine. No public mempool sits between.</desc>
+<defs><marker id="fig-no-mempool-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="f-arrow-head" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="f-box" x="16" y="28" width="190" height="56" rx="12"/>
+<text class="f-text" x="111" y="62" text-anchor="middle">Wallet, app or bot</text>
+<rect class="f-box" x="226" y="28" width="170" height="56" rx="12"/>
+<text class="f-text" x="311" y="62" text-anchor="middle">Searcher bot</text>
+<path class="f-arrow" d="M111 84V116" marker-end="url(#fig-no-mempool-ah)"/>
+<path class="f-arrow" d="M311 84V116" marker-end="url(#fig-no-mempool-ah)"/>
+<rect class="f-box" x="16" y="116" width="190" height="56" rx="12"/>
+<text class="f-text" x="111" y="150" text-anchor="middle">RPC node</text>
+<rect class="f-box" x="226" y="116" width="170" height="56" rx="12"/>
+<text class="f-text" x="311" y="150" text-anchor="middle">Block Engine</text>
+<rect class="f-box f-dash" x="16" y="204" width="380" height="32" rx="10"/>
+<text class="f-text" x="206" y="226" text-anchor="middle">No public mempool</text>
+<path class="f-arrow" d="M111 172V268" marker-end="url(#fig-no-mempool-ah)"/>
+<path class="f-arrow" d="M311 172V268" marker-end="url(#fig-no-mempool-ah)"/>
+<text class="f-sub" x="103" y="192" text-anchor="end">signed tx</text>
+<text class="f-sub" x="303" y="192" text-anchor="end">bundle + tip</text>
+<rect class="f-box-accent" x="16" y="268" width="380" height="56" rx="12"/>
+<text class="f-text" x="206" y="292" text-anchor="middle">Slot leader</text>
+<text class="f-sub" x="206" y="312" text-anchor="middle">4 slots in a row, 200 ms target each</text>
+<rect class="f-box" x="420" y="116" width="204" height="120" rx="12"/>
+<text class="f-sub" x="436" y="146">Only Jito leaders can</text>
+<text class="f-sub" x="436" y="166">include bundles.</text>
+<text class="f-sub" x="436" y="196">Searchers can also</text>
+<text class="f-sub" x="436" y="216">send plain transactions.</text>
+</svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+<figcaption><strong>Figure 2.</strong> A transaction goes straight to the slot leader, through an RPC node, a relay server. Searchers can also use a Block Engine auction.</figcaption>
+</figure>
+
+<p>Jito once added something close to a public queue: from 2022 until Jito Labs ended it over sandwich attacks in March 2024, its relayer held transactions for about 200 ms so searchers connected to the Block Engine could bid to trade around them.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup><sup class="cite"><a href="#ref-9" aria-label="Reference 9">[9]</a></sup> A 2025 study notes speculation that some validators re-created a mempool privately.<sup class="cite"><a href="#ref-9" aria-label="Reference 9">[9]</a></sup></p>
+
+<h2 id="how-jito-bundles-and-tips-work" data-n="04">How do Jito bundles and tips work?<a class="anchor" href="#how-jito-bundles-and-tips-work" aria-label="Link to this section: How do Jito bundles and tips work?"></a></h2>
+<p>A bundle is a group of up to five transactions meant to run in the listed order, inside one slot, all succeeding or none committed. A tip is a SOL transfer to one of eight Jito tip accounts, at least 1,000 lamports (a lamport is a billionth of a SOL), and it is how a bundle bids for inclusion.<sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup></p>
+
+<figure class="fig" id="fig-bundle-anatomy"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 352" role="img" aria-labelledby="fig-bundle-anatomy-t fig-bundle-anatomy-d">
+<title id="fig-bundle-anatomy-t">Anatomy of a Jito bundle</title>
+<desc id="fig-bundle-anatomy-d">Up to five transactions run in order in one slot, with the tip, a SOL transfer, inside the second.</desc>
+<defs><marker id="fig-bundle-anatomy-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="f-arrow-head" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="f-line f-dash" x="16" y="16" width="380" height="320" rx="14"/>
+<text class="f-text" x="32" y="46">One bundle, all-or-nothing by design</text>
+<rect class="f-box" x="36" y="62" width="340" height="44" rx="10"/>
+<text class="f-text" x="52" y="90">Tx 1</text>
+<text class="f-sub" x="112" y="90">any transaction</text>
+<path class="f-arrow" d="M206 106V124" marker-end="url(#fig-bundle-anatomy-ah)"/>
+<rect class="f-box-accent" x="36" y="124" width="340" height="130" rx="10"/>
+<text class="f-text" x="52" y="152">Tx 2</text>
+<text class="f-sub" x="112" y="152">the strategy, with the tip inside</text>
+<rect class="f-box" x="52" y="166" width="308" height="76" rx="8"/>
+<text class="f-text" x="68" y="190">Tip</text>
+<text class="f-sub" x="68" y="210">SOL transfer to 1 of 8 tip accounts</text>
+<text class="f-sub" x="68" y="230">minimum 1,000 lamports</text>
+<path class="f-arrow" d="M206 254V272" marker-end="url(#fig-bundle-anatomy-ah)"/>
+<rect class="f-box" x="36" y="272" width="340" height="44" rx="10"/>
+<text class="f-text" x="52" y="300">Tx 3</text>
+<text class="f-sub" x="112" y="300">any transaction</text>
+<rect class="f-box" x="420" y="62" width="204" height="66" rx="12"/>
+<text class="f-sub" x="436" y="92">Up to 5 transactions,</text>
+<text class="f-sub" x="436" y="112">in order, in one slot.</text>
+</svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+<figcaption><strong>Figure 3.</strong> A Jito bundle, with the tip inside the strategy transaction.</figcaption>
+</figure>
+
+<p>Many searchers send bundles to a Block Engine, Jito's auction service. Auctions run every 50 ms and the highest-paying combination goes to the leader. According to Jito, only leaders running its validator software can include bundles, and validators and their stakers share the tips.<sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup> Others send ordinary transactions with priority fees.<sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup> Block building is diversifying: in March 2026 Syndica found 28% of stake on JitoBAM, a Jito extension, and 17% on Harmonic, where independent builders compete.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup></p>
+<p>Solana charges fees whether or not a transaction succeeds: 5,000 lamports per signature, half burned and half to the validator, plus an optional priority fee, paid entirely to the validator, equal to a price per compute unit (a measure of work) times a limit.<sup class="cite"><a href="#ref-12" aria-label="Reference 12">[12]</a></sup></p>
+<p>A bundle is different: Jito says that if any transaction in a bundle fails, none is committed, and advises putting the tip inside the strategy transaction so a failed transaction pays no tip.<sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup> It does not state what an unlanded bundle costs, and it warns that after a skipped (uncled) block others can rebroadcast a bundle's transactions individually, outside the all-or-nothing protection, where they can land and fail.</p>
+
+<h2 id="solana-mev-bot-strategies" data-n="05">What strategies do Solana MEV bots use?<a class="anchor" href="#solana-mev-bot-strategies" aria-label="Link to this section: What strategies do Solana MEV bots use?"></a></h2>
+<p>Four families dominate the evidence, and only the sandwich is built to worsen a user's price on their own swap.</p>
+<div class="tbl"><div class="table-wrap scroll-x"><table>
+<caption>Who bears the cost. Verdicts for arbitrage, liquidation and sandwich follow ethereum.org;<sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup> the rest are this article's judgement.</caption>
+<thead><tr><th scope="col">Strategy</th><th scope="col">Who pays</th><th scope="col">Verdict</th><th scope="col">What the bot does</th></tr></thead>
+<tbody>
+<tr><th scope="row">Arbitrage</th><td>Liquidity providers in the stale pool</td><td>Useful: aligns prices</td><td>Buys cheap, sells dear, atomically if possible</td></tr>
+<tr><th scope="row">Liquidation</th><td>The borrower</td><td>Useful: lenders repaid</td><td>Repays an unsafe loan for discounted collateral</td></tr>
+<tr><th scope="row">Back-run</th><td>Whoever left the old price in place</td><td>Debated</td><td>Trades right after a price-moving event</td></tr>
+<tr><th scope="row">Sandwich</th><td>The victim, through a worse price</td><td>Harmful to the user</td><td>Trades before and after a victim's swap</td></tr>
+</tbody></table></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p></div>
+<p>A mispriced pool is a market maker quoting an old price, so arbitrage corrects it at liquidity providers' expense, the adverse selection the <a href="/blog/what-is-market-making/">guide to market making</a> explains. The 2026 bot study also counts token-launch sniping, buying new tokens within seconds, as a Solana MEV family.<sup class="cite"><a href="#ref-13" aria-label="Reference 13">[13]</a></sup></p>
+
+<h2 id="solana-arbitrage-bot-python-simulation" data-n="06">How does a Solana arbitrage bot work? A Python simulation<a class="anchor" href="#solana-arbitrage-bot-python-simulation" aria-label="Link to this section: How does a Solana arbitrage bot work? A Python simulation"></a></h2>
+<p>A 2026 study of Solana bot code found a shared five-stage pipeline from setup through observation, analytics and planning to execution.<sup class="cite"><a href="#ref-13" aria-label="Reference 13">[13]</a></sup> In practice a searcher streams chain data, prices routes in memory, simulates a trade, adds a compute budget and tip, sends it to a regional Jito Block Engine and checks whether it landed, weighing latency at every step.<sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup></p>
+<p>The simplest pool design, and the one modelled here, uses the constant-product rule <var>x</var> × <var>y</var> = <var>k</var>, so a bigger trade moves the price further. That move is slippage: the gap between the expected price and the average price you got. The script uses made-up pools and only Python's standard library, with no network, wallet or randomness. Its <code>best_size</code> function finds the best trade in closed form and a brute-force scan in 10 USDC steps checks it; the tip is an assumption, half the gross profit.</p>
+<figure class="code-card"><figcaption class="code-bar"><span class="code-title">arb_sim.py</span><span class="code-lang">Python</span></figcaption><pre class="code scroll-x" data-lang="python" data-title="arb_sim.py"><code><span class="tok-c">"""Toy arbitrage between two constant-product pools (x * y = k)."""</span>
+<span class="tok-k">from</span> <span class="tok-f">math</span> <span class="tok-k">import</span> sqrt
+
+SOL_USD <span class="tok-o">=</span> <span class="tok-m">150.0</span>                        <span class="tok-c"># illustrative SOL price, in USDC</span>
+NETWORK_FEE <span class="tok-o">=</span> <span class="tok-m">35_000</span> <span class="tok-o">/</span> <span class="tok-m">1e9</span> <span class="tok-o">*</span> SOL_USD   <span class="tok-c"># 5,000 base + 30,000 priority lamports</span>
+TIP_SHARE <span class="tok-o">=</span> <span class="tok-m">0.5</span>                        <span class="tok-c"># ASSUMPTION: tip = half the gross profit</span>
+POOL_A <span class="tok-o">=</span> <span class="tok-o">(</span><span class="tok-m">10_000.0</span><span class="tok-o">,</span> <span class="tok-m">1_500_000.0</span><span class="tok-o">)</span>       <span class="tok-c"># (SOL, USDC) reserves: 150.00 per SOL</span>
+
+<span class="tok-k">def</span> <span class="tok-f">swap</span><span class="tok-o">(</span>amount_in<span class="tok-o">,</span> reserve_in<span class="tok-o">,</span> reserve_out<span class="tok-o">,</span> fee<span class="tok-o">):</span>
+    <span class="tok-c">"""Constant-product swap. The fee comes off the input."""</span>
+    net_in <span class="tok-o">=</span> amount_in <span class="tok-o">*</span> <span class="tok-o">(</span><span class="tok-m">1</span> <span class="tok-o">-</span> fee<span class="tok-o">)</span>
+    <span class="tok-k">return</span> net_in <span class="tok-o">*</span> reserve_out <span class="tok-o">/</span> <span class="tok-o">(</span>reserve_in <span class="tok-o">+</span> net_in<span class="tok-o">)</span>
+
+<span class="tok-k">def</span> <span class="tok-f">gross_profit</span><span class="tok-o">(</span>usdc<span class="tok-o">,</span> a<span class="tok-o">,</span> b<span class="tok-o">,</span> fee<span class="tok-o">):</span>
+    <span class="tok-c">"""Buy SOL with USDC in pool A, sell that SOL in pool B."""</span>
+    <span class="tok-k">return</span> swap<span class="tok-o">(</span>swap<span class="tok-o">(</span>usdc<span class="tok-o">,</span> a<span class="tok-o">[</span><span class="tok-m">1</span><span class="tok-o">],</span> a<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">],</span> fee<span class="tok-o">),</span> b<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">],</span> b<span class="tok-o">[</span><span class="tok-m">1</span><span class="tok-o">],</span> fee<span class="tok-o">)</span> <span class="tok-o">-</span> usdc
+
+<span class="tok-k">def</span> <span class="tok-f">best_size</span><span class="tok-o">(</span>a<span class="tok-o">,</span> b<span class="tok-o">,</span> fee<span class="tok-o">):</span>
+    <span class="tok-c">"""The two swaps compose to out(d) = p*d / (q + c*d), so profit</span>
+<span class="tok-c">    peaks at d = (sqrt(p*q) - q) / c and is zero at d = (p - q) / c."""</span>
+    r <span class="tok-o">=</span> <span class="tok-m">1</span> <span class="tok-o">-</span> fee
+    p<span class="tok-o">,</span> q<span class="tok-o">,</span> c <span class="tok-o">=</span> r <span class="tok-o">*</span> r <span class="tok-o">*</span> a<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">]</span> <span class="tok-o">*</span> b<span class="tok-o">[</span><span class="tok-m">1</span><span class="tok-o">],</span> b<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">]</span> <span class="tok-o">*</span> a<span class="tok-o">[</span><span class="tok-m">1</span><span class="tok-o">],</span> r <span class="tok-o">*</span> b<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">]</span> <span class="tok-o">+</span> r <span class="tok-o">*</span> r <span class="tok-o">*</span> a<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">]</span>
+    <span class="tok-k">return</span> <span class="tok-f">max</span><span class="tok-o">(</span><span class="tok-m">0.0</span><span class="tok-o">,</span> <span class="tok-o">(</span>sqrt<span class="tok-o">(</span>p <span class="tok-o">*</span> q<span class="tok-o">)</span> <span class="tok-o">-</span> q<span class="tok-o">)</span> <span class="tok-o">/</span> c<span class="tok-o">),</span> <span class="tok-o">(</span>p <span class="tok-o">-</span> q<span class="tok-o">)</span> <span class="tok-o">/</span> c  <span class="tok-c"># best, break-even</span>
+
+<span class="tok-k">def</span> <span class="tok-f">report</span><span class="tok-o">(</span>name<span class="tok-o">,</span> fee<span class="tok-o">,</span> price_b<span class="tok-o">):</span>
+    a<span class="tok-o">,</span> b <span class="tok-o">=</span> POOL_A<span class="tok-o">,</span> <span class="tok-o">(</span><span class="tok-m">10_000.0</span><span class="tok-o">,</span> <span class="tok-m">10_000.0</span> <span class="tok-o">*</span> price_b<span class="tok-o">)</span>    <span class="tok-c"># pool B: 10,000 SOL</span>
+    gap <span class="tok-o">=</span> price_b <span class="tok-o">/</span> <span class="tok-o">(</span>a<span class="tok-o">[</span><span class="tok-m">1</span><span class="tok-o">]</span> <span class="tok-o">/</span> a<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">])</span> <span class="tok-o">-</span> <span class="tok-m">1</span>
+    size<span class="tok-o">,</span> break_even <span class="tok-o">=</span> best_size<span class="tok-o">(</span>a<span class="tok-o">,</span> b<span class="tok-o">,</span> fee<span class="tok-o">)</span>
+    <span class="tok-k">if</span> size <span class="tok-o">==</span> <span class="tok-m">0</span><span class="tok-o">:</span>                 <span class="tok-c"># gap below about twice the pool fee</span>
+        <span class="tok-f">print</span><span class="tok-o">(</span><span class="tok-s">f"{</span>name<span class="tok-s">}: no profitable trade at a {</span>gap<span class="tok-s">:.2%} gap"</span><span class="tok-o">)</span>
+        <span class="tok-k">return</span> <span class="tok-m">0.0</span>
+    scan <span class="tok-o">=</span> <span class="tok-f">max</span><span class="tok-o">(</span><span class="tok-f">range</span><span class="tok-o">(</span><span class="tok-m">0</span><span class="tok-o">,</span> <span class="tok-f">int</span><span class="tok-o">(</span>break_even<span class="tok-o">)</span> <span class="tok-o">+</span> <span class="tok-m">1</span><span class="tok-o">,</span> <span class="tok-m">10</span><span class="tok-o">),</span>   <span class="tok-c"># check, 10 USDC steps</span>
+               key<span class="tok-o">=</span><span class="tok-k">lambda</span> d<span class="tok-o">:</span> gross_profit<span class="tok-o">(</span>d<span class="tok-o">,</span> a<span class="tok-o">,</span> b<span class="tok-o">,</span> fee<span class="tok-o">))</span>
+    gross <span class="tok-o">=</span> gross_profit<span class="tok-o">(</span>size<span class="tok-o">,</span> a<span class="tok-o">,</span> b<span class="tok-o">,</span> fee<span class="tok-o">)</span>
+    sol <span class="tok-o">=</span> swap<span class="tok-o">(</span>size<span class="tok-o">,</span> a<span class="tok-o">[</span><span class="tok-m">1</span><span class="tok-o">],</span> a<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">],</span> fee<span class="tok-o">)</span>         <span class="tok-c"># SOL bought in pool A</span>
+    <span class="tok-c"># price in B over price in A after the trade, minus 1</span>
+    gap_left <span class="tok-o">=</span> <span class="tok-o">(((</span>b<span class="tok-o">[</span><span class="tok-m">1</span><span class="tok-o">]</span> <span class="tok-o">-</span> size <span class="tok-o">-</span> gross<span class="tok-o">)</span> <span class="tok-o">/</span> <span class="tok-o">(</span>b<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">]</span> <span class="tok-o">+</span> sol<span class="tok-o">))</span>
+                <span class="tok-o">/</span> <span class="tok-o">((</span>a<span class="tok-o">[</span><span class="tok-m">1</span><span class="tok-o">]</span> <span class="tok-o">+</span> size<span class="tok-o">)</span> <span class="tok-o">/</span> <span class="tok-o">(</span>a<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">]</span> <span class="tok-o">-</span> sol<span class="tok-o">))</span> <span class="tok-o">-</span> <span class="tok-m">1</span><span class="tok-o">)</span>
+    tip <span class="tok-o">=</span> TIP_SHARE <span class="tok-o">*</span> gross
+    net <span class="tok-o">=</span> gross <span class="tok-o">-</span> NETWORK_FEE <span class="tok-o">-</span> tip
+    <span class="tok-f">print</span><span class="tok-o">(</span><span class="tok-s">f"{</span>name<span class="tok-s">}: gap {</span>gap<span class="tok-s">:.2%}, pool fee {</span>fee<span class="tok-s">:.2%} per side"</span><span class="tok-o">)</span>
+    <span class="tok-f">print</span><span class="tok-o">(</span><span class="tok-s">f"  best input {</span>size<span class="tok-s">:,.1f} USDC (scan {</span>scan<span class="tok-s">:,})"</span><span class="tok-o">)</span>
+    <span class="tok-f">print</span><span class="tok-o">(</span><span class="tok-s">f"  gross {</span>gross<span class="tok-s">:,.3f} | fees {</span>NETWORK_FEE<span class="tok-s">:.5f} | "</span>
+          <span class="tok-s">f"tip {</span>tip<span class="tok-s">:,.3f} | net {</span>net<span class="tok-s">:,.3f}"</span><span class="tok-o">)</span>
+    <span class="tok-f">print</span><span class="tok-o">(</span><span class="tok-s">f"  gap left {</span>gap_left<span class="tok-s">:.3%} | break-even input {</span>break_even<span class="tok-s">:,.0f}"</span><span class="tok-o">)</span>
+    <span class="tok-k">return</span> net
+
+<span class="tok-k">if</span> __name__ <span class="tok-o">==</span> <span class="tok-s">"__main__"</span><span class="tok-o">:</span>
+    <span class="tok-k">for</span> scenario <span class="tok-k">in</span> <span class="tok-o">[(</span><span class="tok-s">"1 big gap"</span><span class="tok-o">,</span> <span class="tok-m">0.0025</span><span class="tok-o">,</span> <span class="tok-m">153.00</span><span class="tok-o">),</span>
+                     <span class="tok-o">(</span><span class="tok-s">"2 smaller gap"</span><span class="tok-o">,</span> <span class="tok-m">0.0025</span><span class="tok-o">,</span> <span class="tok-m">151.20</span><span class="tok-o">)]:</span>
+        net <span class="tok-o">=</span> report<span class="tok-o">(*</span>scenario<span class="tok-o">)</span>
+        <span class="tok-k">if</span> net <span class="tok-o">&gt;</span> <span class="tok-m">0</span><span class="tok-o">:</span>
+            <span class="tok-f">print</span><span class="tok-o">(</span><span class="tok-s">f"  wins per day to net $50,000: {</span><span class="tok-m">50_000</span> <span class="tok-o">/</span> net<span class="tok-s">:,.0f}"</span><span class="tok-o">)</span></code></pre></figure>
+<figure class="code-card code-card--output"><figcaption class="code-bar"><span class="code-title">Output</span><span class="code-lang">output</span></figcaption><pre class="code code--output scroll-x" data-lang="" data-title="Output"><code>1 big gap: gap 2.00%, pool fee 0.25% per side
+  best input 5,590.2 USDC (scan 5,590)
+  gross 41.510 | fees 0.00525 | tip 20.755 | net 20.750
+  gap left 0.500% | break-even input 11,222
+  wins per day to net $50,000: 2,410
+2 smaller gap: gap 0.80%, pool fee 0.25% per side
+  best input 1,115.7 USDC (scan 1,120)
+  gross 1.654 | fees 0.00525 | tip 0.827 | net 0.822
+  gap left 0.502% | break-even input 2,233
+  wins per day to net $50,000: 60,862</code></pre></figure>
+<p>In scenario 1 the pools differ by 2.00% and charge 0.25% per side. The best input is 5,590.2 USDC and gross profit is 41.510 USDC. The trade shrinks the gap to 0.500%, about twice the fee. Profit falls to zero near 11,222, twice the best size. These results hold only for constant-product pools with a flat fee.</p>
+<p>So the 2.00% gap becomes a 0.74% return on the 5,590 USDC traded. Network fees are noise at 0.00525 USDC, and the assumed tip halves what remains, to 20.750. A 0.80% gap nets 0.822, so $50,000 a day would take 2,410 or 60,862 identical winning trades (from unrounded nets). Real markets add rivals who bid the tip toward the whole edge, failed attempts and inventory risk.</p>
+
+<h2 id="cost-to-run-a-solana-mev-bot" data-n="07">What does it cost to run a Solana MEV bot, and who actually earns?<a class="anchor" href="#cost-to-run-a-solana-mev-bot" aria-label="Link to this section: What does it cost to run a Solana MEV bot, and who actually earns?"></a></h2>
+<p>Tips, failed attempts and infrastructure decide the outcome, and none is published for a typical bot. In a sample of 53 days between August 2023 and July 2024, 1.51 billion of 2.90 billion non-vote transactions failed (52.1%); accounts classified as bots failed 58.43% of the time, against 6.22% for human-classified accounts.<sup class="cite"><a href="#ref-14" aria-label="Reference 14">[14]</a></sup></p>
+<p>Helius's pricing page, viewed on 29 October 2026, lists a streaming-data plan from $499 a month and dedicated nodes from $2,900; competitive setups are not priced publicly.<sup class="cite"><a href="#ref-15" aria-label="Reference 15">[15]</a></sup> Capital, engineering time and landing rates have no public data, and a 2026 study of 200 top-ranked addresses from two bot services found, over October 2025, that trading frequency and success rate did not reliably translate into stable profit.<sup class="cite"><a href="#ref-13" aria-label="Reference 13">[13]</a></sup></p>
+<div class="tbl"><div class="table-wrap scroll-x"><table>
+<caption>Public earnings data, none describing a typical bot.</caption>
+<thead><tr><th scope="col">Measure</th><th scope="col">Value and caveats</th><th scope="col">Period and source</th></tr></thead>
+<tbody>
+<tr><th scope="row">Profit per detected arbitrage</th><td>$1.58 average; before or after tips not stated</td><td>2024, Helius</td></tr>
+<tr><th scope="row">Net gain per sandwich</th><td>About $12 mean after fees; 28.0M sandwiches by 8,631 bots with 100+ sandwiches, 60%+ profitable</td><td>Jul 2023 to Jun 2026, preprint</td></tr>
+<tr><th scope="row">Gross take per sandwich</th><td>About $4.34 mean before costs; 6.85M attacks, $29.7M</td><td>30 Oct 2025 to 7 Oct 2026, Bitquery</td></tr>
+</tbody></table></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p></div>
+<p>The two sandwich averages are not comparable: one covers three years and only persistent bots, which flatters it, the other 11 months and every sandwich Bitquery detected. Both are this article's own division of reported totals.<sup class="cite"><a href="#ref-16" aria-label="Reference 16">[16]</a></sup><sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup></p>
+<p>Averages hide a heavy tail. Helius reported that Jito's analysis attributed nearly half of all Solana sandwich attacks to one program.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup> In a 63-attack Bitquery sample, which does not establish net earnings for the full period, bots kept 68% of gross proceeds and 18 attacks lost money after costs.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup></p>
+
+<h2 id="protect-yourself-from-sandwich-attacks" data-n="08">How do you protect yourself from sandwich attacks on Solana?<a class="anchor" href="#protect-yourself-from-sandwich-attacks" aria-label="Link to this section: How do you protect yourself from sandwich attacks on Solana?"></a></h2>
+<p>Choose a deliberate slippage setting, use protected submission where it is offered, and be careful with tokens on Pump.fun, a meme-coin launchpad, and PumpSwap, its exchange, which were involved in 96% of the attacks Bitquery detected; none of this is a guarantee. A peer-reviewed study of four months of Jito data in early 2025 found 521,903 sandwiches and at least $7.7 million in victim losses (at the study's September 2025 SOL price of about $242), with a median loss near $5.<sup class="cite"><a href="#ref-9" aria-label="Reference 9">[9]</a></sup></p>
+<ol class="steps">
+<li><strong>Set slippage deliberately.</strong> Tolerance caps how far below the quote you accept: at 1%, a $1,000 swap can lose at most about $10 to price movement of any kind, and at 20% about $200. In Bitquery's observational data, 8 in 10,000 Jupiter (a swap aggregator) swaps through Pump.fun or PumpSwap at 1% to 3% tolerance were sandwiched, against 148 at 20% to 50%, but the pattern is not smooth: swaps under 0.5% were hit 27 times, and exact-quote swaps 36.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup> Setting it too tight can make your own swap fail, and failed transactions still pay fees.</li>
+<li><strong>Use protected submission.</strong> Jito's <code>sendTransaction</code> adds MEV protection by default, and <code>bundleOnly=true</code> sends a single-transaction bundle.<sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup> Jupiter's protection option produced such bundles in the 2025 study, where users spent about $2.4 million (same SOL price) on defensive tips.<sup class="cite"><a href="#ref-9" aria-label="Reference 9">[9]</a></sup></li>
+<li><strong>Do not rely on <code>jitodontfront</code>.</strong> An account address with that prefix makes the Block Engine reject a bundle unless the transaction comes first, and Jito says it is not guaranteed.<sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup> A 2026 preprint found it covers only ordering inside a bundle: one large trading app had set it on 98.5% of its 21.5 million sandwiched victim transactions.<sup class="cite"><a href="#ref-16" aria-label="Reference 16">[16]</a></sup></li>
+</ol>
+
+<h2 id="are-solana-mev-bots-legal" data-n="09">Are Solana MEV bots legal?<a class="anchor" href="#are-solana-mev-bots-legal" aria-label="Link to this section: Are Solana MEV bots legal?"></a></h2>
+<p>Rules differ by country and this is not legal advice. ESMA, the EU markets regulator, notes that MEV is not legally defined and has seen very few enforcement actions, which is not the same as lawful. Its July 2025 analysis says some MEV may be market abuse and needs further study.<sup class="cite"><a href="#ref-17" aria-label="Reference 17">[17]</a></sup></p>
+<p>ESMA described a US prosecution opened in May 2024 as a first-of-its-kind case involving MEV; it concerns Ethereum.<sup class="cite"><a href="#ref-17" aria-label="Reference 17">[17]</a></sup> Prosecutors allege two brothers tricked other traders' MEV bots out of about $25 million, a case not about sandwiching users. A trial ended in a mistrial in November 2025. The latest report available, from March 2026, said the judge would rule on a motion to dismiss before any retrial, so check the docket (United States v. Peraire-Bueno, SDNY 24-cr-293).<sup class="cite"><a href="#ref-18" aria-label="Reference 18">[18]</a></sup></p>
+
+<h2 id="solana-mev-bot-scams" data-n="10">How do "$X a day" Solana MEV bot scams work?<a class="anchor" href="#solana-mev-bot-scams" aria-label="Link to this section: How do &quot;$X a day&quot; Solana MEV bot scams work?"></a></h2>
+<p>The pitch typically promises a fixed daily or monthly income, then asks for a wallet connection, a deposit, a private key or a fee for a "package".</p>
+<ul>
+<li><strong>Deploy-and-fund contracts (Ethereum).</strong> SentinelLABS described YouTube videos pushing arbitrage-bot contracts, which the videos call MEV bots, that viewers deploy and fund with at least 0.5 ETH. The contract secretly lets the scammer withdraw the funds. One wallet tied to a single video, a clear outlier, received 244.9 ETH (about $902,000).<sup class="cite"><a href="#ref-19" aria-label="Reference 19">[19]</a></sup></li>
+<li><strong>Key-stealing packages (Solana).</strong> JFrog's June 2026 report on malicious npm and PyPI packages includes one named <code>solana-mev-bot</code>, presented as a profit-generating MEV bot, that asks users to paste their private key and searches the machine for other credentials. JFrog does not say whether anyone lost money.<sup class="cite"><a href="#ref-2" aria-label="Reference 2">[2]</a></sup></li>
+</ul>
+<h3 id="red-flags">Red flags<a class="anchor" href="#red-flags" aria-label="Link to this section: Red flags"></a></h3>
+<ul>
+<li>A promised daily or monthly return, or a success rate near 100%, the core of the AI trading-bot frauds the US CFTC warned about in January 2024.<sup class="cite"><a href="#ref-20" aria-label="Reference 20">[20]</a></sup></li>
+<li>A request to deploy, fund and "activate" a bot contract,<sup class="cite"><a href="#ref-19" aria-label="Reference 19">[19]</a></sup> connect a wallet, or pay a fee to withdraw.</li>
+<li>Closed or obfuscated code, pushed through videos, social posts or chat groups.<sup class="cite"><a href="#ref-19" aria-label="Reference 19">[19]</a></sup><sup class="cite"><a href="#ref-20" aria-label="Reference 20">[20]</a></sup></li>
+<li>Proof offered only as screenshots and testimonials, or an anonymous author or newly registered domain.<sup class="cite"><a href="#ref-20" aria-label="Reference 20">[20]</a></sup></li>
+</ul>
+<h3 id="safe-handling">Safe handling<a class="anchor" href="#safe-handling" aria-label="Link to this section: Safe handling"></a></h3>
+<ol class="steps">
+<li><strong>Never hand over your main wallet.</strong> No website, chat or support agent needs your seed phrase. A bot you run yourself needs a signing key, so give it a separate wallet, never your savings or an exchange-linked one.</li>
+<li><strong>Start with no real value, and read the code.</strong> Use devnet and test tokens, or a model like the one above. Check dependencies, pin versions and run unfamiliar code only in a virtual machine that holds none of your keys or credentials. Fund a fresh wallet with an amount you can afford to lose, and only for code you have read.</li>
+<li><strong>Expect no guarantee.</strong> No legitimate searcher can promise a daily return. Report fraud to your national regulator or cybercrime portal; in the US, the CFTC at cftc.gov/complaint or the FBI at ic3.gov.<sup class="cite"><a href="#ref-20" aria-label="Reference 20">[20]</a></sup></li>
+</ol>
+<aside role="note" class="callout callout--warn"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5 2.5 20h19L12 3.5z"/><path d="M12 10v4.5M12 17.2v.01"/></svg><span><span class="visually-hidden">Warning: </span>If you already ran such code</span></p><p>Treat every key and credential on that machine as compromised, including those in <code>.env</code> files. From a different, clean device, create a new wallet with a new seed phrase, ideally a hardware wallet, and move your funds there. Then revoke token delegations, rotate SSH, API and cloud credentials, and wipe or reinstall the machine. If you funded a contract, stop sending funds and revoke its permissions.</p></aside>
+
+<h2 id="next-steps" data-n="11">Where to go next<a class="anchor" href="#next-steps" aria-label="Link to this section: Where to go next"></a></h2>
+<p>For the economics behind arbitrage and liquidity, read the <a href="/blog/what-is-market-making/">guide to market making</a>. For a runnable model of quoting under inventory risk, see the <a href="/blog/avellaneda-stoikov-market-making-model/">Avellaneda-Stoikov market making model, with Python code</a>.</p>
+</div>
+<div class="post-note" role="note">
+  <p><strong class="post-note-label">Disclaimer</strong> Educational content, not financial, legal, tax or security advice: running a bot can lose money, no public data shows what a typical searcher earns, and past peaks in tip volume are not typical of today's market.</p>
+</div>
+<section class="post-faq" id="faq" aria-labelledby="faq-title">
+  <h2 id="faq-title">Frequently asked questions</h2>
+<details class="faq-item"><summary>Can a Solana MEV bot really make $50,000 a day?</summary><div class="faq-a"><p>Not as a normal outcome, though some operators did far more at the 2024-25 peak: Helius reported about $13.4 million of profit in 30 days (roughly $448,000 a day, not stated to be net of tips) for one sandwich program, when the daily tip pool was more than 20 times bigger in dollar terms (about 12 times in SOL). No public dataset reports what a typical bot earns, and in the 30 days to 28 October 2026 everyone who paid Jito tips (bots, apps and ordinary users) spent only about $193,000 a day in total, a cost to bots rather than their profit, so $50,000 a day is unlikely for one bot. An offer that promises a daily income matches the standard scam lure.</p></div></details>
+<details class="faq-item"><summary>How much do Solana MEV bots make?</summary><div class="faq-a"><p>No public dataset reports what a typical bot earns. The averages that exist are small per opportunity: about $1.58 profit per detected arbitrage in 2024 (Helius) and about $12 net per sandwich as a mean for persistent, mostly profitable bots over July 2023 to June 2026 (a 2026 preprint, dividing its reported totals). Activity is concentrated, with nearly half of all sandwich attacks attributed to one program in Helius's report, so treat any single "top bot" figure as a best case, not an average.</p></div></details>
+<details class="faq-item"><summary>Does Solana have a mempool?</summary><div class="faq-a"><p>Not in the protocol. Transactions are forwarded toward the upcoming leaders instead of waiting in a shared public pool. From 2022 until Jito Labs suspended it in March 2024 after sandwich attacks, Jito's relayer held incoming transactions for about 200 ms so that searchers could bid on them. A 2025 study notes speculation that some validators re-created a mempool privately.</p></div></details>
+<details class="faq-item"><summary>What is a Jito bundle and what is a Jito tip?</summary><div class="faq-a"><p>A bundle is up to five transactions that are meant to run in the order listed, in one slot, all or nothing. A tip is a SOL transfer of at least 1,000 lamports to one of eight Jito tip accounts, and bundles bid with tips in auctions run every 50 ms. Only leaders running Jito's validator software can include bundles, and Jito warns that after a skipped block a bundle's transactions can be rebroadcast individually, outside the all-or-nothing protection, and may land and fail. Searchers can also send ordinary transactions with priority fees, which still cost a fee when they fail.</p></div></details>
+<details class="faq-item"><summary>How do I avoid sandwich attacks on Solana?</summary><div class="faq-a"><p>Use a deliberate slippage setting, use protected submission where your wallet or aggregator offers it, and be careful with tokens traded on Pump.fun or PumpSwap, which were involved in 96% of the attacks Bitquery detected (30 October 2025 to 7 October 2026). Bitquery's observational data showed far fewer sandwiched swaps at 1% to 3% slippage than at 20% to 50%, yet the pattern was not smooth and even exact-quote swaps were sandwiched, so these steps reduce the risk without removing it. A setting that is too tight can make your own swap fail, and failed transactions still pay fees.</p></div></details>
+<details class="faq-item"><summary>Are Solana MEV bots legal?</summary><div class="faq-a"><p>Rules differ by country and this is not legal advice. ESMA notes that MEV is not legally defined and has seen very few enforcement actions, which is not the same as lawful: its July 2025 analysis says some MEV may be market abuse and needs further study. The best-known US criminal case concerns an alleged Ethereum exploit of other traders' bots, not sandwiching users. Profits may also be taxable, with rules that vary by country.</p></div></details>
+<details class="faq-item"><summary>Is a free or paid Solana MEV bot from GitHub, YouTube or Telegram safe?</summary><div class="faq-a"><p>Treat it as unsafe until proven otherwise. Security firms have documented a malicious npm package named <code>solana-mev-bot</code> that asks for a private key and searches for other credentials (JFrog, June 2026) and YouTube tutorials that lead victims to fund a contract co-owned by the scammer (SentinelLABS, on Ethereum). Never paste a private key or seed phrase into code you did not write and read. If you already ran such code, treat every key on that machine as compromised and move your funds to a new wallet created on a different, clean device.</p></div></details>
+<details class="faq-item"><summary>Why do so many Solana transactions fail?</summary><div class="faq-a"><p>Fees are low, so bots send many attempts when only one can win an opportunity. A study of 53 sampled days between August 2023 and July 2024 found that 1.51 billion of 2.9 billion non-vote transactions failed (52.1%), with bot-classified accounts failing 58.43% of the time and human-classified accounts 6.22%. A verified 2026 failure rate was not found.</p></div></details>
+</section>
+<section class="post-refs" id="references" aria-labelledby="references-title">
+  <h2 id="references-title">References</h2>
+  <ol class="refs">
+<li id="ref-1"><span class="ref-text">DefiLlama (accessed 29 Oct 2026). <em>Jito MEV Tips</em> and <em>Solana</em> fees, daily series from DefiLlama's public JSON API (api.llama.fi/summary/fees/jito-mev-tips and /summary/fees/solana); SOL prices from coins.llama.fi. Monthly and 30-day figures computed from the series.</span> <a class="ref-link" href="https://api.llama.fi/summary/fees/jito-mev-tips" target="_blank" rel="noopener">https://api.llama.fi/summary/fees/jito-mev-tips</a></li>
+<li id="ref-2"><span class="ref-text">Korolevski, G. and Polkovnychenko, A. (11 Jun 2026). <em>Solana FakeFix: 25 Malicious npm and PyPI Packages Lure Developers With Fake Stable Builds</em>. JFrog Security Research.</span> <a class="ref-link" href="https://research.jfrog.com/post/solana-fakefix" target="_blank" rel="noopener">https://research.jfrog.com/post/solana-fakefix</a></li>
+<li id="ref-3"><span class="ref-text">Helius (15 Jan 2025). <em>Solana MEV Report: Trends, Insights, and Challenges</em>.</span> <a class="ref-link" href="https://www.helius.dev/blog/solana-mev-report" target="_blank" rel="noopener">https://www.helius.dev/blog/solana-mev-report</a></li>
+<li id="ref-4"><span class="ref-text">Syndica (27 Apr 2026). <em>Deep Dive: Solana Onchain Activity - March 2026</em>.</span> <a class="ref-link" href="https://blog.syndica.io/deep-dive-solana-onchain-activity/" target="_blank" rel="noopener">https://blog.syndica.io/deep-dive-solana-onchain-activity/</a></li>
+<li id="ref-5"><span class="ref-text">Chawla, V. (11 Jan 2024). <em>Solana-based MEV bot earns $1.8 million after back-running memecoin trader in seconds</em>. The Block.</span> <a class="ref-link" href="https://www.theblock.co/post/272079/solana-based-mev-bot-earns-1-8-million-after-back-running-memecoin-trader-in-seconds" target="_blank" rel="noopener">https://www.theblock.co/post/272079/solana-based-mev-bot-earns-1-8-million-after-back-running-memecoin-trader-in-seconds</a></li>
+<li id="ref-6"><span class="ref-text">Wright, L. (12 Oct 2026). <em>Solana sandwich bots took $29.7 million before costs, Bitquery estimates</em>. CryptoSlate, reporting estimates by Bitquery.</span> <a class="ref-link" href="https://cryptoslate.com/solana-sandwich-bots-took-29-7-million-before-costs-bitquery-estimates/" target="_blank" rel="noopener">https://cryptoslate.com/solana-sandwich-bots-took-29-7-million-before-costs-bitquery-estimates/</a></li>
+<li id="ref-7"><span class="ref-text">ethereum.org. <em>Maximal extractable value (MEV)</em>, developer documentation (page last updated 26 Feb 2026).</span> <a class="ref-link" href="https://ethereum.org/developers/docs/mev/" target="_blank" rel="noopener">https://ethereum.org/developers/docs/mev/</a></li>
+<li id="ref-8"><span class="ref-text">Jito Labs (accessed 29 Oct 2026; page last updated 9 Sep 2026). <em>Low Latency Transaction Send</em>, Jito documentation.</span> <a class="ref-link" href="https://docs.jito.wtf/lowlatencytxnsend/" target="_blank" rel="noopener">https://docs.jito.wtf/lowlatencytxnsend/</a></li>
+<li id="ref-9"><span class="ref-text">Gerzon, N., Weintraub, B., In, J., Mislove, A. and Nita-Rotaru, C. (2025). <em>Quantifying the Threat of Sandwiching MEV on Jito: A Measurement of Solana's Leading Validator Client</em>. ACM Internet Measurement Conference (IMC '25), DOI 10.1145/3730567.3764493. Author-hosted PDF.</span> <a class="ref-link" href="https://cnitarot.github.io/papers/imc26_solana.pdf" target="_blank" rel="noopener">https://cnitarot.github.io/papers/imc26_solana.pdf</a></li>
+<li id="ref-10"><span class="ref-text">Ackee Blockchain Security. <em>Solana Handbook: Gulf Stream</em> (page dated 12 Jul 2025).</span> <a class="ref-link" href="https://ackee.xyz/solana/book/latest/chapter2/gulf-stream/" target="_blank" rel="noopener">https://ackee.xyz/solana/book/latest/chapter2/gulf-stream/</a></li>
+<li id="ref-11"><span class="ref-text">Watt, B. (Anza) (2026). <em>SIMD-0525: Reduce Slot Times</em>, status Activated as of 29 Oct 2026. Solana Improvement Documents.</span> <a class="ref-link" href="https://github.com/solana-foundation/solana-improvement-documents/blob/main/proposals/0525-reduce-slot-times.md" target="_blank" rel="noopener">https://github.com/solana-foundation/solana-improvement-documents/blob/main/proposals/0525-reduce-slot-times.md</a></li>
+<li id="ref-12"><span class="ref-text">Solana Foundation. <em>Fee Structure</em>, Solana documentation (source file, accessed 29 Oct 2026).</span> <a class="ref-link" href="https://github.com/solana-foundation/solana-com/blob/main/apps/docs/content/docs/en/core/fees/fee-structure.mdx" target="_blank" rel="noopener">https://github.com/solana-foundation/solana-com/blob/main/apps/docs/content/docs/en/core/fees/fee-structure.mdx</a></li>
+<li id="ref-13"><span class="ref-text">Zheng, X. et al. (2026). <em>Demystifying Solana Bots: From GitHub Blueprints to On-Chain Fingerprints</em>. arXiv:2607.28424, accepted at ASE 2026.</span> <a class="ref-link" href="https://arxiv.org/abs/2607.28424" target="_blank" rel="noopener">https://arxiv.org/abs/2607.28424</a></li>
+<li id="ref-14"><span class="ref-text">Zheng, X., Wan, Z., Lo, D., Xie, D. and Yang, X. (2025). <em>Why Does My Transaction Fail? A First Look at Failed Transactions on the Solana Blockchain</em>. arXiv:2504.18055.</span> <a class="ref-link" href="https://arxiv.org/abs/2504.18055" target="_blank" rel="noopener">https://arxiv.org/abs/2504.18055</a></li>
+<li id="ref-15"><span class="ref-text">Helius. <em>Pricing</em> (viewed 29 Oct 2026).</span> <a class="ref-link" href="https://www.helius.dev/pricing" target="_blank" rel="noopener">https://www.helius.dev/pricing</a></li>
+<li id="ref-16"><span class="ref-text">Heimbach, L., Solmaz, O., Öz, B. and Ferreira Torres, C. (2026). <em>No Place to Hide: An Analysis on Protected Order Flow Sandwich Attacks</em>. arXiv:2609.28115, preprint of 23 Sep 2026.</span> <a class="ref-link" href="https://arxiv.org/abs/2609.28115" target="_blank" rel="noopener">https://arxiv.org/abs/2609.28115</a></li>
+<li id="ref-17"><span class="ref-text">ESMA (1 Jul 2025). <em>Maximal Extractable Value: Implications for crypto markets</em>. TRV Risk Analysis, ESMA50-481369926-29744.</span> <a class="ref-link" href="https://www.esma.europa.eu/sites/default/files/2025-07/ESMA50-481369926-29744_Maximal_Extractable_Value_Implications_for_crypto_markets.pdf" target="_blank" rel="noopener">https://www.esma.europa.eu/sites/default/files/2025-07/ESMA50-481369926-29744_Maximal_Extractable_Value_Implications_for_crypto_markets.pdf</a></li>
+<li id="ref-18"><span class="ref-text">Gilbert, A. (13 Mar 2026). <em>Court dispatch: MEV bros point to Eisenberg acquittal in high-stakes hearing</em>. DL News.</span> <a class="ref-link" href="https://www.dlnews.com/articles/defi/mev-bros-cite-eisenberg-acquittal-in-high-stakes-hearing/" target="_blank" rel="noopener">https://www.dlnews.com/articles/defi/mev-bros-cite-eisenberg-acquittal-in-high-stakes-hearing/</a></li>
+<li id="ref-19"><span class="ref-text">Delamotte, A. (updated 5 Aug 2025). <em>Smart Contract Scams: Ethereum Drainers Pose as Trading Bots to Steal Crypto</em>. SentinelLABS.</span> <a class="ref-link" href="https://www.sentinelone.com/labs/smart-contract-scams-ethereum-drainers-pose-as-trading-bots-to-steal-crypto/" target="_blank" rel="noopener">https://www.sentinelone.com/labs/smart-contract-scams-ethereum-drainers-pose-as-trading-bots-to-steal-crypto/</a></li>
+<li id="ref-20"><span class="ref-text">U.S. Commodity Futures Trading Commission (25 Jan 2024). <em>CFTC Customer Advisory Cautions the Public to Beware of Artificial Intelligence Scams</em>. Release 8854-24.</span> <a class="ref-link" href="https://www.cftc.gov/PressRoom/PressReleases/8854-24" target="_blank" rel="noopener">https://www.cftc.gov/PressRoom/PressReleases/8854-24</a></li>
+  </ol>
+</section>
+<section class="author card" id="author" aria-labelledby="author-title">
+  <figure class="author-photo">
+    <picture>
+      <source type="image/avif" srcset="/assets/img/yashvardhan-gupta-avatar-96.avif 96w, /assets/img/yashvardhan-gupta-avatar-192.avif 192w" sizes="96px">
+      <source type="image/webp" srcset="/assets/img/yashvardhan-gupta-avatar-96.webp 96w, /assets/img/yashvardhan-gupta-avatar-192.webp 192w" sizes="96px">
+      <img src="/assets/img/yashvardhan-gupta-avatar-192.jpg" srcset="/assets/img/yashvardhan-gupta-avatar-96.jpg 96w, /assets/img/yashvardhan-gupta-avatar-192.jpg 192w" sizes="96px" width="96" height="96" alt="YashVardhan Gupta" loading="lazy" decoding="async">
+    </picture>
+  </figure>
+  <div class="author-body">
+    <h2 class="author-kicker" id="author-title">About the author</h2>
+    <p class="author-name"><a href="/about/">YashVardhan Gupta</a></p>
+    <p class="author-bio">Quantitative developer, researcher and trader at a trading firm based in Dubai and Singapore. Founder of <a href="https://quantnova.in" target="_blank" rel="noopener">QuantNova</a>, a quantitative backtesting platform, and open to freelance work.</p>
+    <p class="author-ai">This article was drafted with AI assistance and checked against the primary sources listed in References.</p>
+    <div class="author-actions">
+      <a class="btn btn--sm btn--tangerine" href="/contact/">Hire me</a>
+      <a class="social-link" href="https://github.com/yashvardhancse" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
+      <a class="social-link" href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn</a>
+    </div>
+  </div>
+</section>
+      </div>
+    </div>
+  </div>
+</div>
+<section class="section sec--alt post-related" id="related" aria-labelledby="related-title">
+  <div class="container">
+    <h2 class="post-related-title" id="related-title">Keep <span class="hl">reading</span></h2>
+    <ul class="related-grid">
+<li class="bcard card" data-tag="Markets">
+  <div class="post-art post-art--mint">
+    <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+      <path d="M180 14v122" stroke-dasharray="3 7"/>
+      <rect x="156" y="106" width="20" height="18" rx="4" class="m"/><rect x="132" y="82" width="44" height="18" rx="4" class="m"/><rect x="96" y="58" width="80" height="18" rx="4" class="m"/><rect x="62" y="34" width="114" height="18" rx="4" class="m"/>
+      <rect x="184" y="106" width="20" height="18" rx="4" class="t"/><rect x="184" y="82" width="52" height="18" rx="4" class="t"/><rect x="184" y="58" width="88" height="18" rx="4" class="t"/><rect x="184" y="34" width="120" height="18" rx="4" class="t"/>
+      <path d="M170 140h20" stroke-width="5" class="st-c"/>
+      <text x="62" y="22" class="art-text">BID</text>
+      <text x="304" y="22" class="art-text" text-anchor="end">ASK</text>
+    </svg>
+  </div>
+  <div class="bcard-body">
+    <p class="bcard-meta"><span class="tag tag--mint">Markets</span><time datetime="2026-10-29">Oct 29, 2026</time><span>16 min read</span></p>
+    <h3 class="bcard-title"><a class="stretch" href="/blog/what-is-market-making/">What Is Market Making? How Market Makers Earn the Spread</a></h3>
+    <p class="bcard-teaser">Bid, ask, spread, inventory and adverse selection: the plain-English guide to the firms that keep markets liquid.</p>
+    <p class="bcard-go" aria-hidden="true">Read the article <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></p>
+  </div>
+</li>
+<li class="bcard card" data-tag="Quant">
+  <div class="post-art post-art--paper">
+    <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+      <path d="M24 100 62 62 92 84 128 40 162 70 200 36 236 58 272 24 332 46" class="st-c" stroke-width="3.5"/>
+      <path d="M24 118 60 98 92 112 128 82 162 104 200 74 236 94 272 64 332 82" stroke-dasharray="3 7"/>
+      <path d="M24 82 62 44 92 66 128 22 162 52 200 18 236 40 272 8 332 28" stroke-dasharray="3 7"/>
+      <circle cx="272" cy="24" r="6" class="t"/><circle cx="272" cy="64" r="6" class="m"/>
+      <path d="M272 30v28" />
+      <text x="24" y="140" class="art-text">RESERVATION PRICE + OPTIMAL SPREAD</text>
+    </svg>
+  </div>
+  <div class="bcard-body">
+    <p class="bcard-meta"><span class="tag tag--cobalt">Quant</span><time datetime="2026-10-29">Oct 29, 2026</time><span>16 min read</span></p>
+    <h3 class="bcard-title"><a class="stretch" href="/blog/avellaneda-stoikov-market-making-model/">Avellaneda-Stoikov Model Explained (With Python Code)</a></h3>
+    <p class="bcard-teaser">Reservation price, optimal spread and inventory risk: the classic market-making model with a runnable simulation.</p>
+    <p class="bcard-go" aria-hidden="true">Read the article <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></p>
+  </div>
+</li>
+    </ul>
+  </div>
+</section>
+</article>
+<section class="section sec--tangerine contact" id="contact" aria-labelledby="contact-title">
+  <div class="finish" aria-hidden="true"></div>
+  <div class="container contact-grid">
+    <div class="contact-copy">
+      <p class="sec-label">Contact</p>
+      <h2 class="contact-title" id="contact-title">Got a system to build? <span class="nowrap">Let&rsquo;s talk.</span></h2>
+      <p class="contact-sub">Open to freelance work, consulting and collaborations. Book a call or send an email, and I&rsquo;ll reply as soon as I can.</p>
+      <div class="contact-actions">
+        <a class="btn btn--lg btn--ink" href="https://calendly.com/yashvardhancse" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-calendar"/></svg>Book a call</a>
+        <a class="btn btn--lg btn--paper" href="mailto:yashvardhancse@gmail.com"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg>Email me</a>
+      </div>
+    </div>
+    <div class="contact-card card">
+      <p class="contact-card-title">Prefer to copy and paste?</p>
+      <div class="copy-row">
+        <code class="copy-email" id="copy-email">yashvardhancse@gmail.com</code>
+        <button class="btn btn--sm btn--sun copy-btn" type="button" data-copy="yashvardhancse@gmail.com" aria-describedby="copy-status"><svg class="i i-copy" aria-hidden="true"><use href="#i-copy"/></svg><svg class="i i-done" aria-hidden="true"><use href="#i-check"/></svg><span class="copy-label">Copy email</span></button>
+      </div>
+      <p class="visually-hidden" id="copy-status" role="status" aria-live="polite"></p>
+      <ul class="contact-links">
+        <li><a class="social-link" href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn</a></li>
+        <li><a class="social-link" href="https://github.com/yashvardhancse" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a></li>
+        <li><a class="social-link" href="https://instagram.com/camera.yash" target="_blank" rel="noopener me"><svg class="i" aria-hidden="true"><use href="#i-instagram"/></svg>Instagram</a></li>
+      </ul>
+      <p class="contact-note">Based in India, working in IST (UTC+5:30).</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="brand brand--footer" href="/">
+        <span class="brand-mark" aria-hidden="true">YG</span>
+        <span class="brand-name">YashVardhan Gupta</span>
+      </a>
+      <p class="footer-blurb">Quantitative developer and software engineer from India. Trading systems, backtesting, ML and full-stack products.</p>
+      <a class="btn btn--sm btn--paper" href="#top"><svg class="i" aria-hidden="true"><use href="#i-arrow-up"/></svg>Back to top</a>
+    </div>
+    <nav class="footer-col" aria-label="Footer: site">
+      <h2 class="footer-title">Explore</h2>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/#projects">Projects</a></li>
+        <li><a href="/blog/">Blog</a></li>
+        <li><a href="/learning-log/">Learning Log</a></li>
+        <li><a href="/explorations/">Explorations</a></li>
+        <li><a href="/contact/">Contact</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-col footer-col--writing" aria-label="Footer: writing">
+      <h2 class="footer-title">Writing</h2>
+      <ul>
+        <li><a href="/blog/how-credit-card-machines-work-in-flight-without-internet/">Card payments in flight</a></li>
+        <li><a href="/blog/what-is-market-making/">What is market making?</a></li>
+        <li><a href="/blog/emv-offline-authorization-explained/">EMV offline authorization</a></li>
+        <li><a href="/blog/avellaneda-stoikov-market-making-model/">Avellaneda-Stoikov model</a></li>
+        <li><a href="/blog/solana-mev-bots-explained/">Solana MEV bots explained</a></li>
+        <li><a href="/blog/2026/05/04/how-to-start-open-source-contribution/">Open source contribution</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-col" aria-label="Footer: elsewhere">
+      <h2 class="footer-title">Elsewhere</h2>
+      <ul>
+        <li><a href="https://github.com/yashvardhancse" target="_blank" rel="noopener me">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me">LinkedIn</a></li>
+        <li><a href="https://instagram.com/camera.yash" target="_blank" rel="noopener me">Instagram</a></li>
+        <li><a href="https://quantnova.in" target="_blank" rel="noopener">QuantNova</a></li>
+        <li><a href="https://calendly.com/yashvardhancse" target="_blank" rel="noopener">Book a call</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="container footer-bar">
+    <p>&copy; 2026 YashVardhan Gupta</p>
+    <p><a class="rss-link" href="/feed.xml"><svg class="i" aria-hidden="true"><use href="#i-rss"/></svg>RSS feed</a></p>
+  </div>
+  <p class="footer-wordmark" aria-hidden="true"></p>
+</footer>
+
+<script src="/assets/js/main.js" defer onerror="document.documentElement.classList.remove('js')"></script>
+</body>
+</html>

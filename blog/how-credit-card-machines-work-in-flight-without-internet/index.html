@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Credit Card Machines Work in Flight (With No Internet)</title>
+<meta name="description" content="Card machines can take payments without internet because the chip link is local. See how offline EMV, store-and-forward and risk limits work in flight.">
+<link rel="canonical" href="https://yashvardhangupta.com/blog/how-credit-card-machines-work-in-flight-without-internet/">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="author" content="YashVardhan Gupta">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0f0d0b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="YashVardhan Gupta">
+<meta property="og:locale" content="en_IN">
+<meta property="og:title" content="How Credit Card Machines Work in Flight (With No Internet)">
+<meta property="og:description" content="Card machines can take payments without internet because the chip link is local. See how offline EMV, store-and-forward and risk limits work in flight.">
+<meta property="og:url" content="https://yashvardhangupta.com/blog/how-credit-card-machines-work-in-flight-without-internet/">
+<meta property="og:image" content="https://yashvardhangupta.com/assets/og/how-credit-card-machines-work-in-flight-without-internet-v1.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="How Credit Card Machines Work in Flight (With No Internet)">
+<meta property="article:published_time" content="2026-10-29T09:00:00+05:30">
+<meta property="article:modified_time" content="2026-10-29T09:00:00+05:30">
+<meta property="article:author" content="https://yashvardhangupta.com/about/">
+<meta property="article:section" content="Payments">
+<meta property="article:tag" content="offline credit card processing">
+<meta property="article:tag" content="store and forward credit card processing">
+<meta property="article:tag" content="how do airlines process credit card payments in flight">
+<meta property="article:tag" content="can you use a credit card on a plane without wifi">
+<meta property="article:tag" content="does contactless payment work without internet">
+<meta property="article:tag" content="EMV offline authorization">
+<meta property="article:tag" content="what is a floor limit">
+<meta property="article:tag" content="card terminal offline mode">
+<meta property="article:tag" content="in-flight card payments">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How Credit Card Machines Work in Flight (With No Internet)">
+<meta name="twitter:description" content="Card machines can take payments without internet because the chip link is local. See how offline EMV, store-and-forward and risk limits work in flight.">
+<meta name="twitter:image" content="https://yashvardhangupta.com/assets/og/how-credit-card-machines-work-in-flight-without-internet-v1.png">
+<meta name="twitter:image:alt" content="How Credit Card Machines Work in Flight (With No Internet)">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="alternate" type="application/atom+xml" title="YashVardhan Gupta - Blog" href="/feed.xml">
+<link rel="me" href="https://github.com/yashvardhancse">
+<link rel="me" href="https://www.linkedin.com/in/yashvardhancse/">
+<script>
+/* Early setup (inline, tiny, before first paint): marks html.js, applies the stored or OS theme as data-theme (no flash of the
+   wrong theme) and the stored "Pause animations" choice as html.motion-off. Without this script (or without JS) the CSS
+   follows prefers-color-scheme on its own, the navigation is a plain list and nothing moves. */
+(function(){var d=document.documentElement,t,m,s,i,c;try{t=localStorage.getItem('theme');m=localStorage.getItem('motion')}catch(e){}
+s=t==='light'||t==='dark';
+if(!s){t=window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}
+d.setAttribute('data-theme',t);d.classList.add('js');if(m==='paused'){d.classList.add('motion-off')}
+if(s){c=document.querySelectorAll('meta[name="theme-color"]');for(i=0;i<c.length;i++){c[i].removeAttribute('media');c[i].setAttribute('content',t==='dark'?'#0f0d0b':'#f4efe6')}}})();
+</script>
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/blog.css">
+<script src="/assets/js/article.js" defer></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": "https://yashvardhangupta.com/blog/how-credit-card-machines-work-in-flight-without-internet/#article",
+      "headline": "How Credit Card Machines Work in Flight (With No Internet)",
+      "description": "Card machines can take payments without internet because the chip link is local. See how offline EMV, store-and-forward and risk limits work in flight.",
+      "image": [
+        "https://yashvardhangupta.com/assets/og/how-credit-card-machines-work-in-flight-without-internet-v1.png"
+      ],
+      "datePublished": "2026-10-29T09:00:00+05:30",
+      "dateModified": "2026-10-29T09:00:00+05:30",
+      "author": {
+        "@type": "Person",
+        "@id": "https://yashvardhangupta.com/#person",
+        "name": "YashVardhan Gupta",
+        "url": "https://yashvardhangupta.com/about/"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://yashvardhangupta.com/#person",
+        "name": "YashVardhan Gupta",
+        "url": "https://yashvardhangupta.com/about/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://yashvardhangupta.com/blog/how-credit-card-machines-work-in-flight-without-internet/"
+      },
+      "url": "https://yashvardhangupta.com/blog/how-credit-card-machines-work-in-flight-without-internet/",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "isPartOf": {
+        "@type": "Blog",
+        "@id": "https://yashvardhangupta.com/blog/#blog"
+      },
+      "keywords": "offline credit card processing, store and forward credit card processing, how do airlines process credit card payments in flight, can you use a credit card on a plane without wifi, does contactless payment work without internet, EMV offline authorization, what is a floor limit, card terminal offline mode, in-flight card payments",
+      "articleSection": "Payments",
+      "wordCount": 3499,
+      "timeRequired": "PT16M"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://yashvardhangupta.com/blog/how-credit-card-machines-work-in-flight-without-internet/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://yashvardhangupta.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://yashvardhangupta.com/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "How Credit Card Machines Work in Flight (With No Internet)",
+          "item": "https://yashvardhangupta.com/blog/how-credit-card-machines-work-in-flight-without-internet/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+<script>
+/* Google Analytics 4 (G-EZNSFMP4V2): loaded on the first interaction or after 6 s, whichever comes first.
+   Never on localhost, 127.0.0.1 or file pages. */
+(function(){var h=location.hostname;
+if(location.protocol==='file:'||h===''||h==='localhost'||h==='127.0.0.1'||h==='[::1]'){return}
+var ev=['pointerdown','keydown','scroll','touchstart'],o={passive:true,once:true},done=false,t=0;
+function go(){if(done){return}done=true;clearTimeout(t);
+ev.forEach(function(e){removeEventListener(e,go,o)});
+var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-EZNSFMP4V2';document.head.appendChild(s);
+window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-EZNSFMP4V2')}
+ev.forEach(function(e){addEventListener(e,go,o)});t=setTimeout(go,6000)})();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3 7 9 6.5L21 7"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15H4.5A2.5 2.5 0 0 1 2 12.5v-8A2.5 2.5 0 0 1 4.5 2h8A2.5 2.5 0 0 1 15 4.5V5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/></symbol>
+  <symbol id="i-rss" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2.5"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12.5a8.5 8.5 0 0 1-12.4 7.5L3 21l1.3-4.9A8.5 8.5 0 1 1 21 12.5z"/></symbol>
+  <symbol id="i-branch" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2.5"/><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="8" r="2.5"/><path d="M6 7.5v9M18 10.5c0 4-6 3.5-10.5 7"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3.5" width="18" height="17" rx="3"/><path d="M3 9.5h18M9.5 9.5v11"/></symbol>
+  <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14 -1.5 8 5-3 5 3-1.5-8"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6M12 19h8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.7a3.5 3.5 0 0 1 0 6.6M18 14.3c2.2.7 3.5 2.6 3.5 5.7"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.2 2.9.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></symbol>
+  <symbol id="i-linkedin" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></symbol>
+  <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></symbol>
+</svg>
+
+<header class="site-header" id="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">YG</span>
+      <span class="brand-name">YashVardhan Gupta</span>
+    </a>
+    <nav class="site-nav" id="site-nav" aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="/" data-nav="home">Home</a></li>
+        <li><a href="/about/" data-nav="about">About</a></li>
+        <li><a href="/#projects" data-nav="projects">Projects</a></li>
+        <li><a href="/blog/" data-nav="blog" aria-current="page">Blog</a></li>
+        <li><a href="/learning-log/" data-nav="learning">Learning Log</a></li>
+        <li><a href="/explorations/" data-nav="explorations">Explorations</a></li>
+        <li><a href="/contact/" data-nav="contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn theme-toggle" type="button" aria-pressed="false" aria-label="Dark theme">
+        <svg class="i i-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+        <svg class="i i-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+      </button>
+      <a class="btn btn--sm btn--tangerine header-cta" href="/contact/">Hire me</a>
+      <button class="icon-btn nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+        <svg class="i i-open" aria-hidden="true"><use href="#i-menu"/></svg>
+        <svg class="i i-close" aria-hidden="true"><use href="#i-x"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="main" tabindex="-1">
+<article class="post-page">
+<header class="section sec--ink post-hero" id="top">
+  <div class="container post-hero-grid">
+    <div class="post-hero-copy">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol class="sec-label">
+          <li><a href="/blog/"><span class="sec-num" aria-hidden="true"><svg class="i"><use href="#i-arrow-right"/></svg></span>Blog</a></li>
+          <li><a href="/blog/#tag-payments">Payments</a></li>
+          <li class="visually-hidden" aria-current="page">How Credit Card Machines Work in Flight (With No Internet)</li>
+        </ol>
+      </nav>
+      <h1 class="post-h1">How <span class="hl">Credit Card Machines Work</span> in Flight (With No Internet)</h1>
+      <p class="post-dek">Card machines on planes and in shops can keep taking payments with no signal when they are set up for it. Here is which part of a payment needs a network, how the chip and terminal decide offline, and who carries the risk when the bank is asked later.</p>
+      <p class="post-meta">
+        <span class="tag tag--tangerine">Payments</span>
+        <time datetime="2026-10-29T09:00:00+05:30">Oct 29, 2026</time>
+        
+        <span>16 min read</span>
+        <span>By <a href="/about/" rel="author">YashVardhan Gupta</a></span>
+      </p>
+    </div>
+    <div class="post-hero-art card">
+      <div class="post-art post-art--tangerine">
+        <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+          <rect x="30" y="22" width="86" height="112" rx="14" class="p"/>
+          <rect x="42" y="34" width="62" height="34" rx="6" class="m"/>
+          <path d="M44 86h8M62 86h8M80 86h8M44 100h8M62 100h8M80 100h8M44 114h8M62 114h8M80 114h8" stroke-width="5"/>
+          <path d="M134 46c30-34 74-34 104-6" stroke-dasharray="2 9"/>
+          <path d="M240 96c0-5 5-8 12-8h70c11 0 22 3 22 8s-11 8-22 8h-70c-7 0-12-3-12-8z" class="p"/>
+          <path d="M278 88 266 58h12l26 30M278 104l-12 30h12l26-30" class="p"/>
+          <path d="M252 88l-8-14h8l10 14M252 104l-8 14h8l10-14" class="p"/>
+          <path d="M146 112a30 30 0 0 1 42-12M156 126a16 16 0 0 1 22-6M136 100l56 34" stroke-width="3.5"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="post-sheet">
+  <div class="container">
+    <div class="post-layout">
+      <div class="post-toc" id="toc">
+<nav class="toc card toc-rail" aria-label="Table of contents">
+  <p class="toc-title">On this page</p>
+  <ol class="toc-list">
+<li><a href="#key-takeaways"><span class="toc-n" aria-hidden="true">&bull;</span><span>Key takeaways</span></a></li>
+<li><a href="#how-do-credit-card-machines-work-without-internet"><span class="toc-n" aria-hidden="true">01</span><span>How do credit card machines work without internet? The two-link model</span></a></li>
+<li><a href="#what-can-a-card-machine-check-offline"><span class="toc-n" aria-hidden="true">02</span><span>What can a card machine check with no network? (link one)</span></a></li>
+<li><a href="#what-needs-a-network-authorization-clearing-and-settlement"><span class="toc-n" aria-hidden="true">03</span><span>What needs a network: authorization, clearing and settlement (link two)</span></a></li>
+<li><a href="#how-does-a-terminal-decide-to-approve-a-payment-offline"><span class="toc-n" aria-hidden="true">04</span><span>How does a terminal decide to approve a payment offline?</span></a></li>
+<li><a href="#offline-emv-approval-vs-store-and-forward"><span class="toc-n" aria-hidden="true">05</span><span>Offline EMV approval vs store-and-forward: what is the difference?</span></a></li>
+<li><a href="#how-do-airlines-take-card-payments-in-flight"><span class="toc-n" aria-hidden="true">06</span><span>How do airlines take card payments in flight?</span></a></li>
+<li><a href="#store-and-forward-step-by-step"><span class="toc-n" aria-hidden="true">07</span><span>Store-and-forward step by step: from tap to statement</span></a></li>
+<li><a href="#who-pays-if-an-offline-card-payment-is-declined-later"><span class="toc-n" aria-hidden="true">08</span><span>Who pays if an offline card payment is declined later?</span></a></li>
+<li><a href="#does-contactless-payment-work-without-internet"><span class="toc-n" aria-hidden="true">09</span><span>Does contactless payment work without internet?</span></a></li>
+<li><a href="#pci-dss-rules-for-card-data-stored-offline"><span class="toc-n" aria-hidden="true">10</span><span>What does PCI DSS say about card data stored offline?</span></a></li>
+<li><a href="#where-else-does-offline-card-acceptance-matter"><span class="toc-n" aria-hidden="true">11</span><span>Where else does offline card acceptance matter?</span></a></li>
+<li><a href="#myths-about-card-machines-without-internet"><span class="toc-n" aria-hidden="true">12</span><span>Myths about card machines without internet</span></a></li>
+<li><a href="#next-steps"><span class="toc-n" aria-hidden="true">13</span><span>Where to go next</span></a></li>
+<li><a href="#faq"><span class="toc-n" aria-hidden="true">&bull;</span><span>Frequently asked questions</span></a></li>
+<li><a href="#references"><span class="toc-n" aria-hidden="true">&bull;</span><span>References</span></a></li>
+  </ol>
+</nav>
+<details class="toc card toc-inline">
+  <summary><span>On this page</span><span class="toc-count">16 sections</span></summary>
+  <ol class="toc-list">
+<li><a href="#key-takeaways"><span class="toc-n" aria-hidden="true">&bull;</span><span>Key takeaways</span></a></li>
+<li><a href="#how-do-credit-card-machines-work-without-internet"><span class="toc-n" aria-hidden="true">01</span><span>How do credit card machines work without internet? The two-link model</span></a></li>
+<li><a href="#what-can-a-card-machine-check-offline"><span class="toc-n" aria-hidden="true">02</span><span>What can a card machine check with no network? (link one)</span></a></li>
+<li><a href="#what-needs-a-network-authorization-clearing-and-settlement"><span class="toc-n" aria-hidden="true">03</span><span>What needs a network: authorization, clearing and settlement (link two)</span></a></li>
+<li><a href="#how-does-a-terminal-decide-to-approve-a-payment-offline"><span class="toc-n" aria-hidden="true">04</span><span>How does a terminal decide to approve a payment offline?</span></a></li>
+<li><a href="#offline-emv-approval-vs-store-and-forward"><span class="toc-n" aria-hidden="true">05</span><span>Offline EMV approval vs store-and-forward: what is the difference?</span></a></li>
+<li><a href="#how-do-airlines-take-card-payments-in-flight"><span class="toc-n" aria-hidden="true">06</span><span>How do airlines take card payments in flight?</span></a></li>
+<li><a href="#store-and-forward-step-by-step"><span class="toc-n" aria-hidden="true">07</span><span>Store-and-forward step by step: from tap to statement</span></a></li>
+<li><a href="#who-pays-if-an-offline-card-payment-is-declined-later"><span class="toc-n" aria-hidden="true">08</span><span>Who pays if an offline card payment is declined later?</span></a></li>
+<li><a href="#does-contactless-payment-work-without-internet"><span class="toc-n" aria-hidden="true">09</span><span>Does contactless payment work without internet?</span></a></li>
+<li><a href="#pci-dss-rules-for-card-data-stored-offline"><span class="toc-n" aria-hidden="true">10</span><span>What does PCI DSS say about card data stored offline?</span></a></li>
+<li><a href="#where-else-does-offline-card-acceptance-matter"><span class="toc-n" aria-hidden="true">11</span><span>Where else does offline card acceptance matter?</span></a></li>
+<li><a href="#myths-about-card-machines-without-internet"><span class="toc-n" aria-hidden="true">12</span><span>Myths about card machines without internet</span></a></li>
+<li><a href="#next-steps"><span class="toc-n" aria-hidden="true">13</span><span>Where to go next</span></a></li>
+<li><a href="#faq"><span class="toc-n" aria-hidden="true">&bull;</span><span>Frequently asked questions</span></a></li>
+<li><a href="#references"><span class="toc-n" aria-hidden="true">&bull;</span><span>References</span></a></li>
+  </ol>
+</details>
+      </div>
+      <div class="post-main">
+<div class="prose">
+<h2 id="key-takeaways">Key takeaways<a class="anchor" href="#key-takeaways" aria-label="Link to this section: Key takeaways"></a></h2>
+<ul class="takeaways">
+<li>Credit card machines work without internet when offline mode is set up: a card payment is two links, and only the one to the bank needs a network.</li>
+<li>A chip’s offline approval follows issuer-loaded limits, while a store-and-forward “approved” is the terminal’s own decision; vendors put a later decline on the seller.</li>
+<li>Trade press reports that many airlines use point-of-sale systems with an offline mode; no source cited here gives a current share.</li>
+<li>PCI DSS (the Payment Card Industry Data Security Standard) bars keeping the card verification code or PIN block after authorization, even encrypted.</li>
+</ul>
+<p>A card machine with no internet can read the chip, check the card is genuine, verify an offline PIN and get a cryptogram, because that happens between card and machine. It cannot ask the issuing bank, so its settings decide: decline, approve a small sale under preset limits, or store the sale and ask later, as some airline handhelds do.</p>
+
+<h2 id="how-do-credit-card-machines-work-without-internet" data-n="01">How do credit card machines work without internet? The two-link model<a class="anchor" href="#how-do-credit-card-machines-work-without-internet" aria-label="Link to this section: How do credit card machines work without internet? The two-link model"></a></h2>
+<p>Every card payment is two conversations. In the first, the card and terminal talk directly, through the chip contacts or over NFC. In the second, the terminal asks the cardholder’s bank (the issuer), through the merchant’s payment institution (the acquirer) and the card network, such as Visa, whether the money can move. Only the second needs a network (Figure 1).</p>
+<figure class="fig" id="fig-two-links"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 330" role="img" aria-labelledby="fig-two-links-t fig-two-links-d">
+<title id="fig-two-links-t">The two links in a card payment</title>
+<desc id="fig-two-links-d">The card and terminal share a local link that works offline. The terminal reaches the acquirer, network and issuer over a second link that needs a network path; a dashed arrow with a red cross marks it missing in flight.</desc>
+<defs>
+<marker id="fig-two-links-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="f-arrow-head" d="M0 0L10 5L0 10z"/></marker>
+<marker id="fig-two-links-ap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="f-pos" d="M0 0L10 5L0 10z"/></marker>
+</defs>
+<rect class="f-box" x="16" y="24" width="96" height="84" rx="12"/>
+<text class="f-text" x="64" y="62" text-anchor="middle">Card</text>
+<text class="f-sub" x="64" y="86" text-anchor="middle">chip</text>
+<rect class="f-box" x="140" y="24" width="96" height="84" rx="12"/>
+<text class="f-text" x="188" y="62" text-anchor="middle">Terminal</text>
+<text class="f-sub" x="188" y="86" text-anchor="middle">handheld</text>
+<rect class="f-box" x="280" y="24" width="96" height="84" rx="12"/>
+<text class="f-text" x="328" y="62" text-anchor="middle">Acquirer</text>
+<text class="f-sub" x="328" y="86" text-anchor="middle">processor</text>
+<rect class="f-box" x="404" y="24" width="96" height="84" rx="12"/>
+<text class="f-text" x="452" y="62" text-anchor="middle">Network</text>
+<text class="f-sub" x="452" y="86" text-anchor="middle">e.g. Visa</text>
+<rect class="f-box" x="528" y="24" width="96" height="84" rx="12"/>
+<text class="f-text" x="576" y="62" text-anchor="middle">Issuer</text>
+<text class="f-sub" x="576" y="86" text-anchor="middle">your bank</text>
+<path class="f-stroke-pos" d="M115 66H137" marker-start="url(#fig-two-links-ap)" marker-end="url(#fig-two-links-ap)"/>
+<path class="f-arrow f-dash" d="M241 66H277" marker-end="url(#fig-two-links-ah)"/>
+<path class="f-stroke-neg" d="M245 58L259 74M259 58L245 74"/>
+<path class="f-arrow" d="M379 66H401" marker-end="url(#fig-two-links-ah)"/>
+<path class="f-arrow" d="M503 66H525" marker-end="url(#fig-two-links-ah)"/>
+<rect class="f-box-pos" x="16" y="138" width="220" height="172" rx="12"/>
+<text class="f-text" x="32" y="168">Link A: local</text>
+<text class="f-sub" x="32" y="190">works with no network</text>
+<text class="f-sub" x="32" y="222">· prove the card is genuine</text>
+<text class="f-sub" x="32" y="244">· check an offline PIN</text>
+<text class="f-sub" x="32" y="266">· run terminal risk checks</text>
+<text class="f-sub" x="32" y="288">· get a cryptogram</text>
+<rect class="f-box-accent" x="280" y="138" width="344" height="172" rx="12"/>
+<text class="f-text" x="296" y="168">Link B: needs a network path</text>
+<text class="f-sub" x="296" y="190">cellular, Wi-Fi, satellite or later upload</text>
+<text class="f-sub" x="296" y="222">· issuer checks funds and fraud</text>
+<text class="f-sub" x="296" y="244">· online PIN verification</text>
+<text class="f-sub" x="296" y="266">· clearing and settlement</text>
+<text class="f-sub" x="296" y="288">· in flight, this link may be missing</text>
+</svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+<figcaption><strong>Figure 1.</strong> A card payment is two links. The left panel works with no network; the right panel needs a path to the bank, which an aircraft may lack.</figcaption>
+</figure>
+<p>A chip card is a small computer: its issuer loads keys, a transaction counter and risk rules, so on Link A it can compute a one-time code, a cryptogram, without asking anyone. Link B turns a sale into money, and on some flights it is missing (see the in-flight section below).</p>
+
+<h2 id="what-can-a-card-machine-check-offline" data-n="02">What can a card machine check with no network? (link one)<a class="anchor" href="#what-can-a-card-machine-check-offline" aria-label="Link to this section: What can a card machine check with no network? (link one)"></a></h2>
+<p>Chip and terminal can prove the card is genuine, check a PIN the chip can verify and produce a cryptogram. All of it is specified by EMV, the chip standard published by EMVCo.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+<h3 id="is-the-card-genuine-offline-data-authentication">Is the card genuine? Offline data authentication<a class="anchor" href="#is-the-card-genuine-offline-data-authentication" aria-label="Link to this section: Is the card genuine? Offline data authentication"></a></h3>
+<p>Static data authentication (SDA) checks a signature over fixed data, so the data can be copied. A 2010 paper describes the resulting “yes card”, a counterfeit that answers yes to any PIN at a terminal with no online link; most UK terminals were permanently online and could normally detect it.<sup class="cite"><a href="#ref-2" aria-label="Reference 2">[2]</a></sup> Dynamic data authentication (DDA) and its combined form with cryptogram generation (CDA) resist this: the card signs a number supplied by the terminal with a private key.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup><sup class="cite"><a href="#ref-2" aria-label="Reference 2">[2]</a></sup> Visa now requires DDA, not SDA, on non-contactless chip cards that support offline authorization (rule 4.1.17.28).<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></p>
+<h3 id="is-it-the-cardholder-offline-pin-signature-or-nothing">Is it the cardholder? Offline PIN, signature or nothing<a class="anchor" href="#is-it-the-cardholder-offline-pin-signature-or-nothing" aria-label="Link to this section: Is it the cardholder? Offline PIN, signature or nothing"></a></h3>
+<p>The issuer puts an ordered list of verification methods on the card, and the terminal works down it (section 10.5).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> An offline PIN is checked by the chip and needs no link; an online PIN goes encrypted to the issuer and does.</p>
+<h3 id="what-is-a-cryptogram-tc-arqc-and-aac">What is a cryptogram? TC, ARQC and AAC<a class="anchor" href="#what-is-a-cryptogram-tc-arqc-and-aac" aria-label="Link to this section: What is a cryptogram? TC, ARQC and AAC"></a></h3>
+<p>The terminal asks the chip for a TC (transaction certificate: approve offline), an ARQC (authorization request cryptogram: ask the issuer) or an AAC (application authentication cryptogram: decline).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> Each is a one-time code computed from the transaction data and a secret key; the issuer holds the key behind an ARQC. The chip never moves money: a TC is its approval under the rules loaded into it, and an ARQC hands the decision to the issuer.</p>
+
+<h2 id="what-needs-a-network-authorization-clearing-and-settlement" data-n="03">What needs a network: authorization, clearing and settlement (link two)<a class="anchor" href="#what-needs-a-network-authorization-clearing-and-settlement" aria-label="Link to this section: What needs a network: authorization, clearing and settlement (link two)"></a></h2>
+<p>Everything that moves money. Visa’s glossary splits it into three jobs. Rule numbers here are Visa’s; other networks publish their own.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></p>
+<dl class="glossary">
+<dt>Authorization</dt><dd>Approval by the issuer, a processor or stand-in processing; Visa counts offline authorization too.</dd>
+<dt>Clearing</dt><dd>Checking and valuing the transaction records that members exchange.</dd>
+<dt>Settlement</dt><dd>Reporting and moving the money owed once clearing is done.</dd>
+</dl>
+<p>Online authorization lets the issuer review sales outside acceptable risk limits and check the cryptogram (Book 3, section 10.9).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> Offline, none of that happens at the counter.</p>
+
+<h2 id="how-does-a-terminal-decide-to-approve-a-payment-offline" data-n="04">How does a terminal decide to approve a payment offline?<a class="anchor" href="#how-does-a-terminal-decide-to-approve-a-payment-offline" aria-label="Link to this section: How does a terminal decide to approve a payment offline?"></a></h2>
+<p>The terminal compares risk flags with masks from the acquirer and the issuer, then asks the chip for a TC, ARQC or AAC (Figure 2). This models the contact-chip flow in EMV Books 3 and 4 with invented masks, not any airline’s terminals; contactless kernels and acquirer settings differ.</p>
+<ol class="steps">
+<li><strong>Risk checks set flags.</strong> Floor-limit checking (a floor limit is the amount that decides when a sale must go online) can add a recent logged sale on the same card, to catch split sales. Floor limits are not one global number: Visa’s public rules omit the values, and acquirers configure them (with Adyen, a seller gives Support the limits it wants).<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup><sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup> Random selection sends some small sales online, and velocity checking compares the card’s counter with its value at the last online approval. Failures set bits in the five-byte Terminal Verification Results (TVR), as do earlier steps such as data authentication (Book 3, section 10.6).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></li>
+<li><strong>Action codes map flags to actions.</strong> The acquirer’s Terminal Action Codes and the issuer’s Issuer Action Codes each come as Denial, Online and Default masks, checked in that order. A Denial match asks for an AAC; an Online match, on a terminal that can go online, asks for an ARQC; otherwise, on such a terminal, it asks for a TC (section 10.7).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></li>
+<li><strong>The card gets a vote.</strong> A TC request is only a proposal: the chip’s own risk management may answer ARQC or AAC (sections 10.7 and 10.8). Cards built to EMV’s Common Core Definitions count their offline approvals and amounts against issuer-set limits; past the lower limit the card asks for online approval, and past the upper limit it normally declines if the terminal cannot go online.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></li>
+<li><strong>If the link is down.</strong> An Online match means the terminal wanted an ARQC and cannot send it, so it checks the Default masks: a match asks the chip to decline (response code Z3), no match to approve (Y3). The chip then answers TC or AAC (Book 4, section 12.2.1).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></li>
+</ol>
+<figure class="fig" id="fig-offline-decision"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 464" role="img" aria-labelledby="fig-offline-decision-t fig-offline-decision-d">
+<title id="fig-offline-decision-t">From risk flags to a cryptogram</title>
+<desc id="fig-offline-decision-d">Risk flags are compared with action codes. A denial match requests an AAC, an online match an ARQC, and no match a TC. With no link, the default masks decide between decline and approve, and the chip can still answer differently.</desc>
+<defs>
+<marker id="fig-offline-decision-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="f-arrow-head" d="M0 0L10 5L0 10z"/></marker>
+</defs>
+<rect class="f-box" x="20" y="14" width="600" height="64" rx="12"/>
+<text class="f-text" x="320" y="42" text-anchor="middle">1. Terminal risk checks</text>
+<text class="f-sub" x="320" y="64" text-anchor="middle">floor limit, random selection and velocity checks set flags in the TVR</text>
+<path class="f-arrow" d="M320 78V102" marker-end="url(#fig-offline-decision-ah)"/>
+<rect class="f-box" x="20" y="104" width="600" height="64" rx="12"/>
+<text class="f-text" x="320" y="132" text-anchor="middle">2. Flags compared with action codes</text>
+<text class="f-sub" x="320" y="154" text-anchor="middle">acquirer (TAC) and issuer (IAC) masks, tried in order: denial, online, default</text>
+<path class="f-arrow" d="M114 168V196" marker-end="url(#fig-offline-decision-ah)"/>
+<path class="f-arrow" d="M320 168V196" marker-end="url(#fig-offline-decision-ah)"/>
+<path class="f-arrow" d="M526 168V196" marker-end="url(#fig-offline-decision-ah)"/>
+<rect class="f-box-neg" x="20" y="198" width="188" height="80" rx="12"/>
+<text class="f-text" x="114" y="226" text-anchor="middle">AAC</text>
+<text class="f-sub" x="114" y="247" text-anchor="middle">decline</text>
+<text class="f-sub" x="114" y="266" text-anchor="middle">denial mask matched</text>
+<rect class="f-box-accent" x="226" y="198" width="188" height="80" rx="12"/>
+<text class="f-text" x="320" y="226" text-anchor="middle">ARQC</text>
+<text class="f-sub" x="320" y="247" text-anchor="middle">ask the issuer</text>
+<text class="f-sub" x="320" y="266" text-anchor="middle">online mask matched</text>
+<rect class="f-box-pos" x="432" y="198" width="188" height="80" rx="12"/>
+<text class="f-text" x="526" y="226" text-anchor="middle">TC</text>
+<text class="f-sub" x="526" y="247" text-anchor="middle">approve offline</text>
+<text class="f-sub" x="526" y="266" text-anchor="middle">no mask matched</text>
+<path class="f-arrow" d="M320 278V302" marker-end="url(#fig-offline-decision-ah)"/>
+<rect class="f-box" x="210" y="304" width="220" height="40" rx="20"/>
+<text class="f-text" x="320" y="330" text-anchor="middle">Link available?</text>
+<path class="f-arrow" d="M210 324H165V370" marker-end="url(#fig-offline-decision-ah)"/>
+<path class="f-arrow" d="M430 324H475V370" marker-end="url(#fig-offline-decision-ah)"/>
+<rect class="f-box" x="20" y="372" width="290" height="76" rx="12"/>
+<text class="f-text" x="165" y="398" text-anchor="middle">No: check default masks</text>
+<text class="f-sub" x="165" y="418" text-anchor="middle">match: decline (Z3)</text>
+<text class="f-sub" x="165" y="436" text-anchor="middle">no match: approve (Y3)</text>
+<rect class="f-box" x="330" y="372" width="290" height="76" rx="12"/>
+<text class="f-text" x="475" y="402" text-anchor="middle">Yes: the issuer decides</text>
+<text class="f-sub" x="475" y="426" text-anchor="middle">approve or decline online</text>
+</svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+<figcaption><strong>Figure 2.</strong> Every box is a request: the chip can still downgrade a TC request or answer AAC after Y3. Default masks apply when the terminal wanted to go online and could not, or on every sale for an offline-only terminal.</figcaption>
+</figure>
+<p>The script below applies the mask logic (Python 3, standard library only). It prints one line per case, and Table 1 restates those six lines in plain words.</p>
+<figure class="code-card"><figcaption class="code-bar"><span class="code-title">tvr_demo.py</span><span class="code-lang">Python</span></figcaption><pre class="code scroll-x" data-lang="python" data-title="tvr_demo.py"><code><span class="tok-c"># tvr_demo.py - offline decision for each TVR flag (made-up masks)</span>
+OVER_FLOOR<span class="tok-o">,</span> LOWER<span class="tok-o">,</span> UPPER <span class="tok-o">=</span> <span class="tok-m">0x8000</span><span class="tok-o">,</span> <span class="tok-m">0x4000</span><span class="tok-o">,</span> <span class="tok-m">0x2000</span>   <span class="tok-c"># TVR byte 4, bits b8, b7, b6</span>
+RANDOM<span class="tok-o">,</span> DDA_FAILED <span class="tok-o">=</span> <span class="tok-m">0x1000</span><span class="tok-o">,</span> <span class="tok-m">0x08_0000_0000</span>         <span class="tok-c"># byte 4 b5, byte 1 b4</span>
+DENIAL<span class="tok-o">,</span> ONLINE <span class="tok-o">=</span> DDA_FAILED<span class="tok-o">,</span> <span class="tok-m">0xF000</span>                 <span class="tok-c"># TAC and IAC masks, combined</span>
+DEFAULT <span class="tok-o">=</span> OVER_FLOOR <span class="tok-o">|</span> UPPER
+
+<span class="tok-k">def</span> <span class="tok-f">decide</span><span class="tok-o">(</span>flags<span class="tok-o">,</span> link_up<span class="tok-o">):</span>
+    <span class="tok-k">if</span> flags <span class="tok-o">&amp;</span> DENIAL<span class="tok-o">:</span>
+        <span class="tok-k">return</span> <span class="tok-s">"AAC"</span>                          <span class="tok-c"># decline at once</span>
+    <span class="tok-k">if</span> <span class="tok-k">not</span> flags <span class="tok-o">&amp;</span> ONLINE<span class="tok-o">:</span>
+        <span class="tok-k">return</span> <span class="tok-s">"TC"</span>                           <span class="tok-c"># approve offline</span>
+    <span class="tok-k">if</span> link_up<span class="tok-o">:</span>
+        <span class="tok-k">return</span> <span class="tok-s">"ARQC"</span>                         <span class="tok-c"># ask the issuer</span>
+    <span class="tok-k">return</span> <span class="tok-s">"Z3"</span> <span class="tok-k">if</span> flags <span class="tok-o">&amp;</span> DEFAULT <span class="tok-k">else</span> <span class="tok-s">"Y3"</span>  <span class="tok-c"># no link: default masks decide</span>
+
+CASES <span class="tok-o">=</span> <span class="tok-o">{</span><span class="tok-s">"clean"</span><span class="tok-o">:</span> <span class="tok-m">0</span><span class="tok-o">,</span> <span class="tok-s">"random"</span><span class="tok-o">:</span> RANDOM<span class="tok-o">,</span> <span class="tok-s">"over floor"</span><span class="tok-o">:</span> OVER_FLOOR<span class="tok-o">,</span>
+         <span class="tok-s">"lower"</span><span class="tok-o">:</span> LOWER<span class="tok-o">,</span> <span class="tok-s">"lower+upper"</span><span class="tok-o">:</span> LOWER <span class="tok-o">|</span> UPPER<span class="tok-o">,</span> <span class="tok-s">"DDA failed"</span><span class="tok-o">:</span> DDA_FAILED<span class="tok-o">}</span>
+<span class="tok-k">for</span> name<span class="tok-o">,</span> flags <span class="tok-k">in</span> CASES<span class="tok-o">.</span>items<span class="tok-o">():</span>
+    no_link<span class="tok-o">,</span> link_up <span class="tok-o">=</span> decide<span class="tok-o">(</span>flags<span class="tok-o">,</span> <span class="tok-k">False</span><span class="tok-o">),</span> decide<span class="tok-o">(</span>flags<span class="tok-o">,</span> <span class="tok-k">True</span><span class="tok-o">)</span>
+    <span class="tok-f">print</span><span class="tok-o">(</span><span class="tok-s">f"{</span>name<span class="tok-s">:12s} no link: {</span>no_link<span class="tok-s">:4s} link up: {</span>link_up<span class="tok-s">}"</span><span class="tok-o">)</span></code></pre></figure>
+<div class="tbl"><div class="table-wrap scroll-x"><table>
+<caption>Table 1. What each case in tvr_demo.py decides.</caption>
+<thead><tr><th scope="col">Sale</th><th scope="col">No link</th><th scope="col">Link up</th></tr></thead>
+<tbody>
+<tr><th scope="row">18.00, clean</th><td>TC: approve</td><td>TC: approve</td></tr>
+<tr><th scope="row">18.00, random pick</th><td>Y3: terminal approves</td><td>ARQC: ask issuer</td></tr>
+<tr><th scope="row">80.00, over 50.00 limit</th><td>Z3: terminal declines</td><td>ARQC: ask issuer</td></tr>
+<tr><th scope="row">Past lower limit</th><td>Y3: terminal approves</td><td>ARQC: ask issuer</td></tr>
+<tr><th scope="row">Past upper limit</th><td>Z3: terminal declines</td><td>ARQC: ask issuer</td></tr>
+<tr><th scope="row">DDA failed</th><td>AAC: decline</td><td>AAC: decline</td></tr>
+</tbody></table></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p></div>
+<p>The amounts are illustrative (the script works on flags), and after a Y3 the chip can still decline. Row 1 is an offline approval in Visa’s sense; rows 2 and 4 are approvals the terminal reached only after wanting to go online. The demo puts DDA failure in the Denial mask for simplicity; EMV also recommends it in the Online and Default masks.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> The random-selection formula, tag numbers and bit layouts are in <a href="/blog/emv-offline-authorization-explained/">the EMV offline authorization guide</a>.</p>
+
+<h2 id="offline-emv-approval-vs-store-and-forward" data-n="05">Offline EMV approval vs store-and-forward: what is the difference?<a class="anchor" href="#offline-emv-approval-vs-store-and-forward" aria-label="Link to this section: Offline EMV approval vs store-and-forward: what is the difference?"></a></h2>
+<p>In offline EMV approval, the kind Table 1 shows, the chip is in control: the terminal checks the PIN against the chip and asks the card to approve, and the issuer’s configuration of the card decides.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup> Visa calls this offline authorization and describes it as issuer-controlled.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup> In store-and-forward, often sold as offline credit card processing or offline mode, the terminal or app approves the sale itself and asks the issuer only after the device reconnects.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup><sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup></p>
+<p>Store-and-forward is a separate mode with its own limits (a maximum amount and number of payments per terminal). Adyen says it approves without verification, so an issuer decline is likelier than with offline EMV, which can go straight into clearing but works with most major credit card schemes and not most debit cards.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup> Swipes are the weak case: they carry no cryptogram, and Stripe and Adyen block them offline.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup><sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup></p>
+
+<h2 id="how-do-airlines-take-card-payments-in-flight" data-n="06">How do airlines take card payments in flight?<a class="anchor" href="#how-do-airlines-take-card-payments-in-flight" aria-label="Link to this section: How do airlines take card payments in flight?"></a></h2>
+<p>Public sources describe two designs: an offline handheld that sends sales for authorization after landing, and live processing over a satellite link (Table 2). Runway Girl Network reports that many airlines use point-of-sale systems with an offline mode for low-value sales; no source cited here gives a current share.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup> Live processing needs no passenger Wi-Fi: in a flight test reported in 2022, the fflya system used Iridium satellites and no broadband passenger connection.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup></p>
+<p>PAX describes one airline (unnamed) whose Android handheld took card payments offline in flight, sent them to the acquiring bank after landing, and batched rejected ones hourly for review and resubmission.<sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup> Finnair’s 2021 notice warned of occasional card-payment disruptions on flights “with no online connection with banks”.<sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup></p>
+<p>Finnair’s help page, an answer about two-step authentication, says contactless payments up to EUR 50 and credit cards up to EUR 800 work onboard, and that the terminal occasionally asks for the card to be inserted and a PIN entered. EUR 50 also matches the per-payment limit in the EU’s 2018 contactless exemption from strong customer authentication;<sup class="cite"><a href="#ref-9" aria-label="Reference 9">[9]</a></sup><sup class="cite"><a href="#ref-10" aria-label="Reference 10">[10]</a></sup> the page does not say who set either figure or whether either is an offline limit.</p>
+<div class="tbl"><div class="table-wrap scroll-x"><table>
+<caption>Table 2. Two documented in-flight models.</caption>
+<thead><tr><th scope="col">Model</th><th scope="col">In the air and after</th><th scope="col">What the sources show</th></tr></thead>
+<tbody>
+<tr><th scope="row">Disconnected</th><td>Queues sales; authorization after landing</td><td>PAX and Adyen’s Immfly case study describe offline processing; Finnair says some flights have no bank connection.<sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup><sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup><sup class="cite"><a href="#ref-11" aria-label="Reference 11">[11]</a></sup> Under the vendor terms in Table 3, the seller bears later declines.</td></tr>
+<tr><th scope="row">Satellite-connected</th><td>Live processing over satellite</td><td>A flight test reported in 2022, per trade press.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup> Needs a link and equipment.</td></tr>
+</tbody></table></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p></div>
+<aside role="note" class="callout callout--tip"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span><span class="visually-hidden">Tip: </span>If you pay in flight</span></p><p>On a flight with no link, the receipt shows the terminal’s decision, not your bank’s. With store-and-forward the bank is asked after the device reconnects, so a charge can post after you have left the aircraft.<sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup></p></aside>
+
+<h2 id="store-and-forward-step-by-step" data-n="07">Store-and-forward step by step: from tap to statement<a class="anchor" href="#store-and-forward-step-by-step" aria-label="Link to this section: Store-and-forward step by step: from tap to statement"></a></h2>
+<p>Store-and-forward means taking the sale now and asking for authorization later. Five steps follow one sale from gate to statement (Figure 3); this generic model comes from vendor documents and Visa’s rules, not an airline’s procedure.</p>
+<ol class="steps">
+<li><strong>Before boarding.</strong> Typically, per vendor documents for ground devices, the device is online, syncs software and receives its limits: a maximum per sale, a cap on offline sales held, a time window.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup><sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup></li>
+<li><strong>At the tap.</strong> The terminal runs the checks above and, if the sale passes, stores the record and updates a running count and total.</li>
+<li><strong>After landing.</strong> The device uploads its queue and the acquirer sends each sale to the issuer as a flagged deferred authorization. Under Visa’s published rules the request is due within 24 hours of the transaction date for most merchant categories (rule 5.7.3.3), or for in-transit sales within 24 hours of the vehicle reaching its final destination (rule 5.7.3.4); the text lists these as separate cases and does not say which covers an airline’s in-flight sales.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></li>
+<li><strong>The issuer decides.</strong> An approval makes it an ordinary authorized sale; a decline lands on the seller under vendor terms, covered below.</li>
+<li><strong>Clearing and settlement.</strong> Visa’s general limit for the acquirer to clear a card-present sale is five calendar days from a valid authorization (Visa’s Table 5-11), with country exceptions in Table 5-12; in Europe, an intraregional contactless sale must reach clearing within two calendar days of the transaction date (rule 5.7.3.5). Issuers can dispute declined-authorization and no-authorization sales for 75 days from processing (conditions 11.2 and 11.3).<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></li>
+</ol>
+<figure class="fig" id="fig-store-forward-timeline"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 292" role="img" aria-labelledby="fig-store-forward-timeline-t fig-store-forward-timeline-d">
+<title id="fig-store-forward-timeline-t">Store-and-forward timeline from tap to settlement</title>
+<desc id="fig-store-forward-timeline-d">Five stages from gate to settlement, with three Visa clocks below: 24 hours to authorize, 5 days to process, 75 days to dispute. The bars are equal in length and not to scale.</desc>
+<defs>
+<marker id="fig-store-forward-timeline-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="f-arrow-head" d="M0 0L10 5L0 10z"/></marker>
+</defs>
+<rect class="f-box" x="12" y="14" width="100" height="80" rx="12"/>
+<text class="f-text" x="62" y="42" text-anchor="middle">Gate</text>
+<text class="f-sub" x="62" y="64" text-anchor="middle">online:</text>
+<text class="f-sub" x="62" y="82" text-anchor="middle">sync limits</text>
+<rect class="f-box" x="127" y="14" width="100" height="80" rx="12"/>
+<text class="f-text" x="177" y="42" text-anchor="middle">Flight</text>
+<text class="f-sub" x="177" y="64" text-anchor="middle">offline:</text>
+<text class="f-sub" x="177" y="82" text-anchor="middle">tap, queue</text>
+<rect class="f-box-accent" x="242" y="14" width="108" height="80" rx="12"/>
+<text class="f-text" x="296" y="42" text-anchor="middle">Landing</text>
+<text class="f-sub" x="296" y="64" text-anchor="middle">reconnects:</text>
+<text class="f-sub" x="296" y="82" text-anchor="middle">uploads</text>
+<rect class="f-box-accent" x="365" y="14" width="108" height="80" rx="12"/>
+<text class="f-text" x="419" y="42" text-anchor="middle">Issuer</text>
+<text class="f-sub" x="419" y="64" text-anchor="middle">approves or</text>
+<text class="f-sub" x="419" y="82" text-anchor="middle">declines</text>
+<rect class="f-box-accent" x="488" y="14" width="140" height="80" rx="12"/>
+<text class="f-text" x="558" y="42" text-anchor="middle">Settled</text>
+<text class="f-sub" x="558" y="64" text-anchor="middle">clearing, then</text>
+<text class="f-sub" x="558" y="82" text-anchor="middle">funds move</text>
+<path class="f-arrow" d="M113 54H125" marker-end="url(#fig-store-forward-timeline-ah)"/>
+<path class="f-arrow" d="M228 54H240" marker-end="url(#fig-store-forward-timeline-ah)"/>
+<path class="f-arrow" d="M351 54H363" marker-end="url(#fig-store-forward-timeline-ah)"/>
+<path class="f-arrow" d="M474 54H486" marker-end="url(#fig-store-forward-timeline-ah)"/>
+<text class="f-sub" x="16" y="128">Visa clocks, not to scale</text>
+<text class="f-sub" x="16" y="164">starts at arrival</text>
+<rect class="f-box-accent" x="200" y="144" width="200" height="30" rx="8"/>
+<text class="f-sub" x="212" y="164">authorize within 24 h</text>
+<text class="f-sub" x="16" y="212">starts at authorization</text>
+<rect class="f-box-accent" x="200" y="192" width="200" height="30" rx="8"/>
+<text class="f-sub" x="212" y="212">process within 5 days</text>
+<text class="f-sub" x="16" y="260">starts at processing</text>
+<rect class="f-box-accent" x="200" y="240" width="200" height="30" rx="8"/>
+<text class="f-sub" x="212" y="260">disputes: 75 days</text>
+</svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+<figcaption><strong>Figure 3.</strong> A store-and-forward sale from tap to settlement. The first clock is Visa’s in-transit rule, assuming the landing is the final destination; the second is the general limit.</figcaption>
+</figure>
+<aside role="note" class="callout callout--example"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 3h6M10 3v6.2L4.8 18.5A2 2 0 0 0 6.5 21.5h11a2 2 0 0 0 1.7-3L14 9.2V3"/><path d="M7.5 15h9"/></svg><span><span class="visually-hidden">Example: </span>Worked example: a 6.50 coffee</span></p><p>Say you tap for a 6.50 coffee at 14:05 on a flight whose 17:35 landing is the aircraft’s final destination, and the handheld has no link. Under Visa’s in-transit rule the seller must obtain authorization by 17:35 the next day, 27.5 hours after the tap; under the deferred-authorization rule the 24 hours would run from the transaction date, which is earlier. If the issuer declines, no charge posts for that attempt, and under the vendor terms below the seller carries the loss.</p></aside>
+
+<h2 id="who-pays-if-an-offline-card-payment-is-declined-later" data-n="08">Who pays if an offline card payment is declined later?<a class="anchor" href="#who-pays-if-an-offline-card-payment-is-declined-later" aria-label="Link to this section: Who pays if an offline card payment is declined later?"></a></h2>
+<p>Usually the seller. Square, Stripe and Adyen make the seller responsible for a later decline, and Clover says the merchant accepts that risk.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup><sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup><sup class="cite"><a href="#ref-12" aria-label="Reference 12">[12]</a></sup><sup class="cite"><a href="#ref-13" aria-label="Reference 13">[13]</a></sup> These are shop-terminal vendors. No airline or in-flight vendor page cited here says what happens after a declined in-flight sale, apart from Runway Girl Network’s mention of block lists and collection services and PAX’s hourly resubmission of rejected transactions.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup><sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup></p>
+<p>Card-network rules (Visa’s here; other networks differ) govern acquirer and issuer. The seller’s contract with its acquirer governs what the seller owes (Table 3).</p>
+<div class="tbl"><div class="table-wrap scroll-x"><table>
+<caption>Table 3. Who bears a later decline: Visa’s rules (24 Oct 2026) and vendor terms (read 29 Oct 2026).</caption>
+<thead><tr><th scope="col">Question</th><th scope="col">Visa’s public rules</th><th scope="col">Vendor practice</th></tr></thead>
+<tbody>
+<tr><th scope="row">How soon must the delayed request go out?</th><td>24 hours for most merchant categories; in-transit, 24 hours after the final destination.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></td><td>Different clocks: Square, 72 hours to upload; Clover, 7 days offline; Adyen, a month of retries if enabled, and 30 days of resending in its Immfly case study.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup><sup class="cite"><a href="#ref-11" aria-label="Reference 11">[11]</a></sup><sup class="cite"><a href="#ref-12" aria-label="Reference 12">[12]</a></sup><sup class="cite"><a href="#ref-13" aria-label="Reference 13">[13]</a></sup></td></tr>
+<tr><th scope="row">Who bears a later decline?</th><td>No guarantee of payment: a sale cleared after a decline or without a valid authorization can be disputed for 75 days from processing (11.2, 11.3).<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></td><td>The seller; Stripe warns funds may be unrecoverable.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup></td></tr>
+<tr><th scope="row">What if the chip approved offline?</th><td>Issuer-controlled. For a chip-initiated, offline-authorized sale the 11.3 dispute covers only the amount above the floor limit, but an ARQC in the clearing record that no issuer authorized online opens the whole sale (Table 11-48).<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></td><td>Adyen: lower decline risk, but the merchant stays liable.<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup></td></tr>
+</tbody></table></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p></div>
+<p>Suppose a device holds 200 offline sales averaging 25.00 (illustrative): 5,000.00 that no issuer has yet seen. As a stress case, if 5 in 100 were never approved, the seller would absorb 250.00. The one in-flight figure found is older: a 2014 CNBC report citing GuestLogix put 2013 declines on North American in-flight card transactions at about 1.2 percent, with 30 to 40 percent of those later authorized on the ground.<sup class="cite"><a href="#ref-14" aria-label="Reference 14">[14]</a></sup> A lost queue (Stripe warns that clearing an app’s storage discards unforwarded payments) costs the full 5,000.00.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup></p>
+
+<h2 id="does-contactless-payment-work-without-internet" data-n="09">Does contactless payment work without internet?<a class="anchor" href="#does-contactless-payment-work-without-internet" aria-label="Link to this section: Does contactless payment work without internet?"></a></h2>
+<p>The tap can work with no network; the approval depends on the terminal. Apple’s security guide says a phone wallet builds a one-time cryptogram on the device and makes a payment only after the Secure Enclave authorizes it, so the check on you happens on the phone; it does not discuss airplane mode.<sup class="cite"><a href="#ref-15" aria-label="Reference 15">[15]</a></sup> An aviation-payments vendor said in December 2025 that Apple Pay and Google Pay payments in flight are possible but inconsistent, because wallet tokens often need the phone online to refresh and only some issuers support offline tokens.<sup class="cite"><a href="#ref-16" aria-label="Reference 16">[16]</a></sup></p>
+<p>The terminal’s offline settings then decide. Stripe does not support offline taps where Strong Customer Authentication applies, and Square’s Tap to Pay does not work offline.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup><sup class="cite"><a href="#ref-12" aria-label="Reference 12">[12]</a></sup> For a physical card, an online PIN cannot be checked offline.</p>
+
+<h2 id="pci-dss-rules-for-card-data-stored-offline" data-n="10">What does PCI DSS say about card data stored offline?<a class="anchor" href="#pci-dss-rules-for-card-data-stored-offline" aria-label="Link to this section: What does PCI DSS say about card data stored offline?"></a></h2>
+<p>Sensitive authentication data (SAD) means full track data, the card verification code and the PIN or PIN block. PCI DSS Requirement 3.3.1 prohibits storing SAD after authorization, even if encrypted.<sup class="cite"><a href="#ref-17" aria-label="Reference 17">[17]</a></sup><sup class="cite"><a href="#ref-18" aria-label="Reference 18">[18]</a></sup> PCI’s FAQ 1154 (July 2025) adds that there is no time limit for holding SAD before authorization, but it must be protected, and that the card brands decide whether it may be stored then at all; several prohibit it outright.<sup class="cite"><a href="#ref-17" aria-label="Reference 17">[17]</a></sup></p>
+<p>While a sale waits, Requirement 3.3.2 says SAD stored electronically must be strongly encrypted. A note under Requirement 3.3.1.1 says the cardholder name, primary account number (PAN), expiry date and service code may be retained if needed and stored securely.<sup class="cite"><a href="#ref-18" aria-label="Reference 18">[18]</a></sup> Numbering follows PCI DSS v4.0, as in the questionnaire cited and the July 2025 FAQ; check the current version.</p>
+
+<h2 id="where-else-does-offline-card-acceptance-matter" data-n="11">Where else does offline card acceptance matter?<a class="anchor" href="#where-else-does-offline-card-acceptance-matter" aria-label="Link to this section: Where else does offline card acceptance matter?"></a></h2>
+<p>Anywhere a card machine can lose its link: Visa’s in-transit definition covers ships, boats, buses, aircraft, ferries and trains,<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup> and Stripe and Clover document offline modes for shops.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup><sup class="cite"><a href="#ref-13" aria-label="Reference 13">[13]</a></sup> In Europe, offline acceptance is becoming a design goal. The Paypers reported in October 2026 that all newly issued Mastercard cards in Europe will support offline payments from February 2027 and new and replacement terminals by May 2027, with local approval up to EUR 200 per transaction under bank-set limits stored on the chip.<sup class="cite"><a href="#ref-19" aria-label="Reference 19">[19]</a></sup> Switzerland’s Federal Office for National Economic Supply described, on 24 August 2026, a nationwide scheme in which card and terminal authorize directly, with broad deployment planned by the end of 2027.<sup class="cite"><a href="#ref-20" aria-label="Reference 20">[20]</a></sup></p>
+
+<h2 id="myths-about-card-machines-without-internet" data-n="12">Myths about card machines without internet<a class="anchor" href="#myths-about-card-machines-without-internet" aria-label="Link to this section: Myths about card machines without internet"></a></h2>
+<aside role="note" class="callout callout--myth"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg><span>Myth: a chip’s offline approval means the bank approved the payment</span></p><p>Offline, the chip returns a TC, its approval under limits the issuer loaded and the terminal’s settings allow (Book 3, section 10.8).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> The issuer sees the sale only later, in clearing. Online, the issuer approves by checking an ARQC. Either way the chip never moves money.</p></aside>
+<aside role="note" class="callout callout--myth"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg><span>Myth: every in-flight terminal calls the bank over the plane’s Wi-Fi</span></p><p>Some do not. Vendor documents describe authorization after landing, Finnair’s 2021 notice acknowledged flights with no online connection with banks, and Runway Girl Network says many airlines use an offline mode.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup><sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup><sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup><sup class="cite"><a href="#ref-11" aria-label="Reference 11">[11]</a></sup></p></aside>
+
+<h2 id="next-steps" data-n="13">Where to go next<a class="anchor" href="#next-steps" aria-label="Link to this section: Where to go next"></a></h2>
+<p>For tag numbers, TVR bit layouts and the full chip flow, read <a href="/blog/emv-offline-authorization-explained/">EMV Offline Authorization: ARQC, TC, AAC and Floor Limits</a>. For another business built on carrying risk, read <a href="/blog/what-is-market-making/">What Is Market Making?</a>: market makers hold inventory that can move against them.</p>
+</div>
+<div class="post-note" role="note">
+  <p><strong class="post-note-label">Disclaimer</strong> Educational overview, not legal, financial or compliance advice: the rules cited are Visa's public rules as of 24 October 2026, vendor and airline figures are as read on 29 October 2026, and other networks (including Mastercard and American Express), acquirers and airlines set their own terms.</p>
+</div>
+<section class="post-faq" id="faq" aria-labelledby="faq-title">
+  <h2 id="faq-title">Frequently asked questions</h2>
+<details class="faq-item"><summary>How do credit card machines work without internet?</summary><div class="faq-a"><p>A card payment has two links. The chip-to-machine link is local and works with no network: the chip can prove it is genuine, check a PIN if it supports offline PIN, and produce a cryptogram. The machine-to-bank link needs a network, so with none the machine declines the sale, lets the chip and preset limits approve a small one offline, or records the sale and asks for authorization later (store-and-forward), where the seller carries the decline risk.</p></div></details>
+<details class="faq-item"><summary>Can you use a credit card on a plane without Wi-Fi?</summary><div class="faq-a"><p>It depends on the airline and the aircraft. Runway Girl Network reports that many airlines use point-of-sale systems with an offline mode for low-value sales, and live processing over a satellite link has been tested. Finnair&#8217;s help page says contactless payments up to EUR 50 and Mastercard, Visa and American Express credit cards up to EUR 800 are accepted onboard, and that the terminal occasionally asks for the card to be inserted and a PIN entered. Debit cards may behave differently, since Adyen says most debit cards do not support offline EMV approval, so check the airline&#8217;s current page before you fly.</p></div></details>
+<details class="faq-item"><summary>How do airlines process credit card payments in flight?</summary><div class="faq-a"><p>Public sources describe two designs: in store-and-forward, a handheld approves the sale under its limits and authorization is requested after landing, and in live processing the request goes over a satellite link, which has been shown in tests. No source cited here gives a current share of airlines using each. Under Visa&#8217;s published rules, an in-transit sale needs authorization within 24 hours of the vehicle reaching its final destination.</p></div></details>
+<details class="faq-item"><summary>Does contactless payment work without internet?</summary><div class="faq-a"><p>The tap itself can: a phone wallet builds a one-time cryptogram on the device, as Apple&#8217;s security guide describes, and the phone checks you on the device too. Whether the sale is approved with no network depends on the terminal&#8217;s offline settings and limits, and an online PIN cannot be checked. An aviation-payments vendor said in December 2025 that wallet payments in flight are possible but inconsistent, and Apple&#8217;s security guide does not say how Apple Pay behaves in airplane mode.</p></div></details>
+<details class="faq-item"><summary>What happens if a card is declined after an offline payment?</summary><div class="faq-a"><p>In store-and-forward the decline appears only when the sale is uploaded for authorization. Square, Stripe and Adyen say the seller carries that risk, Clover says the merchant accepts it, and Stripe says the funds may not be recoverable. If the chip itself approved the sale offline under issuer-loaded limits, Visa&#8217;s rules treat it differently, but the seller&#8217;s contract can still leave it liable for disputes, as Adyen&#8217;s terms do.</p></div></details>
+<details class="faq-item"><summary>Can I be charged after I leave the plane or shop?</summary><div class="faq-a"><p>Yes. A charge can post after you have left, because with store-and-forward the bank is asked only once the device reconnects; vendor windows run from 72 hours to upload at Square and 7 days of offline operation at Clover to a month of retries at Adyen and 30 days of resending in Adyen&#8217;s Immfly case study, but no source states a maximum delay for an airline. If the issuer declines the delayed request, that attempt is not charged, though retries are possible: Adyen retries eligible failed payments for a month, and Visa lets merchants reattempt many declines up to 20 times in 30 days. Square, Stripe and Adyen put that loss on the seller.</p></div></details>
+<details class="faq-item"><summary>What is a floor limit?</summary><div class="faq-a"><p>Visa defines it as an amount, set by Visa, above which online authorization is required. A chip terminal compares the sale amount, plus recent sales on the same card where the terminal keeps a log, with its configured floor limit, and reaching it sets a flag that normally forces an online request. There is no single global figure: it varies by network, country, contact or contactless, and acquirer settings.</p></div></details>
+<details class="faq-item"><summary>Is the PIN checked offline?</summary><div class="faq-a"><p>Sometimes. The card&#8217;s issuer-set verification list decides: an offline PIN is checked by the chip, an online PIN goes to the issuer and needs a connection, and signature or no verification also exist. Adyen says its mobile store-and-forward mode supports offline PIN only. Finnair says its terminal occasionally asks for the card to be inserted and a PIN entered, which it ties to confirming the cardholder.</p></div></details>
+</section>
+<section class="post-refs" id="references" aria-labelledby="references-title">
+  <h2 id="references-title">References</h2>
+  <ol class="refs">
+<li id="ref-1"><span class="ref-text">EMVCo, LLC (2022). <em>EMV Integrated Circuit Card Specifications for Payment Systems</em>, version 4.4, October 2022: Book 3, Application Specification, and Book 4, Cardholder, Attendant, and Acquirer Interface Requirements. Section numbers in this article refer to this version and were checked against copies hosted outside emvco.com; the linked page does not list the books, so find them through EMVCo&#8217;s specification search.</span> <a class="ref-link" href="https://www.emvco.com/emv-technologies/contact/" target="_blank" rel="noopener">https://www.emvco.com/emv-technologies/contact/</a></li>
+<li id="ref-2"><span class="ref-text">Murdoch, S.J., Drimer, S., Anderson, R. and Bond, M. (2010). Chip and PIN is broken. <em>2010 IEEE Symposium on Security and Privacy</em>.</span> <a class="ref-link" href="https://www.cl.cam.ac.uk/~sjm217/papers/oakland10chipbroken.pdf" target="_blank" rel="noopener">https://www.cl.cam.ac.uk/~sjm217/papers/oakland10chipbroken.pdf</a></li>
+<li id="ref-3"><span class="ref-text">Visa Inc. (24 October 2026). <em>Visa Core Rules and Visa Product and Service Rules</em>, public edition. Rule and table numbers in this article refer to this edition.</span> <a class="ref-link" href="https://usa.visa.com/dam/VCOM/download/about-visa/visa-rules-public.pdf" target="_blank" rel="noopener">https://usa.visa.com/dam/VCOM/download/about-visa/visa-rules-public.pdf</a></li>
+<li id="ref-4"><span class="ref-text">Adyen (accessed 29 October 2026). Offline payments. <em>Adyen Docs</em>, Point of Sale.</span> <a class="ref-link" href="https://docs.adyen.com/point-of-sale/offline-payment" target="_blank" rel="noopener">https://docs.adyen.com/point-of-sale/offline-payment</a></li>
+<li id="ref-5"><span class="ref-text">Stripe (accessed 29 October 2026). Collect card payments while offline. <em>Stripe Terminal docs</em>, iOS and Bluetooth reader variant.</span> <a class="ref-link" href="https://docs.stripe.com/terminal/features/operate-offline/collect-card-payments?terminal-card-present-integration=terminal&amp;reader-type=bluetooth&amp;terminal-sdk-platform=ios" target="_blank" rel="noopener">https://docs.stripe.com/terminal/features/operate-offline/collect-card-payments?terminal-card-present-integration=terminal&amp;reader-type=bluetooth&amp;terminal-sdk-platform=ios</a></li>
+<li id="ref-6"><span class="ref-text">Kirby, M. (September 2022). Novel fflya system sends live CC payments out the window. <em>Runway Girl Network</em>.</span> <a class="ref-link" href="https://runwaygirlnetwork.com/2022/09/fflya-live-cc-payments-wizz-air/" target="_blank" rel="noopener">https://runwaygirlnetwork.com/2022/09/fflya-live-cc-payments-wizz-air/</a></li>
+<li id="ref-7"><span class="ref-text">PAX Technology (undated; reports figures to the end of October 2019). PAX and PayBay in Partnership to Deliver Improved Inflight Payment Services.</span> <a class="ref-link" href="https://paxtechnology.com/blog/pax-and-paybay-in-partnership-to-deliver-improved-inflight-payment-services" target="_blank" rel="noopener">https://paxtechnology.com/blog/pax-and-paybay-in-partnership-to-deliver-improved-inflight-payment-services</a></li>
+<li id="ref-8"><span class="ref-text">Finnair (12 September 2021, archived). Disruptions in card payments on our flights. Travel information notice.</span> <a class="ref-link" href="https://www.finnair.com/au-en/flight-information/archived-travel-information/disruptions-in-card-payments-on-our-flights-2385636" target="_blank" rel="noopener">https://www.finnair.com/au-en/flight-information/archived-travel-information/disruptions-in-card-payments-on-our-flights-2385636</a></li>
+<li id="ref-9"><span class="ref-text">Finnair (undated; page footer 2026; accessed 29 October 2026). Are contactless payments onboard still possible with two-step authentication in place? Help page.</span> <a class="ref-link" href="https://www.finnair.com/pt-en/frequently-asked-questions/bookings-and-payments/are-contactless-payments-onboard-still-possible-with-two-step-authentication-in-place--2224510" target="_blank" rel="noopener">https://www.finnair.com/pt-en/frequently-asked-questions/bookings-and-payments/are-contactless-payments-onboard-still-possible-with-two-step-authentication-in-place--2224510</a></li>
+<li id="ref-10"><span class="ref-text">European Banking Authority (2019). Question 2018_4230: Contactless transactions - SCA. <em>Single Rulebook Q&amp;A</em>, on Article 11 of Commission Delegated Regulation (EU) 2018/389.</span> <a class="ref-link" href="https://www.eba.europa.eu/single-rule-book-qa/qna/view/publicId/2018_4230" target="_blank" rel="noopener">https://www.eba.europa.eu/single-rule-book-qa/qna/view/publicId/2018_4230</a></li>
+<li id="ref-11"><span class="ref-text">Adyen (undated; page footer 2026; accessed 29 October 2026). Immfly: Taking in-flight payments to new heights. Customer case study published by Adyen.</span> <a class="ref-link" href="https://www.adyen.com/knowledge-hub/immfly-taking-payments-to-new-heights" target="_blank" rel="noopener">https://www.adyen.com/knowledge-hub/immfly-taking-payments-to-new-heights</a></li>
+<li id="ref-12"><span class="ref-text">Square (accessed 29 October 2026). Process offline payments. <em>Square Support</em>, United States.</span> <a class="ref-link" href="https://squareup.com/help/us/en/article/7777-process-card-payments-with-offline-mode" target="_blank" rel="noopener">https://squareup.com/help/us/en/article/7777-process-card-payments-with-offline-mode</a></li>
+<li id="ref-13"><span class="ref-text">Clover (accessed 29 October 2026). Handle offline payments. <em>Clover Developer Docs</em>.</span> <a class="ref-link" href="https://docs.clover.com/dev/docs/handling-offline-payments" target="_blank" rel="noopener">https://docs.clover.com/dev/docs/handling-offline-payments</a></li>
+<li id="ref-14"><span class="ref-text">Chang, A. (20 March 2014; updated 21 August 2014). Better retail sales expected in the sky. <em>CNBC</em>.</span> <a class="ref-link" href="https://www.cnbc.com/2014/03/20/better-retail-sales-expected-in-the-sky.html" target="_blank" rel="noopener">https://www.cnbc.com/2014/03/20/better-retail-sales-expected-in-the-sky.html</a></li>
+<li id="ref-15"><span class="ref-text">Apple Inc. (19 December 2024). Payment authorization with Apple Pay. <em>Apple Platform Security</em>.</span> <a class="ref-link" href="https://support.apple.com/guide/security/payment-authorization-with-apple-pay-secc1f57e189/web" target="_blank" rel="noopener">https://support.apple.com/guide/security/payment-authorization-with-apple-pay-secc1f57e189/web</a></li>
+<li id="ref-16"><span class="ref-text">PXCom (9 December 2025). Inflight Payments: What Airlines Must Know. <em>PXCom</em>, presenting insights from Forthcode (vendor view).</span> <a class="ref-link" href="https://pxcom.aero/inflight-payments-must-know/" target="_blank" rel="noopener">https://pxcom.aero/inflight-payments-must-know/</a></li>
+<li id="ref-17"><span class="ref-text">PCI Security Standards Council (July 2025). FAQ 1154: For PCI DSS, can sensitive account data be stored before authorization?</span> <a class="ref-link" href="https://pcisecuritystandards.org/faq/articles/Frequently_Asked_Question/for-pci-dss-can-sensitive-account-data-be-stored-before-authorization" target="_blank" rel="noopener">https://pcisecuritystandards.org/faq/articles/Frequently_Asked_Question/for-pci-dss-can-sensitive-account-data-be-stored-before-authorization</a></li>
+<li id="ref-18"><span class="ref-text">PCI Security Standards Council (April 2022). <em>Self-Assessment Questionnaire D for Merchants and Attestation of Compliance</em>, for use with PCI DSS version 4.0. Requirements 3.3.1, 3.3.1.1 and 3.3.2.</span> <a class="ref-link" href="https://listings.pcisecuritystandards.org/documents/PCI-DSS-v4-0-SAQ-D-Merchant.pdf" target="_blank" rel="noopener">https://listings.pcisecuritystandards.org/documents/PCI-DSS-v4-0-SAQ-D-Merchant.pdf</a></li>
+<li id="ref-19"><span class="ref-text">The Paypers (9 October 2026). Mastercard expands offline payments across Europe. <em>The Paypers</em>.</span> <a class="ref-link" href="https://thepaypers.com/payments/news/mastercard-expands-offline-payments-across-europe" target="_blank" rel="noopener">https://thepaypers.com/payments/news/mastercard-expands-offline-payments-across-europe</a></li>
+<li id="ref-20"><span class="ref-text">Federal Office for National Economic Supply, Switzerland (24 August 2026). Offline card payments for a resilient payment system.</span> <a class="ref-link" href="https://www.bwl.admin.ch/en/offline-card-payments" target="_blank" rel="noopener">https://www.bwl.admin.ch/en/offline-card-payments</a></li>
+  </ol>
+</section>
+<section class="author card" id="author" aria-labelledby="author-title">
+  <figure class="author-photo">
+    <picture>
+      <source type="image/avif" srcset="/assets/img/yashvardhan-gupta-avatar-96.avif 96w, /assets/img/yashvardhan-gupta-avatar-192.avif 192w" sizes="96px">
+      <source type="image/webp" srcset="/assets/img/yashvardhan-gupta-avatar-96.webp 96w, /assets/img/yashvardhan-gupta-avatar-192.webp 192w" sizes="96px">
+      <img src="/assets/img/yashvardhan-gupta-avatar-192.jpg" srcset="/assets/img/yashvardhan-gupta-avatar-96.jpg 96w, /assets/img/yashvardhan-gupta-avatar-192.jpg 192w" sizes="96px" width="96" height="96" alt="YashVardhan Gupta" loading="lazy" decoding="async">
+    </picture>
+  </figure>
+  <div class="author-body">
+    <h2 class="author-kicker" id="author-title">About the author</h2>
+    <p class="author-name"><a href="/about/">YashVardhan Gupta</a></p>
+    <p class="author-bio">Quantitative developer, researcher and trader at a trading firm based in Dubai and Singapore. Founder of <a href="https://quantnova.in" target="_blank" rel="noopener">QuantNova</a>, a quantitative backtesting platform, and open to freelance work.</p>
+    <p class="author-ai">This article was drafted with AI assistance and checked against the primary sources listed in References.</p>
+    <div class="author-actions">
+      <a class="btn btn--sm btn--tangerine" href="/contact/">Hire me</a>
+      <a class="social-link" href="https://github.com/yashvardhancse" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
+      <a class="social-link" href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn</a>
+    </div>
+  </div>
+</section>
+      </div>
+    </div>
+  </div>
+</div>
+<section class="section sec--alt post-related" id="related" aria-labelledby="related-title">
+  <div class="container">
+    <h2 class="post-related-title" id="related-title">Keep <span class="hl">reading</span></h2>
+    <ul class="related-grid">
+<li class="bcard card" data-tag="Payments">
+  <div class="post-art post-art--sun">
+    <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+      <rect x="40" y="26" width="108" height="98" rx="16" class="p"/>
+      <path d="M40 58h108M76 58v66M112 58v66M40 91h108" />
+      <rect x="76" y="58" width="36" height="33" rx="4" class="t"/>
+      <rect x="190" y="30" width="60" height="26" rx="13" class="p"/><text x="220" y="48" class="art-text" text-anchor="middle">ARQC</text>
+      <rect x="190" y="62" width="60" height="26" rx="13" class="m"/><text x="220" y="80" class="art-text" text-anchor="middle">TC</text>
+      <rect x="190" y="94" width="60" height="26" rx="13" class="t"/><text x="220" y="112" class="art-text" text-anchor="middle">AAC</text>
+      <path d="M150 74h30M270 43h30M270 75h30M270 107h30" stroke-dasharray="2 7"/>
+    </svg>
+  </div>
+  <div class="bcard-body">
+    <p class="bcard-meta"><span class="tag tag--tangerine">Payments</span><time datetime="2026-10-29">Oct 29, 2026</time><span>16 min read</span></p>
+    <h3 class="bcard-title"><a class="stretch" href="/blog/emv-offline-authorization-explained/">EMV Offline Authorization: ARQC, TC, AAC and Floor Limits</a></h3>
+    <p class="bcard-teaser">A developer's walk-through of the chip transaction flow and how the card and terminal decide between approving offline and going online.</p>
+    <p class="bcard-go" aria-hidden="true">Read the article <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></p>
+  </div>
+</li>
+<li class="bcard card" data-tag="Markets">
+  <div class="post-art post-art--mint">
+    <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+      <path d="M180 14v122" stroke-dasharray="3 7"/>
+      <rect x="156" y="106" width="20" height="18" rx="4" class="m"/><rect x="132" y="82" width="44" height="18" rx="4" class="m"/><rect x="96" y="58" width="80" height="18" rx="4" class="m"/><rect x="62" y="34" width="114" height="18" rx="4" class="m"/>
+      <rect x="184" y="106" width="20" height="18" rx="4" class="t"/><rect x="184" y="82" width="52" height="18" rx="4" class="t"/><rect x="184" y="58" width="88" height="18" rx="4" class="t"/><rect x="184" y="34" width="120" height="18" rx="4" class="t"/>
+      <path d="M170 140h20" stroke-width="5" class="st-c"/>
+      <text x="62" y="22" class="art-text">BID</text>
+      <text x="304" y="22" class="art-text" text-anchor="end">ASK</text>
+    </svg>
+  </div>
+  <div class="bcard-body">
+    <p class="bcard-meta"><span class="tag tag--mint">Markets</span><time datetime="2026-10-29">Oct 29, 2026</time><span>16 min read</span></p>
+    <h3 class="bcard-title"><a class="stretch" href="/blog/what-is-market-making/">What Is Market Making? How Market Makers Earn the Spread</a></h3>
+    <p class="bcard-teaser">Bid, ask, spread, inventory and adverse selection: the plain-English guide to the firms that keep markets liquid.</p>
+    <p class="bcard-go" aria-hidden="true">Read the article <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></p>
+  </div>
+</li>
+    </ul>
+  </div>
+</section>
+</article>
+<section class="section sec--tangerine contact" id="contact" aria-labelledby="contact-title">
+  <div class="finish" aria-hidden="true"></div>
+  <div class="container contact-grid">
+    <div class="contact-copy">
+      <p class="sec-label">Contact</p>
+      <h2 class="contact-title" id="contact-title">Got a system to build? <span class="nowrap">Let&rsquo;s talk.</span></h2>
+      <p class="contact-sub">Open to freelance work, consulting and collaborations. Book a call or send an email, and I&rsquo;ll reply as soon as I can.</p>
+      <div class="contact-actions">
+        <a class="btn btn--lg btn--ink" href="https://calendly.com/yashvardhancse" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-calendar"/></svg>Book a call</a>
+        <a class="btn btn--lg btn--paper" href="mailto:yashvardhancse@gmail.com"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg>Email me</a>
+      </div>
+    </div>
+    <div class="contact-card card">
+      <p class="contact-card-title">Prefer to copy and paste?</p>
+      <div class="copy-row">
+        <code class="copy-email" id="copy-email">yashvardhancse@gmail.com</code>
+        <button class="btn btn--sm btn--sun copy-btn" type="button" data-copy="yashvardhancse@gmail.com" aria-describedby="copy-status"><svg class="i i-copy" aria-hidden="true"><use href="#i-copy"/></svg><svg class="i i-done" aria-hidden="true"><use href="#i-check"/></svg><span class="copy-label">Copy email</span></button>
+      </div>
+      <p class="visually-hidden" id="copy-status" role="status" aria-live="polite"></p>
+      <ul class="contact-links">
+        <li><a class="social-link" href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn</a></li>
+        <li><a class="social-link" href="https://github.com/yashvardhancse" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a></li>
+        <li><a class="social-link" href="https://instagram.com/camera.yash" target="_blank" rel="noopener me"><svg class="i" aria-hidden="true"><use href="#i-instagram"/></svg>Instagram</a></li>
+      </ul>
+      <p class="contact-note">Based in India, working in IST (UTC+5:30).</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="brand brand--footer" href="/">
+        <span class="brand-mark" aria-hidden="true">YG</span>
+        <span class="brand-name">YashVardhan Gupta</span>
+      </a>
+      <p class="footer-blurb">Quantitative developer and software engineer from India. Trading systems, backtesting, ML and full-stack products.</p>
+      <a class="btn btn--sm btn--paper" href="#top"><svg class="i" aria-hidden="true"><use href="#i-arrow-up"/></svg>Back to top</a>
+    </div>
+    <nav class="footer-col" aria-label="Footer: site">
+      <h2 class="footer-title">Explore</h2>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/#projects">Projects</a></li>
+        <li><a href="/blog/">Blog</a></li>
+        <li><a href="/learning-log/">Learning Log</a></li>
+        <li><a href="/explorations/">Explorations</a></li>
+        <li><a href="/contact/">Contact</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-col footer-col--writing" aria-label="Footer: writing">
+      <h2 class="footer-title">Writing</h2>
+      <ul>
+        <li><a href="/blog/how-credit-card-machines-work-in-flight-without-internet/">Card payments in flight</a></li>
+        <li><a href="/blog/what-is-market-making/">What is market making?</a></li>
+        <li><a href="/blog/emv-offline-authorization-explained/">EMV offline authorization</a></li>
+        <li><a href="/blog/avellaneda-stoikov-market-making-model/">Avellaneda-Stoikov model</a></li>
+        <li><a href="/blog/solana-mev-bots-explained/">Solana MEV bots explained</a></li>
+        <li><a href="/blog/2026/05/04/how-to-start-open-source-contribution/">Open source contribution</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-col" aria-label="Footer: elsewhere">
+      <h2 class="footer-title">Elsewhere</h2>
+      <ul>
+        <li><a href="https://github.com/yashvardhancse" target="_blank" rel="noopener me">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me">LinkedIn</a></li>
+        <li><a href="https://instagram.com/camera.yash" target="_blank" rel="noopener me">Instagram</a></li>
+        <li><a href="https://quantnova.in" target="_blank" rel="noopener">QuantNova</a></li>
+        <li><a href="https://calendly.com/yashvardhancse" target="_blank" rel="noopener">Book a call</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="container footer-bar">
+    <p>&copy; 2026 YashVardhan Gupta</p>
+    <p><a class="rss-link" href="/feed.xml"><svg class="i" aria-hidden="true"><use href="#i-rss"/></svg>RSS feed</a></p>
+  </div>
+  <p class="footer-wordmark" aria-hidden="true"></p>
+</footer>
+
+<script src="/assets/js/main.js" defer onerror="document.documentElement.classList.remove('js')"></script>
+</body>
+</html>

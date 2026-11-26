@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMV Offline Authorization: ARQC, TC, AAC and Floor Limits</title>
+<meta name="description" content="How EMV offline authorization works: the chip transaction flow, ARQC vs TC vs AAC, floor limits, TVR and action codes, three worked examples and Python.">
+<link rel="canonical" href="https://yashvardhangupta.com/blog/emv-offline-authorization-explained/">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="author" content="YashVardhan Gupta">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0f0d0b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="YashVardhan Gupta">
+<meta property="og:locale" content="en_IN">
+<meta property="og:title" content="EMV Offline Authorization: ARQC, TC, AAC and Floor Limits">
+<meta property="og:description" content="How EMV offline authorization works: the chip transaction flow, ARQC vs TC vs AAC, floor limits, TVR and action codes, three worked examples and Python.">
+<meta property="og:url" content="https://yashvardhangupta.com/blog/emv-offline-authorization-explained/">
+<meta property="og:image" content="https://yashvardhangupta.com/assets/og/emv-offline-authorization-explained-v1.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="EMV Offline Authorization: ARQC, TC, AAC and Floor Limits">
+<meta property="article:published_time" content="2026-10-29T09:20:00+05:30">
+<meta property="article:modified_time" content="2026-10-29T09:20:00+05:30">
+<meta property="article:author" content="https://yashvardhangupta.com/about/">
+<meta property="article:section" content="Payments">
+<meta property="article:tag" content="EMV offline authorization">
+<meta property="article:tag" content="ARQC vs TC vs AAC">
+<meta property="article:tag" content="EMV floor limit">
+<meta property="article:tag" content="terminal action codes">
+<meta property="article:tag" content="terminal verification results">
+<meta property="article:tag" content="GENERATE AC command">
+<meta property="article:tag" content="cryptogram information data">
+<meta property="article:tag" content="EMV transaction flow">
+<meta property="article:tag" content="SDA vs DDA vs CDA">
+<meta property="article:tag" content="offline EMV vs store and forward">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="EMV Offline Authorization: ARQC, TC, AAC and Floor Limits">
+<meta name="twitter:description" content="How EMV offline authorization works: the chip transaction flow, ARQC vs TC vs AAC, floor limits, TVR and action codes, three worked examples and Python.">
+<meta name="twitter:image" content="https://yashvardhangupta.com/assets/og/emv-offline-authorization-explained-v1.png">
+<meta name="twitter:image:alt" content="EMV Offline Authorization: ARQC, TC, AAC and Floor Limits">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="alternate" type="application/atom+xml" title="YashVardhan Gupta - Blog" href="/feed.xml">
+<link rel="me" href="https://github.com/yashvardhancse">
+<link rel="me" href="https://www.linkedin.com/in/yashvardhancse/">
+<script>
+/* Early setup (inline, tiny, before first paint): marks html.js, applies the stored or OS theme as data-theme (no flash of the
+   wrong theme) and the stored "Pause animations" choice as html.motion-off. Without this script (or without JS) the CSS
+   follows prefers-color-scheme on its own, the navigation is a plain list and nothing moves. */
+(function(){var d=document.documentElement,t,m,s,i,c;try{t=localStorage.getItem('theme');m=localStorage.getItem('motion')}catch(e){}
+s=t==='light'||t==='dark';
+if(!s){t=window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}
+d.setAttribute('data-theme',t);d.classList.add('js');if(m==='paused'){d.classList.add('motion-off')}
+if(s){c=document.querySelectorAll('meta[name="theme-color"]');for(i=0;i<c.length;i++){c[i].removeAttribute('media');c[i].setAttribute('content',t==='dark'?'#0f0d0b':'#f4efe6')}}})();
+</script>
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/blog.css">
+<script src="/assets/js/article.js" defer></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": "https://yashvardhangupta.com/blog/emv-offline-authorization-explained/#article",
+      "headline": "EMV Offline Authorization: ARQC, TC, AAC and Floor Limits",
+      "description": "How EMV offline authorization works: the chip transaction flow, ARQC vs TC vs AAC, floor limits, TVR and action codes, three worked examples and Python.",
+      "image": [
+        "https://yashvardhangupta.com/assets/og/emv-offline-authorization-explained-v1.png"
+      ],
+      "datePublished": "2026-10-29T09:20:00+05:30",
+      "dateModified": "2026-10-29T09:20:00+05:30",
+      "author": {
+        "@type": "Person",
+        "@id": "https://yashvardhangupta.com/#person",
+        "name": "YashVardhan Gupta",
+        "url": "https://yashvardhangupta.com/about/"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://yashvardhangupta.com/#person",
+        "name": "YashVardhan Gupta",
+        "url": "https://yashvardhangupta.com/about/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://yashvardhangupta.com/blog/emv-offline-authorization-explained/"
+      },
+      "url": "https://yashvardhangupta.com/blog/emv-offline-authorization-explained/",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "isPartOf": {
+        "@type": "Blog",
+        "@id": "https://yashvardhangupta.com/blog/#blog"
+      },
+      "keywords": "EMV offline authorization, ARQC vs TC vs AAC, EMV floor limit, terminal action codes, terminal verification results, GENERATE AC command, cryptogram information data, EMV transaction flow, SDA vs DDA vs CDA, offline EMV vs store and forward",
+      "articleSection": "Payments",
+      "wordCount": 3494,
+      "timeRequired": "PT16M"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://yashvardhangupta.com/blog/emv-offline-authorization-explained/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://yashvardhangupta.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://yashvardhangupta.com/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "EMV Offline Authorization: ARQC, TC, AAC and Floor Limits",
+          "item": "https://yashvardhangupta.com/blog/emv-offline-authorization-explained/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+<script>
+/* Google Analytics 4 (G-EZNSFMP4V2): loaded on the first interaction or after 6 s, whichever comes first.
+   Never on localhost, 127.0.0.1 or file pages. */
+(function(){var h=location.hostname;
+if(location.protocol==='file:'||h===''||h==='localhost'||h==='127.0.0.1'||h==='[::1]'){return}
+var ev=['pointerdown','keydown','scroll','touchstart'],o={passive:true,once:true},done=false,t=0;
+function go(){if(done){return}done=true;clearTimeout(t);
+ev.forEach(function(e){removeEventListener(e,go,o)});
+var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-EZNSFMP4V2';document.head.appendChild(s);
+window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-EZNSFMP4V2')}
+ev.forEach(function(e){addEventListener(e,go,o)});t=setTimeout(go,6000)})();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3 7 9 6.5L21 7"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15H4.5A2.5 2.5 0 0 1 2 12.5v-8A2.5 2.5 0 0 1 4.5 2h8A2.5 2.5 0 0 1 15 4.5V5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/></symbol>
+  <symbol id="i-rss" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2.5"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12.5a8.5 8.5 0 0 1-12.4 7.5L3 21l1.3-4.9A8.5 8.5 0 1 1 21 12.5z"/></symbol>
+  <symbol id="i-branch" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2.5"/><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="8" r="2.5"/><path d="M6 7.5v9M18 10.5c0 4-6 3.5-10.5 7"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3.5" width="18" height="17" rx="3"/><path d="M3 9.5h18M9.5 9.5v11"/></symbol>
+  <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14 -1.5 8 5-3 5 3-1.5-8"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6M12 19h8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.7a3.5 3.5 0 0 1 0 6.6M18 14.3c2.2.7 3.5 2.6 3.5 5.7"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.2 2.9.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></symbol>
+  <symbol id="i-linkedin" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></symbol>
+  <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></symbol>
+</svg>
+
+<header class="site-header" id="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">YG</span>
+      <span class="brand-name">YashVardhan Gupta</span>
+    </a>
+    <nav class="site-nav" id="site-nav" aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="/" data-nav="home">Home</a></li>
+        <li><a href="/about/" data-nav="about">About</a></li>
+        <li><a href="/#projects" data-nav="projects">Projects</a></li>
+        <li><a href="/blog/" data-nav="blog" aria-current="page">Blog</a></li>
+        <li><a href="/learning-log/" data-nav="learning">Learning Log</a></li>
+        <li><a href="/explorations/" data-nav="explorations">Explorations</a></li>
+        <li><a href="/contact/" data-nav="contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn theme-toggle" type="button" aria-pressed="false" aria-label="Dark theme">
+        <svg class="i i-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+        <svg class="i i-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+      </button>
+      <a class="btn btn--sm btn--tangerine header-cta" href="/contact/">Hire me</a>
+      <button class="icon-btn nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+        <svg class="i i-open" aria-hidden="true"><use href="#i-menu"/></svg>
+        <svg class="i i-close" aria-hidden="true"><use href="#i-x"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="main" tabindex="-1">
+<article class="post-page">
+<header class="section sec--ink post-hero" id="top">
+  <div class="container post-hero-grid">
+    <div class="post-hero-copy">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol class="sec-label">
+          <li><a href="/blog/"><span class="sec-num" aria-hidden="true"><svg class="i"><use href="#i-arrow-right"/></svg></span>Blog</a></li>
+          <li><a href="/blog/#tag-payments">Payments</a></li>
+          <li class="visually-hidden" aria-current="page">EMV Offline Authorization: ARQC, TC, AAC and Floor Limits</li>
+        </ol>
+      </nav>
+      <h1 class="post-h1"><span class="hl">EMV Offline Authorization</span>: ARQC, TC, AAC and Floor Limits</h1>
+      <p class="post-dek">A developer's walk-through of an EMV chip transaction: how the terminal's risk flags, the action codes and the card's own checks decide between approving offline, going online and declining.</p>
+      <p class="post-meta">
+        <span class="tag tag--tangerine">Payments</span>
+        <time datetime="2026-10-29T09:20:00+05:30">Oct 29, 2026</time>
+        
+        <span>16 min read</span>
+        <span>By <a href="/about/" rel="author">YashVardhan Gupta</a></span>
+      </p>
+    </div>
+    <div class="post-hero-art card">
+      <div class="post-art post-art--sun">
+        <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+          <rect x="40" y="26" width="108" height="98" rx="16" class="p"/>
+          <path d="M40 58h108M76 58v66M112 58v66M40 91h108" />
+          <rect x="76" y="58" width="36" height="33" rx="4" class="t"/>
+          <rect x="190" y="30" width="60" height="26" rx="13" class="p"/><text x="220" y="48" class="art-text" text-anchor="middle">ARQC</text>
+          <rect x="190" y="62" width="60" height="26" rx="13" class="m"/><text x="220" y="80" class="art-text" text-anchor="middle">TC</text>
+          <rect x="190" y="94" width="60" height="26" rx="13" class="t"/><text x="220" y="112" class="art-text" text-anchor="middle">AAC</text>
+          <path d="M150 74h30M270 43h30M270 75h30M270 107h30" stroke-dasharray="2 7"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="post-sheet">
+  <div class="container">
+    <div class="post-layout">
+      <div class="post-toc" id="toc">
+<nav class="toc card toc-rail" aria-label="Table of contents">
+  <p class="toc-title">On this page</p>
+  <ol class="toc-list">
+<li><a href="#key-takeaways"><span class="toc-n" aria-hidden="true">&bull;</span><span>Key takeaways</span></a></li>
+<li><a href="#what-is-emv-offline-authorization"><span class="toc-n" aria-hidden="true">01</span><span>What is EMV offline authorization? Four things called &quot;offline&quot;</span></a></li>
+<li><a href="#emv-transaction-flow"><span class="toc-n" aria-hidden="true">02</span><span>How does an EMV chip transaction work, step by step?</span></a></li>
+<li><a href="#arqc-vs-tc-vs-aac"><span class="toc-n" aria-hidden="true">03</span><span>ARQC vs TC vs AAC: what the three cryptograms mean</span></a></li>
+<li><a href="#emv-floor-limit-and-terminal-risk-management"><span class="toc-n" aria-hidden="true">04</span><span>EMV floor limit and terminal risk management</span></a></li>
+<li><a href="#tvr-tac-iac-action-codes"><span class="toc-n" aria-hidden="true">05</span><span>TVR, TAC and IAC: how the terminal chooses TC, ARQC or AAC</span></a></li>
+<li><a href="#worked-examples"><span class="toc-n" aria-hidden="true">06</span><span>Three worked examples: offline TC, online ARQC and no connection</span></a></li>
+<li><a href="#decode-generate-ac-response-python"><span class="toc-n" aria-hidden="true">07</span><span>Decode a GENERATE AC response in Python</span></a></li>
+<li><a href="#sda-dda-cda-offline-data-authentication"><span class="toc-n" aria-hidden="true">08</span><span>SDA, DDA and CDA: offline data authentication in short</span></a></li>
+<li><a href="#can-contactless-payments-be-approved-offline"><span class="toc-n" aria-hidden="true">09</span><span>Can contactless payments be approved offline?</span></a></li>
+<li><a href="#offline-emv-vs-store-and-forward"><span class="toc-n" aria-hidden="true">10</span><span>Offline EMV vs store-and-forward, and card machines in flight</span></a></li>
+<li><a href="#next-steps"><span class="toc-n" aria-hidden="true">11</span><span>Where to go next</span></a></li>
+<li><a href="#faq"><span class="toc-n" aria-hidden="true">&bull;</span><span>Frequently asked questions</span></a></li>
+<li><a href="#references"><span class="toc-n" aria-hidden="true">&bull;</span><span>References</span></a></li>
+  </ol>
+</nav>
+<details class="toc card toc-inline">
+  <summary><span>On this page</span><span class="toc-count">14 sections</span></summary>
+  <ol class="toc-list">
+<li><a href="#key-takeaways"><span class="toc-n" aria-hidden="true">&bull;</span><span>Key takeaways</span></a></li>
+<li><a href="#what-is-emv-offline-authorization"><span class="toc-n" aria-hidden="true">01</span><span>What is EMV offline authorization? Four things called &quot;offline&quot;</span></a></li>
+<li><a href="#emv-transaction-flow"><span class="toc-n" aria-hidden="true">02</span><span>How does an EMV chip transaction work, step by step?</span></a></li>
+<li><a href="#arqc-vs-tc-vs-aac"><span class="toc-n" aria-hidden="true">03</span><span>ARQC vs TC vs AAC: what the three cryptograms mean</span></a></li>
+<li><a href="#emv-floor-limit-and-terminal-risk-management"><span class="toc-n" aria-hidden="true">04</span><span>EMV floor limit and terminal risk management</span></a></li>
+<li><a href="#tvr-tac-iac-action-codes"><span class="toc-n" aria-hidden="true">05</span><span>TVR, TAC and IAC: how the terminal chooses TC, ARQC or AAC</span></a></li>
+<li><a href="#worked-examples"><span class="toc-n" aria-hidden="true">06</span><span>Three worked examples: offline TC, online ARQC and no connection</span></a></li>
+<li><a href="#decode-generate-ac-response-python"><span class="toc-n" aria-hidden="true">07</span><span>Decode a GENERATE AC response in Python</span></a></li>
+<li><a href="#sda-dda-cda-offline-data-authentication"><span class="toc-n" aria-hidden="true">08</span><span>SDA, DDA and CDA: offline data authentication in short</span></a></li>
+<li><a href="#can-contactless-payments-be-approved-offline"><span class="toc-n" aria-hidden="true">09</span><span>Can contactless payments be approved offline?</span></a></li>
+<li><a href="#offline-emv-vs-store-and-forward"><span class="toc-n" aria-hidden="true">10</span><span>Offline EMV vs store-and-forward, and card machines in flight</span></a></li>
+<li><a href="#next-steps"><span class="toc-n" aria-hidden="true">11</span><span>Where to go next</span></a></li>
+<li><a href="#faq"><span class="toc-n" aria-hidden="true">&bull;</span><span>Frequently asked questions</span></a></li>
+<li><a href="#references"><span class="toc-n" aria-hidden="true">&bull;</span><span>References</span></a></li>
+  </ol>
+</details>
+      </div>
+      <div class="post-main">
+<div class="prose">
+<h2 id="key-takeaways">Key takeaways<a class="anchor" href="#key-takeaways" aria-label="Link to this section: Key takeaways"></a></h2>
+<ul class="takeaways">
+<li>In EMV offline authorization the card approves with a <abbr title="Transaction Certificate">TC</abbr> without asking the issuer in real time. The terminal asks; the card may agree or tighten, never loosen.</li>
+<li>An online-capable terminal compares its five-byte <abbr title="Terminal Verification Results">TVR</abbr> with action codes and requests a TC, an <abbr title="Authorization Request Cryptogram">ARQC</abbr> (go online) or an <abbr title="Application Authentication Cryptogram">AAC</abbr> (decline).</li>
+<li>The floor limit is terminal data (tag <code>9F1B</code>), not a card property.</li>
+<li>With no connection after an ARQC, the Default action codes choose between offline approval and decline.</li>
+<li>Offline PIN, offline data authentication and store-and-forward are different things.</li>
+</ul>
+
+<p><strong>EMV offline authorization</strong> is a chip payment approved without a real-time check by the issuer. The terminal compares its risk flags with action codes and asks the card for a TC (approve), an ARQC (go online) or an AAC (decline). The card may match or tighten that request.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> An approved TC reaches the issuer later, in clearing.<sup class="cite"><a href="#ref-2" aria-label="Reference 2">[2]</a></sup><sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></p>
+
+<aside role="note" class="callout callout--note"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.01"/></svg><span><span class="visually-hidden">Note: </span>Scope and sources</span></p>
+<p>EMV is the chip-card standard maintained by EMVCo. This article paraphrases its Book 3 (application specification) and Book 4 (cardholder, attendant and acquirer interface requirements), version 4.4 (October 2022), read from third-party-hosted copies.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup><sup class="cite"><a href="#ref-2" aria-label="Reference 2">[2]</a></sup> EMVCo bulletins up to August 2026 can change details. Books 1 and 2 were not read, so application selection and key cryptography stay high level. Not covered: ATMs, online PIN, issuer scripts, offline-only and online-only terminals. Last checked 29 October 2026.</p></aside>
+
+<h2 id="what-is-emv-offline-authorization" data-n="01">What is EMV offline authorization? Four things called "offline"<a class="anchor" href="#what-is-emv-offline-authorization" aria-label="Link to this section: What is EMV offline authorization? Four things called &quot;offline&quot;"></a></h2>
+<p>EMV offline authorization is a payment the terminal and chip complete without waiting for the issuer, the cardholder's bank. "Offline" is overloaded in EMV;<sup class="cite"><a href="#ref-4" aria-label="Reference 4">[4]</a></sup> this article keeps four meanings apart:</p>
+<ul>
+<li><strong>Offline authorization.</strong> The card returns a TC to the first GENERATE AC and the sale completes without the issuer. The issuer sees it later in clearing, when the merchant's bank (the acquirer) submits its records.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></li>
+<li><strong>Offline PIN.</strong> The chip checks the PIN. It verifies the cardholder, not the payment.</li>
+<li><strong>Offline data authentication.</strong> The terminal checks the card's signed data, and sometimes the chip itself. It does not show the payment is approved.</li>
+<li><strong>Store-and-forward.</strong> The terminal or processor accepts the sale and requests authorization later. The issuer can still decline.</li>
+</ul>
+
+<h2 id="emv-transaction-flow" data-n="02">How does an EMV chip transaction work, step by step?<a class="anchor" href="#emv-transaction-flow" aria-label="Link to this section: How does an EMV chip transaction work, step by step?"></a></h2>
+<p>Terminal and card exchange commands; the issuer joins only if needed. Each data object has a hexadecimal tag, its identifier. We follow Book 3's order of functions.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+
+<figure class="fig" id="fig-emv-flow"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 420" role="img" aria-labelledby="fig-emv-flow-t fig-emv-flow-d">
+<title id="fig-emv-flow-t">EMV transaction swimlane</title>
+<desc id="fig-emv-flow-d">Card, terminal and issuer lanes: the terminal reads the card, runs checks and sends GENERATE AC; normally only an ARQC leads to the issuer and a second GENERATE AC.</desc>
+<defs><marker id="fig-emv-flow-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="f-arrow-head" d="M0 0L10 5L0 10z"/></marker></defs>
+<path class="f-line f-dash" d="M90 64V408"/>
+<path class="f-line f-dash" d="M320 64V408"/>
+<path class="f-line f-dash" d="M550 64V408"/>
+<rect class="f-box" x="20" y="12" width="140" height="52" rx="10"/>
+<text class="f-text" x="90" y="36" text-anchor="middle">Card</text>
+<text class="f-sub" x="90" y="54" text-anchor="middle">chip</text>
+<rect class="f-box" x="250" y="12" width="140" height="52" rx="10"/>
+<text class="f-text" x="320" y="36" text-anchor="middle">Terminal</text>
+<text class="f-sub" x="320" y="54" text-anchor="middle">reader and POS</text>
+<rect class="f-box" x="480" y="12" width="140" height="52" rx="10"/>
+<text class="f-text" x="550" y="36" text-anchor="middle">Issuer</text>
+<text class="f-sub" x="550" y="54" text-anchor="middle">via the acquirer</text>
+<path class="f-arrow" d="M96 94H314" marker-start="url(#fig-emv-flow-ah)" marker-end="url(#fig-emv-flow-ah)"/>
+<text class="f-sub" x="205" y="85" text-anchor="middle">1-3 Select, GPO, READ RECORD</text>
+<rect class="f-box" x="205" y="108" width="230" height="28" rx="8"/>
+<text class="f-sub" x="320" y="127" text-anchor="middle">4 ODA, restrictions, CVM</text>
+<rect class="f-box" x="185" y="146" width="270" height="28" rx="8"/>
+<text class="f-sub" x="320" y="165" text-anchor="middle">5-6 Risk checks, TVR vs TAC/IAC</text>
+<path class="f-arrow" d="M314 206H96" marker-end="url(#fig-emv-flow-ah)"/>
+<text class="f-sub" x="205" y="197" text-anchor="middle">7 GENERATE AC #1</text>
+<path class="f-arrow" d="M96 234H314" marker-end="url(#fig-emv-flow-ah)"/>
+<text class="f-sub" x="205" y="225" text-anchor="middle">TC, ARQC or AAC</text>
+<rect class="f-line f-dash" x="14" y="252" width="612" height="156" rx="10"/>
+<rect class="f-box" x="26" y="260" width="190" height="24" rx="12"/>
+<text class="f-sub" x="121" y="277" text-anchor="middle">Normally after an ARQC</text>
+<path class="f-arrow" d="M326 330H544" marker-start="url(#fig-emv-flow-ah)" marker-end="url(#fig-emv-flow-ah)"/>
+<text class="f-sub" x="435" y="321" text-anchor="middle">8 ARQC out, ARC + ARPC back</text>
+<path class="f-arrow" d="M96 382H314" marker-start="url(#fig-emv-flow-ah)" marker-end="url(#fig-emv-flow-ah)"/>
+<text class="f-sub" x="205" y="373" text-anchor="middle">9 GENERATE AC #2: TC or AAC</text>
+</svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+<figcaption><strong>Figure 1.</strong> The issuer is normally contacted only after an ARQC. Steps 4 to 6 can also send card commands (INTERNAL AUTHENTICATE, VERIFY, GET DATA).</figcaption>
+</figure>
+
+<ol class="steps">
+<li><strong>Application selection.</strong> The terminal picks a payment application and its identifier.</li>
+<li><strong>Initiate application processing.</strong> The terminal clears its TVR and <abbr title="Transaction Status Information">TSI</abbr>, sends GET PROCESSING OPTIONS (GPO) and gets back the <abbr title="Application Interchange Profile">AIP</abbr> (tag <code>82</code>, capability flags) and a file list (<code>94</code>).</li>
+<li><strong>Read application data.</strong> READ RECORD returns the card number, expiry, CDOL1 and CDOL2 (the data GENERATE AC needs), the issuer action codes and offline limits.</li>
+<li><strong>Offline checks, in any order.</strong> Offline data authentication (ODA), processing restrictions and cardholder verification (CVM). Failures usually set TVR bits instead of ending the transaction.</li>
+<li><strong>Terminal risk management.</strong> Floor limit, random selection and velocity checks set more TVR bits.</li>
+<li><strong>Terminal action analysis.</strong> The TVR is compared with the action codes to pick the request: TC, ARQC or AAC.</li>
+<li><strong>First GENERATE AC.</strong> The terminal sends its request in P1. After its own risk checks the card returns the <abbr title="Cryptogram Information Data">CID</abbr> (<code>9F27</code>), the ATC (<code>9F36</code>, a transaction counter), a cryptogram (<code>9F26</code>) and optional issuer data (<code>9F10</code>). A TC or AAC ends it offline; an ARQC means go online.</li>
+<li><strong>Online processing, normally only after an ARQC.</strong> The issuer replies with an authorization response code (ARC), possibly with Issuer Authentication Data (tag <code>91</code>, holding the Authorization Response Cryptogram, ARPC) and scripts (tags <code>71</code>, <code>72</code>).</li>
+<li><strong>Second GENERATE AC.</strong> The terminal asks for a TC (approved) or an AAC (declined) and the card answers with one.</li>
+</ol>
+<p>This is a teaching order: Book 3 calls its flowchart only an example, and a <abbr title="Combined DDA/Application Cryptogram Generation">CDA</abbr> signature can be checked only once a GENERATE AC response has arrived (sections 8.2 and 10).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+
+<h2 id="arqc-vs-tc-vs-aac" data-n="03">ARQC vs TC vs AAC: what the three cryptograms mean<a class="anchor" href="#arqc-vs-tc-vs-aac" aria-label="Link to this section: ARQC vs TC vs AAC: what the three cryptograms mean"></a></h2>
+<p>All three are 8-byte application cryptograms made by the card (tag <code>9F26</code>, or inside the <code>9F4B</code> signature with CDA): the AAC (Application Authentication Cryptogram, a decline), the TC (Transaction Certificate, an approval) and the ARQC (Authorization Request Cryptogram, a request to go online). The top two bits of the CID say which: <code>00</code> AAC, <code>01</code> TC, <code>10</code> ARQC; <code>11</code> is reserved (Book 3, Table 15).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+
+<div class="tbl"><div class="table-wrap scroll-x"><table>
+<caption>Table 1. With the other bits at 0, the CID byte and the P1 that requests it are equal. Add <code>0x10</code> to the P1 of a TC or ARQC request to ask for a CDA signature too.</caption>
+<thead><tr><th scope="col">Cryptogram</th><th scope="col">CID byte and P1</th><th scope="col">Meaning</th></tr></thead>
+<tbody>
+<tr><th scope="row">AAC</th><td><code>0x00</code></td><td>Card declines.</td></tr>
+<tr><th scope="row">TC</th><td><code>0x40</code></td><td>Card approves. Answering the first GENERATE AC, it ends the sale offline; answering the second, it confirms an online approval. Either way it goes to clearing.</td></tr>
+<tr><th scope="row">ARQC</th><td><code>0x80</code></td><td>Card asks for online authorization. The issuer verifies it.</td></tr>
+</tbody></table></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p></div>
+
+<p>The terminal cannot verify any of them. A cryptogram is a message authentication code (MAC), not a digital signature: in formal models the card computes it with a session key derived from the ATC and a secret key known only to the card and the issuer.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></p>
+
+<h3 id="why-the-card-has-the-last-word">Why the card has the last word<a class="anchor" href="#why-the-card-has-the-last-word" aria-label="Link to this section: Why the card has the last word"></a></h3>
+<p>The results form a ladder: TC, ARQC, AAC. The card may answer with the requested rung or a lower one, never a higher one: a TC request can return any of the three, an ARQC request an ARQC or AAC, an AAC request only an AAC. The second GENERATE AC returns only a TC or AAC (Book 3, section 9.3).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+<p>What the card checks is the issuer's business and invisible to the terminal. In Book 3's optional Common Core Definitions profile, for example, offline count and amount limits make the card force an online-capable terminal online past a lower limit and decline when online is impossible past an upper one (Part V).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+<aside role="note" class="callout callout--myth"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg><span>Myth: the terminal approves the payment</span></p>
+<p>The terminal makes a preliminary decision. Even response code Y1 (offline approved) leaves the final decision to the card, though an attended terminal may force acceptance after an AAC where payment-system rules allow it (Book 4, sections 6.3.6 and 6.5.4).<sup class="cite"><a href="#ref-2" aria-label="Reference 2">[2]</a></sup></p></aside>
+
+<h2 id="emv-floor-limit-and-terminal-risk-management" data-n="04">EMV floor limit and terminal risk management<a class="anchor" href="#emv-floor-limit-and-terminal-risk-management" aria-label="Link to this section: EMV floor limit and terminal risk management"></a></h2>
+<p>Terminal risk management is three checks the terminal runs after it has read the card's records and before it sends the first GENERATE AC: floor limit, random selection and velocity. Each only sets TVR bits (Book 3, section 10.6).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+
+<h3 id="what-is-an-emv-floor-limit">What is an EMV floor limit, and who sets it?<a class="anchor" href="#what-is-an-emv-floor-limit" aria-label="Link to this section: What is an EMV floor limit, and who sets it?"></a></h3>
+<p>A floor limit is an amount held by the terminal. If the amount is equal to or greater than it, the terminal sets the TVR bit "transaction exceeds floor limit" (byte 4, <code>0x80</code>). In EMV it is data object <code>9F1B</code>, four bytes, kept per application and set under payment-system and acquirer rules.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup><sup class="cite"><a href="#ref-2" aria-label="Reference 2">[2]</a></sup> A terminal that logs approved sales first adds the most recent logged amount for the same card number, which catches a purchase split in two, not a longer series.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+<aside role="note" class="callout callout--warn"><p class="callout-title"><svg class="i callout-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5 2.5 20h19L12 3.5z"/><path d="M12 10v4.5M12 17.2v.01"/></svg><span><span class="visually-hidden">Warning: </span>Not a card property</span></p>
+<p>The card stores issuer preferences (action codes, optional offline limits), not a floor limit, and no value is universal: Visa's U.S. acquirer guide (June 2020) calls the U.S. a zero-floor-limit market for Visa transactions, so those go online. Other networks and later rules were not checked.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup></p></aside>
+
+<h3 id="random-selection-and-velocity-checking">Random selection and velocity checking<a class="anchor" href="#random-selection-and-velocity-checking" aria-label="Link to this section: Random selection and velocity checking"></a></h3>
+<p>Random selection sends some small transactions online. A draw from 1 to 99 at or below the Transaction Target Percent selects the sale.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+<div class="eq scroll-x"><math display="block"><mrow><mi>P</mi><mo>=</mo><mo>(</mo><msub><mi>P</mi><mtext>max</mtext></msub><mo>−</mo><msub><mi>P</mi><mtext>target</mtext></msub><mo>)</mo><mo>×</mo><mfrac><mrow><mi>A</mi><mo>−</mo><mi>T</mi></mrow><mrow><mi>F</mi><mo>−</mo><mi>T</mi></mrow></mfrac><mo>+</mo><msub><mi>P</mi><mtext>target</mtext></msub></mrow></math><p class="eq-label">Equation 1: Transaction Target Percent (Book 3, section 10.6.2)</p></div>
+<p>In words: below the payment system's threshold the percentage is the target; above it, start at the target and add a share of the gap to the maximum, scaled by where the amount <var>A</var> sits between the threshold <var>T</var> and the floor limit <var>F</var>.</p>
+<p>If the card holds both the Lower and Upper Consecutive Offline Limit (<code>9F14</code>, <code>9F23</code>), the terminal reads the ATC (<code>9F36</code>) and the Last Online ATC Register (<code>9F13</code>, the ATC of the last online transaction) with GET DATA and takes their difference. A difference above the lower limit sets one TVR bit and above the upper limit another; one equal to the lower limit has not exceeded it.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+
+<h2 id="tvr-tac-iac-action-codes" data-n="05">TVR, TAC and IAC: how the terminal chooses TC, ARQC or AAC<a class="anchor" href="#tvr-tac-iac-action-codes" aria-label="Link to this section: TVR, TAC and IAC: how the terminal chooses TC, ARQC or AAC"></a></h2>
+<p>The terminal collects its findings in the five-byte TVR (tag <code>95</code>) and compares it with three pairs of action codes. Each pair joins a Terminal Action Code (TAC, the acquirer's preference, held in the terminal) with an Issuer Action Code (IAC, read from the card). A pair fires when a TVR bit that is 1 is also 1 in the TAC or IAC: in at least one of the five bytes, <code>TVR &amp; (TAC | IAC)</code> is non-zero (Book 3, section 10.7).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> For an online-capable terminal, as in our examples, they are tested in this order (offline-only and online-only terminals differ):</p>
+<ol>
+<li><strong>Denial pair</strong> (TAC-Denial, IAC-Denial <code>9F0E</code>). If it fires, the terminal asks for an AAC and does not go online.</li>
+<li><strong>Online pair</strong> (TAC-Online, IAC-Online <code>9F0F</code>). If it fires, the terminal asks for an ARQC; otherwise a TC.</li>
+<li><strong>Default pair</strong> (TAC-Default, IAC-Default <code>9F0D</code>). Used only when the terminal wanted to go online and could not. If it fires, it asks for an AAC; otherwise a TC.</li>
+</ol>
+
+<figure class="fig" id="fig-action-tree"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 368" role="img" aria-labelledby="fig-action-tree-t fig-action-tree-d">
+<title id="fig-action-tree-t">Decision tree for the first request and the card's reply</title>
+<desc id="fig-action-tree-d">Denial pair first (AAC if it fires), then Online pair (ARQC if it fires), otherwise a TC. The card may match the request or move down. If an ARQC cannot go online, the Default pair decides.</desc>
+<defs><marker id="fig-action-tree-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="f-arrow-head" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="f-box" x="14" y="14" width="150" height="88" rx="12"/>
+<text class="f-text" x="89" y="48" text-anchor="middle">TVR</text>
+<text class="f-sub" x="89" y="72" text-anchor="middle">vs TAC and IAC,</text>
+<text class="f-sub" x="89" y="92" text-anchor="middle">tested in order</text>
+<path class="f-arrow" d="M164 42H206" marker-end="url(#fig-action-tree-ah)"/>
+<rect class="f-box-neg" x="206" y="14" width="190" height="56" rx="12"/>
+<text class="f-text" x="301" y="38" text-anchor="middle">1 Denial pair</text>
+<text class="f-sub" x="301" y="58" text-anchor="middle">fires: ask for AAC</text>
+<path class="f-arrow" d="M301 70V100" marker-end="url(#fig-action-tree-ah)"/>
+<text class="f-sub" x="313" y="90">no</text>
+<rect class="f-box-accent" x="206" y="102" width="190" height="56" rx="12"/>
+<text class="f-text" x="301" y="126" text-anchor="middle">2 Online pair</text>
+<text class="f-sub" x="301" y="146" text-anchor="middle">fires: ask for ARQC</text>
+<path class="f-arrow" d="M301 158V188" marker-end="url(#fig-action-tree-ah)"/>
+<text class="f-sub" x="313" y="178">no</text>
+<rect class="f-box-pos" x="206" y="190" width="190" height="56" rx="12"/>
+<text class="f-text" x="301" y="214" text-anchor="middle">Otherwise</text>
+<text class="f-sub" x="301" y="234" text-anchor="middle">ask for TC</text>
+<path class="f-arrow" d="M396 42H446" marker-end="url(#fig-action-tree-ah)"/>
+<path class="f-arrow" d="M396 130H446" marker-end="url(#fig-action-tree-ah)"/>
+<path class="f-arrow" d="M396 218H446" marker-end="url(#fig-action-tree-ah)"/>
+<rect class="f-box-neg" x="446" y="14" width="180" height="56" rx="12"/>
+<text class="f-text" x="536" y="38" text-anchor="middle">AAC</text>
+<text class="f-sub" x="536" y="58" text-anchor="middle">card can only agree</text>
+<rect class="f-box-accent" x="446" y="102" width="180" height="56" rx="12"/>
+<text class="f-text" x="536" y="126" text-anchor="middle">ARQC or AAC</text>
+<text class="f-sub" x="536" y="146" text-anchor="middle">ARQC means go online</text>
+<rect class="f-box-pos" x="446" y="190" width="180" height="56" rx="12"/>
+<text class="f-text" x="536" y="214" text-anchor="middle">TC, ARQC or AAC</text>
+<text class="f-sub" x="536" y="234" text-anchor="middle">card may tighten</text>
+<rect class="f-box f-dash" x="14" y="268" width="612" height="84" rx="12"/>
+<text class="f-text" x="34" y="296">Cannot go online? The Default pair decides</text>
+<text class="f-sub" x="34" y="318">Pair fires: second GENERATE AC asks for AAC (Z3).</text>
+<text class="f-sub" x="34" y="338">Otherwise it asks for TC (Y3).</text>
+</svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+<figcaption><strong>Figure 2.</strong> The first request for an online-capable terminal, tested in order.</figcaption>
+</figure>
+
+<p>Book 3 strongly recommends that TAC-Online and TAC-Default include the TVR bits for failed or missing offline data authentication; otherwise a counterfeit card with all-zero issuer codes could have every transaction approved offline.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+
+<h2 id="worked-examples" data-n="06">Three worked examples: offline TC, online ARQC and no connection<a class="anchor" href="#worked-examples" aria-label="Link to this section: Three worked examples: offline TC, online ARQC and no connection"></a></h2>
+<p>One terminal, card and set of action codes give three outcomes. Every value is invented; real floor limits and action codes come from payment-system rules, acquirers and issuers.</p>
+<ul>
+<li><strong>Terminal:</strong> Terminal Type <code>22</code> (attended, merchant-controlled, offline with online capability; Book 4, Table 24). Floor limit <code>9F1B</code> = 3000 (EUR 30.00, bytes <code>00000BB8</code>; amounts are in cents). Random selection: target 10%, maximum 40%, threshold 1000 (EUR 10.00).</li>
+<li><strong>Card:</strong> lower offline limit 5, upper 10, Last Online ATC Register 39.</li>
+<li><strong>Action codes:</strong> TAC-Denial <code>0070000000</code>, IAC-Denial zeros; TAC-Online <code>CC00A09106</code>, IAC-Online <code>C000806000</code>; TAC-Default <code>CC00800106</code>, IAC-Default <code>0000002000</code> (changed in 3b). Both TACs set the ODA-failure bits Book 3 recommends: byte 1 <code>CC</code>, byte 4 bit <code>01</code>, byte 5 <code>06</code>.</li>
+<li><strong>Assumed:</strong> DDA or CDA and the processing restrictions pass and the CVM list is satisfied, so TVR bytes 1 to 3 and 5 stay zero.</li>
+</ul>
+
+<h3 id="example-1-offline-tc">Example 1: EUR 12.50 is approved offline with a TC<a class="anchor" href="#example-1-offline-tc" aria-label="Link to this section: Example 1: EUR 12.50 is approved offline with a TC"></a></h3>
+<p>Floor limit: 1250 is below 3000, so that bit stays 0. It is above the 1000 threshold, so random selection is biased: factor (1250 − 1000) ÷ (3000 − 1000) = 0.125, target (40 − 10) × 0.125 + 10 = 13.75. The draw is 73, so the sale is not selected. Velocity: ATC 42 − 39 = 3, within the lower limit of 5.</p>
+<p>The TVR stays <code>0000000000</code>, so no pair fires and the terminal asks for a TC (P1 <code>0x40</code>, or <code>0x50</code> with CDA), recording response code Y1 (offline approved; Book 4, Table 35). The card agrees and returns a TC (CID <code>0x40</code>). The TSI reads <code>E800</code> (ODA, cardholder verification, card and terminal risk management)<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> and the TC is stored for clearing.<sup class="cite"><a href="#ref-2" aria-label="Reference 2">[2]</a></sup> With an ATC of 46 the difference is 7, TVR byte 4 becomes <code>0x40</code>, which the issuer's IAC-Online contains, so the terminal asks for an ARQC instead.</p>
+
+<h3 id="example-2-online-arqc">Example 2: EUR 45.00 is above the floor limit and goes online<a class="anchor" href="#example-2-online-arqc" aria-label="Link to this section: Example 2: EUR 45.00 is above the floor limit and goes online"></a></h3>
+<p>4500 is at least 3000, so TVR byte 4 bit <code>0x80</code> is set: the TVR is <code>0000008000</code>. Both Denial codes are zero in byte 4, so Denial does not fire. In Table 2 we run the Online test on byte 4 (b8 floor limit, b7 lower limit, b6 upper limit, b5 random selection, b1 <abbr title="Extended Data Authentication">XDA</abbr> signature failed): combine the TAC and IAC with a bitwise or, then apply a bitwise and with the TVR.</p>
+
+<div class="tbl"><div class="table-wrap scroll-x"><table>
+<caption>Table 2. Online-pair test for Example 2.</caption>
+<thead><tr><th scope="col">Item</th><th scope="col">Byte 4, b8 to b1</th><th scope="col">Five bytes</th></tr></thead>
+<tbody>
+<tr><th scope="row">TVR</th><td><code>1000 0000</code></td><td><code>0000008000</code></td></tr>
+<tr><th scope="row">TAC-Online</th><td><code>1001 0001</code></td><td><code>CC00A09106</code></td></tr>
+<tr><th scope="row">IAC-Online</th><td><code>0110 0000</code></td><td><code>C000806000</code></td></tr>
+<tr><th scope="row"><code>TAC | IAC</code></th><td><code>1111 0001</code></td><td><code>CC00A0F106</code></td></tr>
+<tr><th scope="row"><code>TVR &amp; (TAC | IAC)</code></th><td><code>1000 0000</code>, non-zero: fires</td><td><code>0000008000</code></td></tr>
+</tbody></table></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p></div>
+
+<p>The terminal asks for an ARQC (P1 <code>0x80</code>, or <code>0x90</code> with CDA) and the card returns an ARQC (CID <code>0x80</code>). A second GENERATE AC asks for a TC if approved or an AAC if declined, and the card returns a TC (CID <code>0x40</code>) for clearing (Book 3, sections 9.3.2 and 10.11).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+
+<h3 id="example-3-no-connection">Example 3: no connection after an ARQC<a class="anchor" href="#example-3-no-connection" aria-label="Link to this section: Example 3: no connection after an ARQC"></a></h3>
+<p>Same EUR 45.00 sale, ARQC returned, request timing out. After any repeats the acquirer requires, the terminal treats the transaction as unable to go online and compares the TVR with the Default codes (Book 4, section 12.2).<sup class="cite"><a href="#ref-2" aria-label="Reference 2">[2]</a></sup></p>
+<ul>
+<li><strong>3a.</strong> TAC-Default <code>CC00800106</code> and IAC-Default <code>0000002000</code> share no bit with TVR byte 4 (<code>0x80</code>), so nothing fires. The terminal sets Y3 (unable to go online, offline approved) and asks for a TC, though the card can still answer AAC.</li>
+<li><strong>3b.</strong> With IAC-Default <code>000000A000</code>, which adds the floor limit bit, <code>0x80 &amp; (0x01 | 0xA0)</code> is <code>0x80</code>: the pair fires, so the terminal sets Z3 (offline declined) and asks for an AAC.</li>
+</ul>
+
+<h2 id="decode-generate-ac-response-python" data-n="07">Decode a GENERATE AC response in Python<a class="anchor" href="#decode-generate-ac-response-python" aria-label="Link to this section: Decode a GENERATE AC response in Python"></a></h2>
+<p>EMV data objects use BER-TLV: a tag, a length, then that many bytes of value (Book 3, Annex B).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> The code comments mark the rules to handle: multi-byte tags, constructed objects, long lengths and <code>00</code> filler bytes.</p>
+
+<figure class="fig" id="fig-tlv-layout"><div class="fig-scroll scroll-x"><svg viewBox="0 0 640 300" role="img" aria-labelledby="fig-tlv-layout-t fig-tlv-layout-d">
+<title id="fig-tlv-layout-t">Byte layout of the sample response</title>
+<desc id="fig-tlv-layout-d">Template 77 (length 1E) holds four tag-length-value objects: CID 80, ATC 002A, an eight-byte cryptogram and seven bytes of issuer data.</desc>
+<rect class="f-box" x="14" y="12" width="612" height="276" rx="14"/>
+<text class="f-text f-mono" x="34" y="44">77 1E</text>
+<text class="f-sub" x="106" y="43">template, 30 bytes inside</text>
+<text class="f-sub" x="99" y="72" text-anchor="middle">Tag</text>
+<text class="f-sub" x="198" y="72" text-anchor="middle">Len</text>
+<text class="f-sub" x="232" y="72">Value</text>
+<rect class="f-box-accent" x="34" y="84" width="130" height="40" rx="8"/>
+<text class="f-text f-mono" x="99" y="110" text-anchor="middle">9F27 CID</text>
+<rect class="f-box" x="172" y="84" width="52" height="40" rx="8"/>
+<text class="f-text f-mono" x="198" y="110" text-anchor="middle">01</text>
+<rect class="f-box" x="232" y="84" width="64" height="40" rx="8"/>
+<text class="f-text f-mono" x="244" y="110">80</text>
+<rect class="f-box-accent" x="34" y="134" width="130" height="40" rx="8"/>
+<text class="f-text f-mono" x="99" y="160" text-anchor="middle">9F36 ATC</text>
+<rect class="f-box" x="172" y="134" width="52" height="40" rx="8"/>
+<text class="f-text f-mono" x="198" y="160" text-anchor="middle">02</text>
+<rect class="f-box" x="232" y="134" width="104" height="40" rx="8"/>
+<text class="f-text f-mono" x="244" y="160">002A</text>
+<rect class="f-box-accent" x="34" y="184" width="130" height="40" rx="8"/>
+<text class="f-text f-mono" x="99" y="210" text-anchor="middle">9F26 AC</text>
+<rect class="f-box" x="172" y="184" width="52" height="40" rx="8"/>
+<text class="f-text f-mono" x="198" y="210" text-anchor="middle">08</text>
+<rect class="f-box" x="232" y="184" width="344" height="40" rx="8"/>
+<text class="f-text f-mono" x="244" y="210">A1B2C3D4E5F60718</text>
+<rect class="f-box-accent" x="34" y="234" width="130" height="40" rx="8"/>
+<text class="f-text f-mono" x="99" y="260" text-anchor="middle">9F10 IAD</text>
+<rect class="f-box" x="172" y="234" width="52" height="40" rx="8"/>
+<text class="f-text f-mono" x="198" y="260" text-anchor="middle">07</text>
+<rect class="f-box" x="232" y="234" width="304" height="40" rx="8"/>
+<text class="f-text f-mono" x="244" y="260">06010A03A00000</text>
+</svg></div><p class="xs-hint" aria-hidden="true">Swipe sideways to see all of it</p>
+<figcaption><strong>Figure 3.</strong> The sample response parsed below. Box widths follow the value lengths; IAD is issuer application data.</figcaption>
+</figure>
+
+<figure class="code-card"><figcaption class="code-bar"><span class="code-title">emv_tlv_demo.py</span><span class="code-lang">Python</span></figcaption><pre class="code scroll-x" data-lang="python" data-title="emv_tlv_demo.py"><code><span class="tok-c">"""Decode a GENERATE AC response (BER-TLV): its objects and the CID type."""</span>
+
+CRYPTOGRAM <span class="tok-o">=</span> <span class="tok-o">{</span><span class="tok-m">0b00</span><span class="tok-o">:</span> <span class="tok-s">"AAC (decline)"</span><span class="tok-o">,</span> <span class="tok-m">0b01</span><span class="tok-o">:</span> <span class="tok-s">"TC (approved)"</span><span class="tok-o">,</span>
+              <span class="tok-m">0b10</span><span class="tok-o">:</span> <span class="tok-s">"ARQC (go online)"</span><span class="tok-o">,</span> <span class="tok-m">0b11</span><span class="tok-o">:</span> <span class="tok-s">"reserved"</span><span class="tok-o">}</span>
+
+<span class="tok-k">def</span> <span class="tok-f">parse_tlv</span><span class="tok-o">(</span>buf<span class="tok-o">,</span> depth<span class="tok-o">=</span><span class="tok-m">0</span><span class="tok-o">):</span>
+    <span class="tok-c">"""Yield (depth, tag_hex, value); recurse into constructed objects."""</span>
+    i <span class="tok-o">=</span> <span class="tok-m">0</span>
+    <span class="tok-k">while</span> i <span class="tok-o">&lt;</span> <span class="tok-f">len</span><span class="tok-o">(</span>buf<span class="tok-o">):</span>
+        <span class="tok-k">if</span> buf<span class="tok-o">[</span>i<span class="tok-o">]</span> <span class="tok-o">==</span> <span class="tok-m">0x00</span><span class="tok-o">:</span>                  <span class="tok-c"># '00' filler may sit between objects</span>
+            i <span class="tok-o">+=</span> <span class="tok-m">1</span>
+            <span class="tok-k">continue</span>
+        start<span class="tok-o">,</span> constructed <span class="tok-o">=</span> i<span class="tok-o">,</span> <span class="tok-f">bool</span><span class="tok-o">(</span>buf<span class="tok-o">[</span>i<span class="tok-o">]</span> <span class="tok-o">&amp;</span> <span class="tok-m">0x20</span><span class="tok-o">)</span>
+        more <span class="tok-o">=</span> <span class="tok-o">(</span>buf<span class="tok-o">[</span>i<span class="tok-o">]</span> <span class="tok-o">&amp;</span> <span class="tok-m">0x1F</span><span class="tok-o">)</span> <span class="tok-o">==</span> <span class="tok-m">0x1F</span>      <span class="tok-c"># low 5 bits all 1: tag continues</span>
+        i <span class="tok-o">+=</span> <span class="tok-m">1</span>
+        <span class="tok-k">if</span> more<span class="tok-o">:</span>
+            <span class="tok-k">while</span> buf<span class="tok-o">[</span>i<span class="tok-o">]</span> <span class="tok-o">&amp;</span> <span class="tok-m">0x80</span><span class="tok-o">:</span>            <span class="tok-c"># b8 = 1: yet another tag byte follows</span>
+                i <span class="tok-o">+=</span> <span class="tok-m">1</span>
+            i <span class="tok-o">+=</span> <span class="tok-m">1</span>
+        tag <span class="tok-o">=</span> buf<span class="tok-o">[</span>start<span class="tok-o">:</span>i<span class="tok-o">].</span>hex<span class="tok-o">().</span>upper<span class="tok-o">()</span>
+        length<span class="tok-o">,</span> i <span class="tok-o">=</span> buf<span class="tok-o">[</span>i<span class="tok-o">],</span> i <span class="tok-o">+</span> <span class="tok-m">1</span>
+        <span class="tok-k">if</span> length <span class="tok-o">&amp;</span> <span class="tok-m">0x80</span><span class="tok-o">:</span>                   <span class="tok-c"># long form: low 7 bits = byte count</span>
+            n <span class="tok-o">=</span> length <span class="tok-o">&amp;</span> <span class="tok-m">0x7F</span>
+            length<span class="tok-o">,</span> i <span class="tok-o">=</span> <span class="tok-f">int</span><span class="tok-o">.</span>from_bytes<span class="tok-o">(</span>buf<span class="tok-o">[</span>i<span class="tok-o">:</span>i <span class="tok-o">+</span> n<span class="tok-o">],</span> <span class="tok-s">"big"</span><span class="tok-o">),</span> i <span class="tok-o">+</span> n
+        value <span class="tok-o">=</span> buf<span class="tok-o">[</span>i<span class="tok-o">:</span>i <span class="tok-o">+</span> length<span class="tok-o">]</span>
+        <span class="tok-k">if</span> <span class="tok-f">len</span><span class="tok-o">(</span>value<span class="tok-o">)</span> <span class="tok-o">&lt;</span> length<span class="tok-o">:</span>
+            <span class="tok-k">raise</span> <span class="tok-f">ValueError</span><span class="tok-o">(</span><span class="tok-s">f"tag {</span>tag<span class="tok-s">}: need {</span>length<span class="tok-s">} bytes, have {</span><span class="tok-f">len</span><span class="tok-o">(</span>value<span class="tok-o">)</span><span class="tok-s">}"</span><span class="tok-o">)</span>
+        i <span class="tok-o">+=</span> length
+        <span class="tok-k">yield</span> depth<span class="tok-o">,</span> tag<span class="tok-o">,</span> value
+        <span class="tok-k">if</span> constructed<span class="tok-o">:</span>
+            <span class="tok-k">yield from</span> parse_tlv<span class="tok-o">(</span>value<span class="tok-o">,</span> depth <span class="tok-o">+</span> <span class="tok-m">1</span><span class="tok-o">)</span>
+
+<span class="tok-c"># Hand-built sample, not from a real card: template 77 holding the CID, ATC,</span>
+<span class="tok-c"># cryptogram and issuer application data.</span>
+response <span class="tok-o">=</span> <span class="tok-f">bytes</span><span class="tok-o">.</span>fromhex<span class="tok-o">(</span><span class="tok-s">"771E"</span> <span class="tok-s">"9F270180"</span> <span class="tok-s">"9F3602002A"</span>
+                         <span class="tok-s">"9F2608A1B2C3D4E5F60718"</span> <span class="tok-s">"9F100706010A03A00000"</span><span class="tok-o">)</span>
+
+<span class="tok-k">for</span> depth<span class="tok-o">,</span> tag<span class="tok-o">,</span> value <span class="tok-k">in</span> parse_tlv<span class="tok-o">(</span>response<span class="tok-o">):</span>
+    pad <span class="tok-o">=</span> <span class="tok-s">"  "</span> <span class="tok-o">*</span> depth
+    <span class="tok-f">print</span><span class="tok-o">(</span><span class="tok-s">f"{</span>pad<span class="tok-s">}{</span>tag<span class="tok-s">:&lt;5} len={</span><span class="tok-f">len</span><span class="tok-o">(</span>value<span class="tok-o">)</span><span class="tok-s">:&lt;2} {</span>value<span class="tok-o">.</span>hex<span class="tok-o">().</span>upper<span class="tok-o">()</span><span class="tok-s">}"</span><span class="tok-o">)</span>
+    <span class="tok-k">if</span> tag <span class="tok-o">==</span> <span class="tok-s">"9F27"</span><span class="tok-o">:</span>
+        <span class="tok-f">print</span><span class="tok-o">(</span><span class="tok-s">f"{</span>pad<span class="tok-s">}      CID 0x{</span>value<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">]</span><span class="tok-s">:02X} is {</span>CRYPTOGRAM<span class="tok-o">[</span>value<span class="tok-o">[</span><span class="tok-m">0</span><span class="tok-o">]</span> <span class="tok-o">&gt;&gt;</span> <span class="tok-m">6</span><span class="tok-o">]</span><span class="tok-s">}"</span><span class="tok-o">)</span></code></pre></figure>
+<p>Output on Python 3.13 (standard library only):</p>
+<figure class="code-card code-card--output"><figcaption class="code-bar"><span class="code-title">Output</span><span class="code-lang">output</span></figcaption><pre class="code code--output scroll-x" data-lang="" data-title="Output"><code>77    len=30 9F2701809F3602002A9F2608A1B2C3D4E5F607189F100706010A03A00000
+  9F27  len=1  80
+        CID 0x80 is ARQC (go online)
+  9F36  len=2  002A
+  9F26  len=8  A1B2C3D4E5F60718
+  9F10  len=7  06010A03A00000</code></pre></figure>
+<p>The parser checks lengths only. The sample is a Format 2 response (tag <code>77</code>) without CDA: with CDA, tag <code>9F4B</code> replaces <code>9F26</code>, and a Format 1 response (tag <code>80</code>) packs the values without tags, which this parser would print as one value.</p>
+
+<h2 id="sda-dda-cda-offline-data-authentication" data-n="08">SDA, DDA and CDA: offline data authentication in short<a class="anchor" href="#sda-dda-cda-offline-data-authentication" aria-label="Link to this section: SDA, DDA and CDA: offline data authentication in short"></a></h2>
+<p>Offline data authentication lets the terminal check, with the payment system's CA public keys and the card's certificates, that the card's data (SDA) or the chip itself (DDA, CDA) is genuine. It is separate from approval.<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup></p>
+<ul>
+<li><strong>SDA (static data authentication).</strong> The issuer signed fixed card data (tag <code>93</code>). It detects altered data, not a copied card.</li>
+<li><strong>DDA (dynamic data authentication).</strong> The card signs a fresh terminal challenge with its own key (tag <code>9F4B</code>), proving the chip holds the key.</li>
+<li><strong>CDA (combined DDA and cryptogram generation).</strong> The signature also covers the cryptogram, inside the GENERATE AC response, so the terminal can detect tampering with the card's answer.</li>
+<li><strong>XDA (extended data authentication).</strong> Version 4.4 also defines this ECC-based method. It outranks the other three, and after an XDA failure even a TC can lead online (Book 3, section 10.9).</li>
+</ul>
+<p>The terminal uses the strongest method both sides support; the AIP lists the card's methods (byte 1: <code>0x80</code> XDA, <code>0x40</code> SDA, <code>0x20</code> DDA, <code>0x01</code> CDA; Book 3, Annex C).<sup class="cite"><a href="#ref-1" aria-label="Reference 1">[1]</a></sup> Under SDA or DDA the card never signs the TC, so only the issuer can notice tampering later. A 2021 formal analysis (IEEE S&amp;P) found this gap and that CDA closes it, though only some CDA setups met all its goals, none with offline PIN; its models date from 2020-21, so current kernels may differ.<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup></p>
+
+<h2 id="can-contactless-payments-be-approved-offline" data-n="09">Can contactless payments be approved offline?<a class="anchor" href="#can-contactless-payments-be-approved-offline" aria-label="Link to this section: Can contactless payments be approved offline?"></a></h2>
+<p>Sometimes, but it is uncommon (a 2021 study saw none in more than 30 live payments),<sup class="cite"><a href="#ref-3" aria-label="Reference 3">[3]</a></sup> and the rules are scheme-specific. A contactless payment runs on a kernel, the reader software of one payment system, and EMVCo says each global payment system has its own kernel specification, so Book 3's contact flow is a model, not a description of every tap.<sup class="cite"><a href="#ref-6" aria-label="Reference 6">[6]</a></sup> Visa's U.S. guide (June 2020) describes qVSDC, where the card generates its cryptogram while handling GET PROCESSING OPTIONS, and fast DDA for readers that support offline contactless. It sets the reader's contactless floor limit to zero, so Visa contactless payments there go online.<sup class="cite"><a href="#ref-5" aria-label="Reference 5">[5]</a></sup> Other kernels and phone wallets are out of scope.</p>
+
+<h2 id="offline-emv-vs-store-and-forward" data-n="10">Offline EMV vs store-and-forward, and card machines in flight<a class="anchor" href="#offline-emv-vs-store-and-forward" aria-label="Link to this section: Offline EMV vs store-and-forward, and card machines in flight"></a></h2>
+<p>In offline EMV the card's TC is the approval. In store-and-forward the terminal or processor approves locally and asks the issuer later, so the issuer can still decline and the merchant usually carries the loss.<sup class="cite"><a href="#ref-7" aria-label="Reference 7">[7]</a></sup><sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup> Offline EMV is not risk-free either, because the issuer first sees the TC in clearing, after the sale is over. Adyen tells its users they are fully liable for failed captures, chargebacks and disputes on payments they process offline.<sup class="cite"><a href="#ref-8" aria-label="Reference 8">[8]</a></sup> Liability follows the acquirer contract and card network rules, so check them first. For store-and-forward queues and timing rules on aircraft, ships and trains, read <a href="/blog/how-credit-card-machines-work-in-flight-without-internet/">how credit card machines work in flight without internet</a>.</p>
+<p>Trade reports of 8 and 9 October 2026 say Mastercard will enable offline payments on all newly issued Mastercard cards in Europe from February 2027 and require new and replacement terminals to support them by May 2027, with limits stored on the chip and set by the cardholder's bank.<sup class="cite"><a href="#ref-9" aria-label="Reference 9">[9]</a></sup><sup class="cite"><a href="#ref-10" aria-label="Reference 10">[10]</a></sup><sup class="cite"><a href="#ref-11" aria-label="Reference 11">[11]</a></sup> None names EMV or a cryptogram, so ask your acquirer what applies to your terminals.</p>
+
+<h2 id="next-steps" data-n="11">Where to go next<a class="anchor" href="#next-steps" aria-label="Link to this section: Where to go next"></a></h2>
+<p>For the operational side, read <a href="/blog/how-credit-card-machines-work-in-flight-without-internet/">how credit card machines work in flight without internet</a>. For how traders size and limit the inventory they carry, read <a href="/blog/what-is-market-making/">What Is Market Making?</a></p>
+</div>
+<div class="post-note" role="note">
+  <p><strong class="post-note-label">Disclaimer</strong> Independent educational overview of EMV Books 3 and 4, version 4.4 (October 2022), not endorsed by EMVCo, Visa, Mastercard or Adyen (EMV is a registered trademark or trademark of EMVCo, LLC in the United States and other countries): the limits and action codes in the examples are invented, real values and who bears a loss vary by payment system, acquirer, issuer and contract, and none of it is legal, compliance or implementation advice.</p>
+</div>
+<section class="post-faq" id="faq" aria-labelledby="faq-title">
+  <h2 id="faq-title">Frequently asked questions</h2>
+<details class="faq-item"><summary>Can a chip card payment be approved offline?</summary><div class="faq-a"><p>Yes, when the terminal and the card both support it and the checks pass. The terminal asks the card for a TC (Transaction Certificate). The card runs its own risk checks and returns a TC (approved), an ARQC (go online) or an AAC (decline). Whether this is allowed depends on terminal configuration and on payment-system and acquirer rules: Visa's U.S. acquirer guide (June 2020), for example, sets a zero floor limit for Visa transactions, so those go online.</p></div></details>
+<details class="faq-item"><summary>What is the difference between ARQC, TC and AAC?</summary><div class="faq-a"><p>All three are 8-byte application cryptograms made by the card: the AAC (Application Authentication Cryptogram) declines, the TC (Transaction Certificate) approves and the ARQC (Authorization Request Cryptogram) asks for online authorization. The top two bits of the Cryptogram Information Data byte (tag <code>9F27</code>) tell them apart: <code>00</code> is an AAC, <code>01</code> a TC and <code>10</code> an ARQC. Only the issuer can verify the cryptogram, and an approved TC reaches the issuer later through clearing.</p></div></details>
+<details class="faq-item"><summary>What is a floor limit in EMV, and who sets it?</summary><div class="faq-a"><p>A floor limit is an amount held in the terminal (tag <code>9F1B</code>) for each application and set under payment-system and acquirer rules. It is not stored on the card. In Book 3, if the transaction amount is equal to or greater than it, the terminal sets a TVR bit that the action codes normally turn into an online request; some glossaries say "above", so check the boundary in your own scheme's rules. A floor limit of zero sets that bit on every transaction.</p></div></details>
+<details class="faq-item"><summary>What happens if the terminal wants to go online but has no connection?</summary><div class="faq-a"><p>After the card returns an ARQC and the online attempt fails, the terminal compares the TVR with the Default action codes from the terminal and from the card. If a TVR bit is also set in either Default code, the terminal asks for an AAC and sets response code Z3. Otherwise it asks for a TC and sets Y3. The card can still answer with an AAC.</p></div></details>
+<details class="faq-item"><summary>Is offline PIN the same as offline authorization?</summary><div class="faq-a"><p>No. Offline PIN is a cardholder verification method: the terminal sends the PIN to the chip and the chip checks it. Offline authorization is the approval decision made without contacting the issuer. A payment can use an offline PIN and still go online, or be approved offline with no PIN at all.</p></div></details>
+<details class="faq-item"><summary>What is the difference between SDA, DDA and CDA?</summary><div class="faq-a"><p>SDA (static data authentication) checks an issuer signature over static card data, so it detects altered data but not a copied card. DDA (dynamic data authentication) has the chip sign a fresh terminal challenge with its own key. CDA (combined DDA and cryptogram generation) also signs the transaction cryptogram, so the terminal can detect tampering with the card's answer. Version 4.4 also defines XDA, an ECC-based method that outranks the others when both sides support it.</p></div></details>
+<details class="faq-item"><summary>Is offline EMV the same as store-and-forward?</summary><div class="faq-a"><p>No: in offline EMV the card decides locally and its TC is the approval. In store-and-forward the terminal or processor approves locally and sends an authorization request later, so the issuer can still decline and the merchant usually carries that risk. Offline EMV is not risk-free either, because the issuer first sees the TC in clearing. For the store-and-forward side, see <a href="/blog/how-credit-card-machines-work-in-flight-without-internet/">how credit card machines work in flight without internet</a>.</p></div></details>
+<details class="faq-item"><summary>Can contactless payments be approved offline?</summary><div class="faq-a"><p>It depends on the payment system's contactless kernel and on how the reader is configured. Visa's U.S. acquirer guide (June 2020), for example, describes fast DDA for readers that support offline contactless transactions, yet sets the U.S. reader contactless floor limit to zero, so Visa contactless transactions there go online. Other kernels differ and are outside this article.</p></div></details>
+</section>
+<section class="post-refs" id="references" aria-labelledby="references-title">
+  <h2 id="references-title">References</h2>
+  <ol class="refs">
+<li id="ref-1"><span class="ref-text">EMVCo (2022). <em>EMV Integrated Circuit Card Specifications for Payment Systems, Book 3: Application Specification</em>, Version 4.4, October 2022. EMVCo. Licensed document read from a third-party-hosted copy; section numbers follow that edition. The linked EMVCo page lists current specification bulletins, not the Books.</span> <a class="ref-link" href="https://www.emvco.com/emv-technologies/emv-contact-chip/" target="_blank" rel="noopener">https://www.emvco.com/emv-technologies/emv-contact-chip/</a></li>
+<li id="ref-2"><span class="ref-text">EMVCo (2022). <em>EMV Integrated Circuit Card Specifications for Payment Systems, Book 4: Cardholder, Attendant, and Acquirer Interface Requirements</em>, Version 4.4, October 2022. EMVCo. Licensed document read from a third-party-hosted copy; section numbers follow that edition. The linked EMVCo page lists current specification bulletins, not the Books.</span> <a class="ref-link" href="https://www.emvco.com/emv-technologies/emv-contact-chip/" target="_blank" rel="noopener">https://www.emvco.com/emv-technologies/emv-contact-chip/</a></li>
+<li id="ref-3"><span class="ref-text">Basin, D., Sasse, R. and Toro-Pozo, J. (2021). <em>The EMV Standard: Break, Fix, Verify</em>. IEEE Symposium on Security and Privacy 2021; arXiv:2006.08249v3.</span> <a class="ref-link" href="https://arxiv.org/abs/2006.08249" target="_blank" rel="noopener">https://arxiv.org/abs/2006.08249</a></li>
+<li id="ref-4"><span class="ref-text">Shi, K. (4 June 2020). <em>Overloaded "Online vs Offline" in EMV Card Processing</em>. HackerNoon.</span> <a class="ref-link" href="https://hackernoon.com/overloaded-online-vs-offline-in-emv-card-processing-h3683whd" target="_blank" rel="noopener">https://hackernoon.com/overloaded-online-vs-offline-in-emv-card-processing-h3683whd</a></li>
+<li id="ref-5"><span class="ref-text">Visa Inc. (June 2020). <em>VSDC Contact &amp; Contactless U.S. Acquirer Implementation Guide</em>, Version 3.0 (Visa Public).</span> <a class="ref-link" href="https://usa.visa.com/content/dam/VCOM/regional/na/us/partner-with-us/documents/visa-smart-debit-credit-contact-contactless-us-acquirer-implementation-guide.pdf" target="_blank" rel="noopener">https://usa.visa.com/content/dam/VCOM/regional/na/us/partner-with-us/documents/visa-smart-debit-credit-contact-contactless-us-acquirer-implementation-guide.pdf</a></li>
+<li id="ref-6"><span class="ref-text">EMVCo. <em>EMV Contactless Chip</em> (technology page, accessed 29 October 2026).</span> <a class="ref-link" href="https://www.emvco.com/emv-technologies/emv-contactless-chip/" target="_blank" rel="noopener">https://www.emvco.com/emv-technologies/emv-contactless-chip/</a></li>
+<li id="ref-7"><span class="ref-text">Corebaseit (28 February 2026). <em>Offline EMV vs Store-and-Forward: Two Different Mechanisms, One Confusing Name</em>. Blog post with no named author that cites no EMVCo or scheme documents.</span> <a class="ref-link" href="https://corebaseit-site.pages.dev/corebaseit_posts/offline-emv-vs-store-and-forward/" target="_blank" rel="noopener">https://corebaseit-site.pages.dev/corebaseit_posts/offline-emv-vs-store-and-forward/</a></li>
+<li id="ref-8"><span class="ref-text">Adyen. <em>Offline payments</em> (point-of-sale documentation, accessed 29 October 2026).</span> <a class="ref-link" href="https://docs.adyen.com/point-of-sale/offline-payment" target="_blank" rel="noopener">https://docs.adyen.com/point-of-sale/offline-payment</a></li>
+<li id="ref-9"><span class="ref-text">The Paypers (9 October 2026). <em>Mastercard expands offline payments across Europe</em>.</span> <a class="ref-link" href="https://thepaypers.com/payments/news/mastercard-expands-offline-payments-across-europe" target="_blank" rel="noopener">https://thepaypers.com/payments/news/mastercard-expands-offline-payments-across-europe</a></li>
+<li id="ref-10"><span class="ref-text">Financial IT (8 October 2026). <em>Mastercard to keep payments moving during power and network outages across Europe</em>.</span> <a class="ref-link" href="https://financialit.net/news/payments/mastercard-keep-payments-moving-during-power-and-network-outages-across-europe" target="_blank" rel="noopener">https://financialit.net/news/payments/mastercard-keep-payments-moving-during-power-and-network-outages-across-europe</a></li>
+<li id="ref-11"><span class="ref-text">heise online (9 October 2026). <em>Mastercard to introduce offline payments in Europe from 2027</em>.</span> <a class="ref-link" href="https://www.heise.de/en/news/Mastercard-to-introduce-offline-payments-in-Europe-from-2027-11482333.html" target="_blank" rel="noopener">https://www.heise.de/en/news/Mastercard-to-introduce-offline-payments-in-Europe-from-2027-11482333.html</a></li>
+  </ol>
+</section>
+<section class="author card" id="author" aria-labelledby="author-title">
+  <figure class="author-photo">
+    <picture>
+      <source type="image/avif" srcset="/assets/img/yashvardhan-gupta-avatar-96.avif 96w, /assets/img/yashvardhan-gupta-avatar-192.avif 192w" sizes="96px">
+      <source type="image/webp" srcset="/assets/img/yashvardhan-gupta-avatar-96.webp 96w, /assets/img/yashvardhan-gupta-avatar-192.webp 192w" sizes="96px">
+      <img src="/assets/img/yashvardhan-gupta-avatar-192.jpg" srcset="/assets/img/yashvardhan-gupta-avatar-96.jpg 96w, /assets/img/yashvardhan-gupta-avatar-192.jpg 192w" sizes="96px" width="96" height="96" alt="YashVardhan Gupta" loading="lazy" decoding="async">
+    </picture>
+  </figure>
+  <div class="author-body">
+    <h2 class="author-kicker" id="author-title">About the author</h2>
+    <p class="author-name"><a href="/about/">YashVardhan Gupta</a></p>
+    <p class="author-bio">Quantitative developer, researcher and trader at a trading firm based in Dubai and Singapore. Founder of <a href="https://quantnova.in" target="_blank" rel="noopener">QuantNova</a>, a quantitative backtesting platform, and open to freelance work.</p>
+    <p class="author-ai">This article was drafted with AI assistance and checked against the primary sources listed in References.</p>
+    <div class="author-actions">
+      <a class="btn btn--sm btn--tangerine" href="/contact/">Hire me</a>
+      <a class="social-link" href="https://github.com/yashvardhancse" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
+      <a class="social-link" href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn</a>
+    </div>
+  </div>
+</section>
+      </div>
+    </div>
+  </div>
+</div>
+<section class="section sec--alt post-related" id="related" aria-labelledby="related-title">
+  <div class="container">
+    <h2 class="post-related-title" id="related-title">Keep <span class="hl">reading</span></h2>
+    <ul class="related-grid">
+<li class="bcard card" data-tag="Payments">
+  <div class="post-art post-art--tangerine">
+    <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+      <rect x="30" y="22" width="86" height="112" rx="14" class="p"/>
+      <rect x="42" y="34" width="62" height="34" rx="6" class="m"/>
+      <path d="M44 86h8M62 86h8M80 86h8M44 100h8M62 100h8M80 100h8M44 114h8M62 114h8M80 114h8" stroke-width="5"/>
+      <path d="M134 46c30-34 74-34 104-6" stroke-dasharray="2 9"/>
+      <path d="M240 96c0-5 5-8 12-8h70c11 0 22 3 22 8s-11 8-22 8h-70c-7 0-12-3-12-8z" class="p"/>
+      <path d="M278 88 266 58h12l26 30M278 104l-12 30h12l26-30" class="p"/>
+      <path d="M252 88l-8-14h8l10 14M252 104l-8 14h8l10-14" class="p"/>
+      <path d="M146 112a30 30 0 0 1 42-12M156 126a16 16 0 0 1 22-6M136 100l56 34" stroke-width="3.5"/>
+    </svg>
+  </div>
+  <div class="bcard-body">
+    <p class="bcard-meta"><span class="tag tag--tangerine">Payments</span><time datetime="2026-10-29">Oct 29, 2026</time><span>16 min read</span></p>
+    <h3 class="bcard-title"><a class="stretch" href="/blog/how-credit-card-machines-work-in-flight-without-internet/">How Credit Card Machines Work in Flight (With No Internet)</a></h3>
+    <p class="bcard-teaser">Some airlines take card payments at 35,000 feet with no signal. Here is how offline EMV checks, store-and-forward and risk limits make that possible.</p>
+    <p class="bcard-go" aria-hidden="true">Read the article <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></p>
+  </div>
+</li>
+<li class="bcard card" data-tag="Markets">
+  <div class="post-art post-art--mint">
+    <svg class="art" viewBox="0 0 360 150" aria-hidden="true" focusable="false">
+      <path d="M180 14v122" stroke-dasharray="3 7"/>
+      <rect x="156" y="106" width="20" height="18" rx="4" class="m"/><rect x="132" y="82" width="44" height="18" rx="4" class="m"/><rect x="96" y="58" width="80" height="18" rx="4" class="m"/><rect x="62" y="34" width="114" height="18" rx="4" class="m"/>
+      <rect x="184" y="106" width="20" height="18" rx="4" class="t"/><rect x="184" y="82" width="52" height="18" rx="4" class="t"/><rect x="184" y="58" width="88" height="18" rx="4" class="t"/><rect x="184" y="34" width="120" height="18" rx="4" class="t"/>
+      <path d="M170 140h20" stroke-width="5" class="st-c"/>
+      <text x="62" y="22" class="art-text">BID</text>
+      <text x="304" y="22" class="art-text" text-anchor="end">ASK</text>
+    </svg>
+  </div>
+  <div class="bcard-body">
+    <p class="bcard-meta"><span class="tag tag--mint">Markets</span><time datetime="2026-10-29">Oct 29, 2026</time><span>16 min read</span></p>
+    <h3 class="bcard-title"><a class="stretch" href="/blog/what-is-market-making/">What Is Market Making? How Market Makers Earn the Spread</a></h3>
+    <p class="bcard-teaser">Bid, ask, spread, inventory and adverse selection: the plain-English guide to the firms that keep markets liquid.</p>
+    <p class="bcard-go" aria-hidden="true">Read the article <svg class="i" aria-hidden="true"><use href="#i-arrow-right"/></svg></p>
+  </div>
+</li>
+    </ul>
+  </div>
+</section>
+</article>
+<section class="section sec--tangerine contact" id="contact" aria-labelledby="contact-title">
+  <div class="finish" aria-hidden="true"></div>
+  <div class="container contact-grid">
+    <div class="contact-copy">
+      <p class="sec-label">Contact</p>
+      <h2 class="contact-title" id="contact-title">Got a system to build? <span class="nowrap">Let&rsquo;s talk.</span></h2>
+      <p class="contact-sub">Open to freelance work, consulting and collaborations. Book a call or send an email, and I&rsquo;ll reply as soon as I can.</p>
+      <div class="contact-actions">
+        <a class="btn btn--lg btn--ink" href="https://calendly.com/yashvardhancse" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-calendar"/></svg>Book a call</a>
+        <a class="btn btn--lg btn--paper" href="mailto:yashvardhancse@gmail.com"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg>Email me</a>
+      </div>
+    </div>
+    <div class="contact-card card">
+      <p class="contact-card-title">Prefer to copy and paste?</p>
+      <div class="copy-row">
+        <code class="copy-email" id="copy-email">yashvardhancse@gmail.com</code>
+        <button class="btn btn--sm btn--sun copy-btn" type="button" data-copy="yashvardhancse@gmail.com" aria-describedby="copy-status"><svg class="i i-copy" aria-hidden="true"><use href="#i-copy"/></svg><svg class="i i-done" aria-hidden="true"><use href="#i-check"/></svg><span class="copy-label">Copy email</span></button>
+      </div>
+      <p class="visually-hidden" id="copy-status" role="status" aria-live="polite"></p>
+      <ul class="contact-links">
+        <li><a class="social-link" href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn</a></li>
+        <li><a class="social-link" href="https://github.com/yashvardhancse" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a></li>
+        <li><a class="social-link" href="https://instagram.com/camera.yash" target="_blank" rel="noopener me"><svg class="i" aria-hidden="true"><use href="#i-instagram"/></svg>Instagram</a></li>
+      </ul>
+      <p class="contact-note">Based in India, working in IST (UTC+5:30).</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="brand brand--footer" href="/">
+        <span class="brand-mark" aria-hidden="true">YG</span>
+        <span class="brand-name">YashVardhan Gupta</span>
+      </a>
+      <p class="footer-blurb">Quantitative developer and software engineer from India. Trading systems, backtesting, ML and full-stack products.</p>
+      <a class="btn btn--sm btn--paper" href="#top"><svg class="i" aria-hidden="true"><use href="#i-arrow-up"/></svg>Back to top</a>
+    </div>
+    <nav class="footer-col" aria-label="Footer: site">
+      <h2 class="footer-title">Explore</h2>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/#projects">Projects</a></li>
+        <li><a href="/blog/">Blog</a></li>
+        <li><a href="/learning-log/">Learning Log</a></li>
+        <li><a href="/explorations/">Explorations</a></li>
+        <li><a href="/contact/">Contact</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-col footer-col--writing" aria-label="Footer: writing">
+      <h2 class="footer-title">Writing</h2>
+      <ul>
+        <li><a href="/blog/how-credit-card-machines-work-in-flight-without-internet/">Card payments in flight</a></li>
+        <li><a href="/blog/what-is-market-making/">What is market making?</a></li>
+        <li><a href="/blog/emv-offline-authorization-explained/">EMV offline authorization</a></li>
+        <li><a href="/blog/avellaneda-stoikov-market-making-model/">Avellaneda-Stoikov model</a></li>
+        <li><a href="/blog/solana-mev-bots-explained/">Solana MEV bots explained</a></li>
+        <li><a href="/blog/2026/05/04/how-to-start-open-source-contribution/">Open source contribution</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-col" aria-label="Footer: elsewhere">
+      <h2 class="footer-title">Elsewhere</h2>
+      <ul>
+        <li><a href="https://github.com/yashvardhancse" target="_blank" rel="noopener me">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me">LinkedIn</a></li>
+        <li><a href="https://instagram.com/camera.yash" target="_blank" rel="noopener me">Instagram</a></li>
+        <li><a href="https://quantnova.in" target="_blank" rel="noopener">QuantNova</a></li>
+        <li><a href="https://calendly.com/yashvardhancse" target="_blank" rel="noopener">Book a call</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="container footer-bar">
+    <p>&copy; 2026 YashVardhan Gupta</p>
+    <p><a class="rss-link" href="/feed.xml"><svg class="i" aria-hidden="true"><use href="#i-rss"/></svg>RSS feed</a></p>
+  </div>
+  <p class="footer-wordmark" aria-hidden="true"></p>
+</footer>
+
+<script src="/assets/js/main.js" defer onerror="document.documentElement.classList.remove('js')"></script>
+</body>
+</html>
