@@ -1,6 +1,6 @@
 # YashVardhan Gupta
 
-> Personal portfolio, blog and learning log of YashVardhan Gupta, a quantitative developer and software engineer from India. He builds trading systems, backtesting platforms, machine learning and full-stack products, and takes on freelance work. Site: https://yashvardhangupta.com/
+> Personal portfolio, blog and learning log of YashVardhan Gupta, a software and systems engineer from India. He builds robotics-style simulation and lab-automation tools (ROS 2, MCAP, 3D digital twins), real-time and trading infrastructure, machine learning and full-stack products, and takes on internships and freelance work. Site: https://yashvardhangupta.com/
 
 - Name: YashVardhan Gupta (also written Yash Vardhan Gupta, Yashvardhan Gupta; GitHub handle yashvardhancse)
 - Current role: Quantitative Developer, Researcher & Trader at a Dubai & Singapore based trading firm
@@ -13,6 +13,7 @@
 - [About](https://yashvardhangupta.com/about/): background, current roles, and highlights (including SIH 2025 internal-round entries)
 - [Contact](https://yashvardhangupta.com/contact/): services offered and how to get in touch
 - [Explorations](https://yashvardhangupta.com/explorations/): notes from long-distance motorcycle riding
+  - [Sea and mountains in one day: a solo ride to Kodachadri](https://yashvardhangupta.com/explorations/2026-03-15-kodachadri-ride/)
 - [Learning log](https://yashvardhangupta.com/learning-log/): ongoing study notes
 
 ## Blog
@@ -24,9 +25,10 @@
 - [How Credit Card Machines Work in Flight (With No Internet)](https://yashvardhangupta.com/blog/how-credit-card-machines-work-in-flight-without-internet/)
 - [How to Start Open Source Contribution](https://yashvardhangupta.com/blog/2026/05/04/how-to-start-open-source-contribution/)
 
-## Projects (SIH 2025, internal round qualifier)
-- [Pashu Saathi - AI Livestock Analyzer](https://github.com/yashvardhancse/Pashu-Saathi-AI-Livestock-Analyser-Mobile-Application-SIH-2025-PS-25005-): Flutter mobile app for livestock analysis and health monitoring
-- [OrbitIQ - ISRO GNSS Satellite Modeling](https://github.com/yashvardhancse/OrbitIQ-ISRO-GNSS-Satellite-Clock-Orbit-Error-Modelling-SIH-2025-PS-25176-): satellite clock and orbit error modeling for an ISRO problem statement
+## Projects
+- [LabTwin](https://yashvardhangupta.com/projects/labtwin/) (case study): a ROS 2 + browser digital twin of a nanolitre sample-prep robot — protocol validation, deterministic 3-axis simulation in 3D, and MCAP record/replay that opens in Foxglove, backed by a real rclpy ROS 2 package. Live demo: https://labtwin.pages.dev — Source: https://github.com/yashvardhancse/labtwin
+- [Pashu Saathi - AI Livestock Analyzer](https://github.com/yashvardhancse/Pashu-Saathi-AI-Livestock-Analyser-Mobile-Application-SIH-2025-PS-25005-): Flutter mobile app for livestock analysis and health monitoring (SIH 2025 internal round qualifier)
+- [OrbitIQ - ISRO GNSS Satellite Modeling](https://github.com/yashvardhancse/OrbitIQ-ISRO-GNSS-Satellite-Clock-Orbit-Error-Modelling-SIH-2025-PS-25176-): satellite clock and orbit error modeling for an ISRO problem statement (SIH 2025 internal round qualifier)
 
 ## Optional
 - [RSS / Atom feed](https://yashvardhangupta.com/feed.xml)

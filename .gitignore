@@ -1,0 +1,9 @@
+# Original camera footage: kept locally, not published to the site.
+# Only the optimized -640/-1040/-1600 .webp/.jpg variants are committed.
+assets/img/**/IMG_*.jpg
+assets/img/**/IMG_*.jpeg
+assets/img/**/IMG_*.JPG
+
+# OS / editor noise
+.DS_Store
+Thumbs.db

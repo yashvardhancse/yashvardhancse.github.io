@@ -21,6 +21,16 @@
     </image:image>
   </url>
   <url>
+    <loc>https://yashvardhangupta.com/projects/labtwin/</loc>
+    <lastmod>2026-11-27</lastmod>
+    <image:image>
+      <image:loc>https://yashvardhangupta.com/assets/img/labtwin/desktop-1440.jpg</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://yashvardhangupta.com/assets/img/labtwin/ros2-interop-1440.jpg</image:loc>
+    </image:image>
+  </url>
+  <url>
     <loc>https://yashvardhangupta.com/blog/</loc>
     <lastmod>2026-10-30</lastmod>
   </url>
@@ -55,6 +65,19 @@
   <url>
     <loc>https://yashvardhangupta.com/explorations/</loc>
     <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://yashvardhangupta.com/explorations/2026-03-15-kodachadri-ride/</loc>
+    <lastmod>2026-03-15</lastmod>
+    <image:image>
+      <image:loc>https://yashvardhangupta.com/assets/img/2026-03-15-kodachadri-ride/back-pose-1600.jpg</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://yashvardhangupta.com/assets/img/2026-03-15-kodachadri-ride/kodachadri-1-1600.jpg</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://yashvardhangupta.com/assets/img/2026-03-15-kodachadri-ride/kodachadri-4-1600.jpg</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://yashvardhangupta.com/explorations/2026-03-12-ride-through-western-ghats/</loc>

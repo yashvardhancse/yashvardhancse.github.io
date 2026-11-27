@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LabTwin - a browser digital twin of a nanolitre sample-prep robot</title>
+<meta name="description" content="LabTwin: a ROS 2 + browser digital twin of a nanolitre sample-prep robot. Protocol validation, deterministic 3-axis simulation, and MCAP record/replay that opens in Foxglove. By YashVardhan Gupta.">
+<link rel="canonical" href="https://yashvardhangupta.com/projects/labtwin/">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="author" content="YashVardhan Gupta">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0f0d0b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="YashVardhan Gupta">
+<meta property="og:locale" content="en_IN">
+<meta property="og:title" content="LabTwin - a browser digital twin of a nanolitre sample-prep robot">
+<meta property="og:description" content="A ROS 2 + browser digital twin of a nanolitre sample-prep robot: protocol validation, deterministic 3-axis simulation, and MCAP record/replay that opens in Foxglove.">
+<meta property="og:url" content="https://yashvardhangupta.com/projects/labtwin/">
+<meta property="og:image" content="https://yashvardhangupta.com/assets/og/labtwin-v1.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The LabTwin interface: protocol editor, 3D machine view, run controls and telemetry">
+<meta property="article:author" content="https://yashvardhangupta.com/about/">
+<meta property="article:section" content="Projects">
+<meta property="article:tag" content="ROS 2">
+<meta property="article:tag" content="robotics software">
+<meta property="article:tag" content="lab automation">
+<meta property="article:tag" content="digital twin">
+<meta property="article:tag" content="MCAP">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="LabTwin - a browser digital twin of a nanolitre sample-prep robot">
+<meta name="twitter:description" content="A ROS 2 + browser digital twin of a nanolitre sample-prep robot: protocol validation, deterministic 3-axis simulation, and MCAP record/replay that opens in Foxglove.">
+<meta name="twitter:image" content="https://yashvardhangupta.com/assets/og/labtwin-v1.png">
+<meta name="twitter:image:alt" content="The LabTwin interface: protocol editor, 3D machine view, run controls and telemetry">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="alternate" type="application/atom+xml" title="YashVardhan Gupta - Blog" href="/feed.xml">
+<link rel="me" href="https://github.com/yashvardhancse">
+<link rel="me" href="https://www.linkedin.com/in/yashvardhancse/">
+<script>
+/* Early setup (inline, tiny, before first paint): marks html.js, applies the stored or OS theme as data-theme (no flash of the
+   wrong theme) and the stored "Pause animations" choice as html.motion-off. */
+(function(){var d=document.documentElement,t,m,s,i,c;try{t=localStorage.getItem('theme');m=localStorage.getItem('motion')}catch(e){}
+s=t==='light'||t==='dark';
+if(!s){t=window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}
+d.setAttribute('data-theme',t);d.classList.add('js');if(m==='paused'){d.classList.add('motion-off')}
+if(s){c=document.querySelectorAll('meta[name="theme-color"]');for(i=0;i<c.length;i++){c[i].removeAttribute('media');c[i].setAttribute('content',t==='dark'?'#0f0d0b':'#f4efe6')}}})();
+</script>
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/blog.css">
+<style>
+/* LabTwin case study (scoped; built from existing design tokens). */
+.lt-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.1rem 0 0; padding: 0; list-style: none; }
+.lt-badges li { font: 600 0.8rem/1 var(--f-mono); letter-spacing: 0.02em; padding: 0.5em 0.75em; border: var(--bw) solid var(--line); border-radius: 999px; background: var(--surface-2); }
+.lt-cta { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1.4rem; }
+.lt-shot { margin: 2rem 0; }
+.lt-shot img { width: 100%; height: auto; display: block; border: var(--bw) solid var(--line); border-radius: var(--r-md); box-shadow: 5px 5px 0 var(--shadow); background: var(--surface-2); }
+.lt-shot figcaption { margin-top: 0.7rem; font: 500 0.9rem/1.45 var(--f-mono); color: var(--text); opacity: 0.68; text-align: center; }
+.lt-hero-shot { margin-top: 1.6rem; }
+.lt-map { display: grid; gap: 1rem; grid-template-columns: 1fr; margin: 1.5rem 0; padding: 0; list-style: none; }
+@media (min-width: 720px) { .lt-map { grid-template-columns: 1fr 1fr; } }
+.lt-map li { padding: 1.25rem 1.3rem; border: var(--bw) solid var(--line); border-radius: var(--r-md); background: var(--surface-2); }
+.lt-map h3 { margin: 0 0 0.4rem; font: 700 1.05rem/1.25 var(--f-display); }
+.lt-map p { margin: 0; font-size: 0.95rem; line-height: 1.5; }
+.lt-map .lt-tag { display: inline-block; margin-bottom: 0.6rem; font: 700 0.72rem/1 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; }
+.lt-duo { display: grid; gap: 1rem; grid-template-columns: 1fr; margin: 2rem 0; }
+.lt-duo .lt-shot { margin: 0; }
+@media (min-width: 640px) { .lt-duo { grid-template-columns: 1fr 1fr; } }
+</style>
+<script src="/assets/js/article.js" defer></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "https://yashvardhangupta.com/projects/labtwin/#project",
+      "name": "LabTwin",
+      "headline": "LabTwin - a browser digital twin of a nanolitre sample-prep robot",
+      "description": "A ROS 2 and browser digital twin of a nanolitre sample-prep robot: a YAML protocol editor with line-by-line validation, a deterministic 3-axis simulation in 3D, and MCAP record/replay that opens in Foxglove, sharing typed topics with a real rclpy ROS 2 package.",
+      "image": ["https://yashvardhangupta.com/assets/og/labtwin-v1.png"],
+      "url": "https://yashvardhangupta.com/projects/labtwin/",
+      "codeRepository": "https://github.com/yashvardhancse/labtwin",
+      "programmingLanguage": ["TypeScript", "Python"],
+      "runtimePlatform": "ROS 2 (rclpy), Web (browser)",
+      "keywords": "ROS 2, MCAP, Foxglove, digital twin, robotics software, lab automation, simulation",
+      "license": "https://opensource.org/licenses/MIT",
+      "author": {
+        "@type": "Person",
+        "@id": "https://yashvardhangupta.com/#person",
+        "name": "YashVardhan Gupta",
+        "url": "https://yashvardhangupta.com/about/"
+      },
+      "inLanguage": "en"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://yashvardhangupta.com/projects/labtwin/#breadcrumb",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://yashvardhangupta.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Projects", "item": "https://yashvardhangupta.com/#projects" },
+        { "@type": "ListItem", "position": 3, "name": "LabTwin", "item": "https://yashvardhangupta.com/projects/labtwin/" }
+      ]
+    }
+  ]
+}
+</script>
+<script>
+/* Google Analytics 4 (G-EZNSFMP4V2): loaded on the first interaction or after 6 s, whichever comes first. */
+(function(){var h=location.hostname;
+if(location.protocol==='file:'||h===''||h==='localhost'||h==='127.0.0.1'||h==='[::1]'){return}
+var ev=['pointerdown','keydown','scroll','touchstart'],o={passive:true,once:true},done=false,t=0;
+function go(){if(done){return}done=true;clearTimeout(t);
+ev.forEach(function(e){removeEventListener(e,go,o)});
+var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-EZNSFMP4V2';document.head.appendChild(s);
+window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-EZNSFMP4V2')}
+ev.forEach(function(e){addEventListener(e,go,o)});t=setTimeout(go,6000)})();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3 7 9 6.5L21 7"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15H4.5A2.5 2.5 0 0 1 2 12.5v-8A2.5 2.5 0 0 1 4.5 2h8A2.5 2.5 0 0 1 15 4.5V5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12.5 5 5L20 6.5"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/></symbol>
+  <symbol id="i-rss" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2.5"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12.5a8.5 8.5 0 0 1-12.4 7.5L3 21l1.3-4.9A8.5 8.5 0 1 1 21 12.5z"/></symbol>
+  <symbol id="i-branch" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2.5"/><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="8" r="2.5"/><path d="M6 7.5v9M18 10.5c0 4-6 3.5-10.5 7"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3.5" width="18" height="17" rx="3"/><path d="M3 9.5h18M9.5 9.5v11"/></symbol>
+  <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14 -1.5 8 5-3 5 3-1.5-8"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6M12 19h8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.7a3.5 3.5 0 0 1 0 6.6M18 14.3c2.2.7 3.5 2.6 3.5 5.7"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.2 2.9.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></symbol>
+  <symbol id="i-linkedin" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></symbol>
+  <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></symbol>
+</svg>
+
+<header class="site-header" id="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">YG</span>
+      <span class="brand-name">YashVardhan Gupta</span>
+    </a>
+    <nav class="site-nav" id="site-nav" aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="/" data-nav="home">Home</a></li>
+        <li><a href="/about/" data-nav="about">About</a></li>
+        <li><a href="/#projects" data-nav="projects" aria-current="page">Projects</a></li>
+        <li><a href="/blog/" data-nav="blog">Blog</a></li>
+        <li><a href="/learning-log/" data-nav="learning">Learning Log</a></li>
+        <li><a href="/explorations/" data-nav="explorations">Explorations</a></li>
+        <li><a href="/contact/" data-nav="contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn theme-toggle" type="button" aria-pressed="false" aria-label="Dark theme">
+        <svg class="i i-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+        <svg class="i i-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+      </button>
+      <a class="btn btn--sm btn--tangerine header-cta" href="/contact/">Hire me</a>
+      <button class="icon-btn nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+        <svg class="i i-open" aria-hidden="true"><use href="#i-menu"/></svg>
+        <svg class="i i-close" aria-hidden="true"><use href="#i-x"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="main" tabindex="-1">
+<article class="post-page">
+<header class="section sec--ink post-hero" id="top">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol class="sec-label">
+        <li><a href="/#projects"><span class="sec-num" aria-hidden="true"><svg class="i"><use href="#i-arrow-right"/></svg></span>Projects</a></li>
+        <li class="visually-hidden" aria-current="page">LabTwin</li>
+      </ol>
+    </nav>
+    <h1 class="post-h1">LabTwin &mdash; a browser <span class="hl">digital twin</span> of a lab robot</h1>
+    <p class="post-dek">Write a protocol, get it checked line by line, watch a deterministic 3-axis simulation in 3D, and record or replay every run as an MCAP file that opens in Foxglove &mdash; backed by a real ROS 2 (rclpy) package that shares the same interfaces.</p>
+    <ul class="lt-badges">
+      <li>TypeScript</li><li>React + three.js</li><li>ROS 2 / rclpy</li><li>Python 3.13</li><li>MCAP + Foxglove</li><li>Docker + CI</li>
+    </ul>
+    <div class="lt-cta">
+      <a class="btn btn--lg btn--tangerine" href="https://labtwin.pages.dev" target="_blank" rel="noopener">Live demo <svg class="i" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+      <a class="btn btn--lg btn--paper" href="https://github.com/yashvardhancse/labtwin" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-github"/></svg>Source on GitHub</a>
+      <a class="btn btn--lg btn--paper" href="https://labtwin.pages.dev/#/ros2" target="_blank" rel="noopener">How it maps to ROS 2</a>
+    </div>
+    <figure class="lt-shot lt-hero-shot">
+      <picture>
+        <source type="image/webp" srcset="/assets/img/labtwin/desktop-640.webp 640w, /assets/img/labtwin/desktop-960.webp 960w, /assets/img/labtwin/desktop-1440.webp 1440w" sizes="(min-width: 1080px) 1000px, 100vw">
+        <img src="/assets/img/labtwin/desktop-960.jpg" srcset="/assets/img/labtwin/desktop-640.jpg 640w, /assets/img/labtwin/desktop-960.jpg 960w, /assets/img/labtwin/desktop-1440.jpg 1440w" sizes="(min-width: 1080px) 1000px, 100vw" width="1440" height="900" alt="The LabTwin interface: a YAML protocol editor on the left, a 3D view of the sample-prep machine with a tip camera, run controls, live telemetry charts and a run report" fetchpriority="high" decoding="async">
+      </picture>
+      <figcaption>The LabTwin workspace: protocol editor, 3D machine with tip camera, run controls, telemetry and a run report.</figcaption>
+    </figure>
+  </div>
+</header>
+<div class="post-sheet">
+  <div class="container">
+    <div class="post-layout post-layout--solo">
+      <div class="post-main">
+<div class="prose">
+<p>LabTwin is a digital twin of a robot that prepares cryo-EM samples by placing a few nanolitres of liquid onto a chilled grid. You write a protocol in YAML, the editor checks it line by line, and a deterministic 3-axis simulation plays it back in 3D &mdash; while every run is recorded to an <strong>MCAP</strong> file that also opens in <a href="https://foxglove.dev" target="_blank" rel="noopener">Foxglove</a>. Everything runs client-side in the browser, and a real <strong>ROS 2 (rclpy)</strong> package shares the same message interfaces, so a recording written by the Python/ROS 2 side replays in the browser twin.</p>
+
+<h2 id="relevance">Why it fits robotics &amp; lab automation<a class="anchor" href="#relevance" aria-label="Link to this section: Why it fits robotics and lab automation"></a></h2>
+<p>I built LabTwin around the exact problems a small robotics-software team faces when automating a benchtop instrument &mdash; the hardware/controller boundary, reproducible runs, and tools scientists can actually use.</p>
+<ul class="lt-map">
+  <li>
+    <span class="lt-tag">ROS 2 &amp; topic design</span>
+    <h3>Nodes that model the machine</h3>
+    <p>A real <code>rclpy</code> package (<code>labtwin_msgs</code>: <code>AxisState</code>/<code>PumpState</code> messages, a <code>MoveTo</code> action, and services) plus browser nodes &mdash; <code>gantry_driver</code>, <code>pump_driver</code>, <code>stage_controller</code>, <code>protocol_executor</code> &mdash; that talk over the same typed topics.</p>
+  </li>
+  <li>
+    <span class="lt-tag">MCAP + 3D model</span>
+    <h3>Record &amp; replay runs</h3>
+    <p>Every run is recorded to MCAP with JSON Schemas, and carries <code>/tf</code>, <code>/scene</code> and <code>/log</code> against Foxglove's official schemas, so a 3D panel shows the moving gantry. Live and replay go through one render path.</p>
+  </li>
+  <li>
+    <span class="lt-tag">Operator tooling</span>
+    <h3>Protocols scientists can trust</h3>
+    <p>A YAML editor with live validation: unknown steps, types and ranges, axis/speed/volume/temperature limits, ordering rules ("home before moving", "stage cold before dispensing") and physical warnings &mdash; each pointing at the exact token with a fix.</p>
+  </li>
+  <li>
+    <span class="lt-tag">Builds, containers, CI</span>
+    <h3>Reproducible and tested</h3>
+    <p>A pinned toolchain and a multi-stage Docker image. CI runs lint, 85 web unit tests, a build, an MCAP interop check, and a separate ROS 2 job that <code>colcon build</code>s on the official <code>ros:jazzy</code> image and runs 17 Python tests. Both simulators are bit-for-bit deterministic.</p>
+  </li>
+  <li>
+    <span class="lt-tag">C++ / PLC boundary</span>
+    <h3>Drive bridge (roadmap)</h3>
+    <p>The next step is an <code>rclcpp</code> node modelling the CODESYS/EtherCAT boundary: the trajectory and servo run on the PLC at the fieldbus cycle, while ROS 2 commands it and reads state &mdash; the same split a real drive stack uses.</p>
+  </li>
+  <li>
+    <span class="lt-tag">Review &amp; docs</span>
+    <h3>Written to be read</h3>
+    <p>Strict TypeScript with a type-aware ESLint boundary (<code>src/core</code> can't import React, three.js or the DOM), a ruff-linted, pytest-tested Python package, small reviewable commits, and an architecture document that records the trade-offs.</p>
+  </li>
+</ul>
+
+<h2 id="validator">Catching mistakes before the machine moves<a class="anchor" href="#validator" aria-label="Link to this section: the validator"></a></h2>
+<p>The protocol editor validates as you type. Pick the "broken protocol" example and eight planted mistakes are underlined, each with its line number and a fix; the run button stays disabled until they are resolved. The executor also re-checks the important preconditions at run time &mdash; a dispense holds until the stage is actually cold, and aborts if it never gets there.</p>
+<figure class="lt-shot">
+  <picture>
+    <source type="image/webp" srcset="/assets/img/labtwin/validator-640.webp 640w, /assets/img/labtwin/validator-960.webp 960w, /assets/img/labtwin/validator-1440.webp 1440w" sizes="(min-width: 1080px) 1000px, 100vw">
+    <img src="/assets/img/labtwin/validator-960.jpg" srcset="/assets/img/labtwin/validator-640.jpg 640w, /assets/img/labtwin/validator-960.jpg 960w, /assets/img/labtwin/validator-1440.jpg 1440w" sizes="(min-width: 1080px) 1000px, 100vw" width="1440" height="900" alt="The LabTwin validator flagging eight planted mistakes in a protocol, each with a line number and a suggested fix" loading="lazy" decoding="async">
+  </picture>
+  <figcaption>The validator flags eight planted mistakes with line numbers and fixes.</figcaption>
+</figure>
+
+<h2 id="architecture">One render path for live and replay<a class="anchor" href="#architecture" aria-label="Link to this section: architecture"></a></h2>
+<p>The key design decision is that the 3D view, the charts and the run report render <em>only</em> from recorded topics &mdash; never from the simulator's internals. A live run and a replayed MCAP file go through exactly the same code, so if a run renders live, its recording replays. That is also what makes the browser twin and the Python/ROS 2 side interchangeable.</p>
+<figure class="lt-shot">
+  <picture>
+    <source type="image/webp" srcset="/assets/img/labtwin/architecture-640.webp 640w, /assets/img/labtwin/architecture-960.webp 960w, /assets/img/labtwin/architecture-1440.webp 1440w" sizes="(min-width: 1080px) 1000px, 100vw">
+    <img src="/assets/img/labtwin/architecture-960.jpg" srcset="/assets/img/labtwin/architecture-640.jpg 640w, /assets/img/labtwin/architecture-960.jpg 960w, /assets/img/labtwin/architecture-1440.jpg 1440w" sizes="(min-width: 1080px) 1000px, 100vw" width="1440" height="900" alt="LabTwin architecture diagram: protocol validator to executor to drivers, topics recorded to a RunLog, a Foxglove adapter, and an MCAP file that both replays in the app and opens in Foxglove" loading="lazy" decoding="async">
+  </picture>
+  <figcaption>Protocol &rarr; executor &rarr; drivers &rarr; topics &rarr; recorder; the UI and Foxglove read the same recorded stream.</figcaption>
+</figure>
+
+<h2 id="ros2">Interoperating with real ROS 2<a class="anchor" href="#ros2" aria-label="Link to this section: real ROS 2"></a></h2>
+<p>Because both sides share topic names and JSON Schemas, a run recorded by the Python/ROS 2 package opens and replays in the browser twin &mdash; the 3D machine, charts and report all follow the Python-recorded state. The ROS 2 workspace builds on the official <code>ros:jazzy</code> image in CI and runs a node smoke test.</p>
+<figure class="lt-shot">
+  <picture>
+    <source type="image/webp" srcset="/assets/img/labtwin/ros2-interop-640.webp 640w, /assets/img/labtwin/ros2-interop-960.webp 960w, /assets/img/labtwin/ros2-interop-1440.webp 1440w" sizes="(min-width: 1080px) 1000px, 100vw">
+    <img src="/assets/img/labtwin/ros2-interop-960.jpg" srcset="/assets/img/labtwin/ros2-interop-640.jpg 640w, /assets/img/labtwin/ros2-interop-960.jpg 960w, /assets/img/labtwin/ros2-interop-1440.jpg 1440w" sizes="(min-width: 1080px) 1000px, 100vw" width="2880" height="1800" alt="A run recorded by the Python ROS 2 side replaying inside the browser twin, with the 3D machine and charts following the recorded state" loading="lazy" decoding="async">
+  </picture>
+  <figcaption>A run recorded by the Python/ROS 2 side, replaying in the browser twin.</figcaption>
+</figure>
+
+<div class="lt-duo">
+  <figure class="lt-shot">
+    <picture>
+      <source type="image/webp" srcset="/assets/img/labtwin/desktop-running-640.webp 640w, /assets/img/labtwin/desktop-running-960.webp 960w" sizes="(min-width: 640px) 360px, 100vw">
+      <img src="/assets/img/labtwin/desktop-running-640.jpg" srcset="/assets/img/labtwin/desktop-running-640.jpg 640w, /assets/img/labtwin/desktop-running-960.jpg 960w" sizes="(min-width: 640px) 360px, 100vw" width="1440" height="900" alt="Mid-run: the machine head over the vial while the cryo-stage cools" loading="lazy" decoding="async">
+    </picture>
+    <figcaption>Mid-run: the head over the vial as the stage cools.</figcaption>
+  </figure>
+  <figure class="lt-shot">
+    <picture>
+      <source type="image/webp" srcset="/assets/img/labtwin/mobile-640.webp 640w" sizes="(min-width: 640px) 360px, 100vw">
+      <img src="/assets/img/labtwin/mobile-640.jpg" srcset="/assets/img/labtwin/mobile-640.jpg 640w" sizes="(min-width: 640px) 360px, 100vw" width="780" height="1688" alt="LabTwin running on a phone, with the editor, 3D view and controls laid out for a narrow screen" loading="lazy" decoding="async">
+    </picture>
+    <figcaption>The whole workspace works on a phone, too.</figcaption>
+  </figure>
+</div>
+
+<h2 id="try">Try it<a class="anchor" href="#try" aria-label="Link to this section: try it"></a></h2>
+<p>Open the <a href="https://labtwin.pages.dev" target="_blank" rel="noopener">live demo</a> &mdash; a run starts by itself: the head homes, the stage frosts over while it draws 4&nbsp;nL from the vial, then writes a 3&nbsp;nL droplet onto the grid. Download the <code>.mcap</code>, re-open it to scrub the timeline, or drop it into Foxglove. The full build, test and ROS 2 instructions are in the <a href="https://github.com/yashvardhancse/labtwin" target="_blank" rel="noopener">repository</a>.</p>
+</div>
+<section class="author card" id="author" aria-labelledby="author-title">
+  <figure class="author-photo">
+    <picture>
+      <source type="image/avif" srcset="/assets/img/yashvardhan-gupta-avatar-96.avif 96w, /assets/img/yashvardhan-gupta-avatar-192.avif 192w" sizes="96px">
+      <source type="image/webp" srcset="/assets/img/yashvardhan-gupta-avatar-96.webp 96w, /assets/img/yashvardhan-gupta-avatar-192.webp 192w" sizes="96px">
+      <img src="/assets/img/yashvardhan-gupta-avatar-192.jpg" srcset="/assets/img/yashvardhan-gupta-avatar-96.jpg 96w, /assets/img/yashvardhan-gupta-avatar-192.jpg 192w" sizes="96px" width="96" height="96" alt="YashVardhan Gupta" loading="lazy" decoding="async">
+    </picture>
+  </figure>
+  <div class="author-body">
+    <h2 class="author-kicker" id="author-title">About the author</h2>
+    <p class="author-name"><a href="/about/">YashVardhan Gupta</a></p>
+    <p class="author-bio">Software and systems engineer from India, working across robotics-style simulation, real-time infrastructure and full-stack tools. Builder of LabTwin, and open to internships and freelance work.</p>
+    <div class="author-actions">
+      <a class="btn btn--sm btn--tangerine" href="/contact/">Get in touch</a>
+      <a class="social-link" href="https://github.com/yashvardhancse" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
+      <a class="social-link" href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn</a>
+    </div>
+  </div>
+</section>
+      </div>
+    </div>
+  </div>
+</div>
+</article>
+<section class="section sec--tangerine contact" id="contact" aria-labelledby="contact-title">
+  <div class="finish" aria-hidden="true"></div>
+  <div class="container contact-grid">
+    <div class="contact-copy">
+      <p class="sec-label">Contact</p>
+      <h2 class="contact-title" id="contact-title">Hiring for robotics or automation? <span class="nowrap">Let&rsquo;s talk.</span></h2>
+      <p class="contact-sub">Open to internships, freelance work and collaborations. Book a call or send an email, and I&rsquo;ll reply as soon as I can.</p>
+      <div class="contact-actions">
+        <a class="btn btn--lg btn--ink" href="https://calendly.com/yashvardhancse" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-calendar"/></svg>Book a call</a>
+        <a class="btn btn--lg btn--paper" href="mailto:yashvardhancse@gmail.com"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg>Email me</a>
+      </div>
+    </div>
+    <div class="contact-card card">
+      <p class="contact-card-title">Prefer to copy and paste?</p>
+      <div class="copy-row">
+        <code class="copy-email" id="copy-email">yashvardhancse@gmail.com</code>
+        <button class="btn btn--sm btn--sun copy-btn" type="button" data-copy="yashvardhancse@gmail.com" aria-describedby="copy-status"><svg class="i i-copy" aria-hidden="true"><use href="#i-copy"/></svg><svg class="i i-done" aria-hidden="true"><use href="#i-check"/></svg><span class="copy-label">Copy email</span></button>
+      </div>
+      <p class="visually-hidden" id="copy-status" role="status" aria-live="polite"></p>
+      <ul class="contact-links">
+        <li><a class="social-link" href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn</a></li>
+        <li><a class="social-link" href="https://github.com/yashvardhancse" target="_blank" rel="noopener me"><svg class="i i--fill" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a></li>
+        <li><a class="social-link" href="https://instagram.com/camera.yash" target="_blank" rel="noopener me"><svg class="i" aria-hidden="true"><use href="#i-instagram"/></svg>Instagram</a></li>
+      </ul>
+      <p class="contact-note">Based in India, working in IST (UTC+5:30).</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="brand brand--footer" href="/">
+        <span class="brand-mark" aria-hidden="true">YG</span>
+        <span class="brand-name">YashVardhan Gupta</span>
+      </a>
+      <p class="footer-blurb">Software and systems engineer from India. Robotics-style simulation, trading infrastructure, ML and full-stack products.</p>
+      <a class="btn btn--sm btn--paper" href="#top"><svg class="i" aria-hidden="true"><use href="#i-arrow-up"/></svg>Back to top</a>
+    </div>
+    <nav class="footer-col" aria-label="Footer: site">
+      <h2 class="footer-title">Explore</h2>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/#projects">Projects</a></li>
+        <li><a href="/blog/">Blog</a></li>
+        <li><a href="/learning-log/">Learning Log</a></li>
+        <li><a href="/explorations/">Explorations</a></li>
+        <li><a href="/contact/">Contact</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-col footer-col--writing" aria-label="Footer: writing">
+      <h2 class="footer-title">Writing</h2>
+      <ul>
+        <li><a href="/blog/how-credit-card-machines-work-in-flight-without-internet/">Card payments in flight</a></li>
+        <li><a href="/blog/what-is-market-making/">What is market making?</a></li>
+        <li><a href="/blog/emv-offline-authorization-explained/">EMV offline authorization</a></li>
+        <li><a href="/blog/avellaneda-stoikov-market-making-model/">Avellaneda-Stoikov model</a></li>
+        <li><a href="/blog/solana-mev-bots-explained/">Solana MEV bots explained</a></li>
+        <li><a href="/blog/2026/05/04/how-to-start-open-source-contribution/">Open source contribution</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-col" aria-label="Footer: elsewhere">
+      <h2 class="footer-title">Elsewhere</h2>
+      <ul>
+        <li><a href="https://github.com/yashvardhancse" target="_blank" rel="noopener me">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/yashvardhancse/" target="_blank" rel="noopener me">LinkedIn</a></li>
+        <li><a href="https://instagram.com/camera.yash" target="_blank" rel="noopener me">Instagram</a></li>
+        <li><a href="https://quantnova.in" target="_blank" rel="noopener">QuantNova</a></li>
+        <li><a href="https://calendly.com/yashvardhancse" target="_blank" rel="noopener">Book a call</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="container footer-bar">
+    <p>&copy; 2026 YashVardhan Gupta</p>
+    <p><a class="rss-link" href="/feed.xml"><svg class="i" aria-hidden="true"><use href="#i-rss"/></svg>RSS feed</a></p>
+  </div>
+  <p class="footer-wordmark" aria-hidden="true"></p>
+</footer>
+
+<script src="/assets/js/main.js" defer onerror="document.documentElement.classList.remove('js')"></script>
+</body>
+</html>
